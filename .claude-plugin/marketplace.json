@@ -1,0 +1,14 @@
+{
+  "name": "virtual-boardroom",
+  "owner": {
+    "name": "Gregg"
+  },
+  "description": "Virtual Boardroom plugin marketplace",
+  "plugins": [
+    {
+      "name": "virtual-boardroom",
+      "source": "./",
+      "description": "A multi-agent virtual board of directors that debates growth decisions for any company, sector and geography: a non-voting Strategy Counsel scopes the analysis, sub-agents gather cited web evidence and a PESTLE scan, and customizable director sub-agents with their own data debate, cross-examine and vote."
+    }
+  ]
+}
