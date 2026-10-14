@@ -67,6 +67,17 @@
     "consult": 400
   },
 
+  "research": {
+    "facts_per_researcher": {"min": 10, "max": 18},
+    "max_turns": 20,
+    "max_pages_opened": 15,
+    "recency_months": 24,
+    "recency_exception": "laws, rules and standards still in force",
+    "swing_facts": {"min": 3, "max": 5},
+    "swing_facts_need_two_sources": true,
+    "max_register_facts": 80
+  },
+
   "custom_palette": [
     {"name": "x1", "light": "#8A3B7A", "dark": "#D58BC6"},
     {"name": "x2", "light": "#B05A1A", "dark": "#E89A5C"},

@@ -89,6 +89,28 @@ The app stores the same fields on each material document (`tag, name, kind, char
 3. Items that don't fit are searchable only when search tools are available. In the app that means `search_materials`/`read_material`; in the plugin, Grep/Read. They appear in the index with their name and first `PREVIEW_CHARS` characters.
 4. Without tools, unpinned items share the remaining space instead: smallest first, each cut to a fair share. A pinned item that doesn't fit is cut too, and only pinned items get the over-budget warning.
 
+## Research (`rules.json` → `research`, `spec/prompts/research.md`)
+
+Both front ends research the same way:
+
+- **Plugin:** each `market-researcher` agent is generated from the prompt's main text and output part, with `maxTurns` set from `max_turns`. The convene skill gives each researcher the `brief` (or `cross`) part, then assembles the register with the `merge` part.
+- **App:** the copy box in "Waiting for sourced research" holds the `chat` part, which wraps the same instructions, briefs and merge rules plus the evidence-pack format, for a Claude chat to run.
+
+`tests/test_research_sync.py` fails if the two differ.
+
+| Limit | Meaning |
+| --- | --- |
+| `facts_per_researcher` `{min, max}` | facts each researcher reports for its market |
+| `max_turns` | turns per researcher (the agent's `maxTurns`) |
+| `max_pages_opened` | pages a researcher may open with WebFetch |
+| `recency_months`, `recency_exception` | source age limit, and what may be older |
+| `swing_facts` `{min, max}`, `swing_facts_need_two_sources` | facts re-verified by the assembler, and whether each needs a second, independent source (rendered as yes/no in the prompt) |
+| `max_register_facts` | cap on the merged register; the rest are logged under `dropped` |
+
+### Evidence pack (app: `sessions/<id>/evidence/pack`; plugin: `evidence.json`)
+
+The app's shape is the `pack` part of `research.md`: `researchedAt, researchedBy, summary, markets, facts, pestle, scorecard, gaps, dropped`. The plugin's `evidence.json` holds the same content with `researched_at` and the same `dropped` list. `dropped` is optional; packs written before v1.2 have none.
+
 ## Vote (one entry in `votes.json` → `votes[]`, or the app's `vote__<id>` turn `meta`)
 
 ```json

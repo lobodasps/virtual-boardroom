@@ -63,7 +63,7 @@ All seven are composite archetypes, not real people. Edit them or add your own.
 - Directors must cite every fact. They cite the evidence register as `[F7]` and their own material by tag, such as `[PW2]` (tags live in each director's `data/index.json`; pinned items are always read in full).
 - `scripts/check_citations.py` flags three things: uncited figures, citations that don't exist, and cited figures it couldn't find in the cited source. Only real tags count, so `[CO2]` or `[I95]` is never mistaken for a citation.
 - `scripts/score.py` does all the verdict arithmetic, so the model never computes the scores itself.
-- Research sub-agents report only facts from pages they opened, and they log what they could not find as gaps instead of estimating.
+- Research sub-agents report only facts from pages they opened, and they log what they could not find as gaps instead of estimating. Their limits (facts per market, pages opened, turns, source age, two-source swing facts, register size) are in `spec/rules.json` → `research`, and the browser app's research request uses the same instructions.
 
 ## Two front ends, one spec
 

@@ -111,7 +111,8 @@ def rule_value(rules, path):
     for k in path.split("."):
         if isinstance(cur, dict) and k in cur: cur = cur[k]
         else: return None
-    return cur if isinstance(cur, (int, float, str)) and not isinstance(cur, bool) else None
+    if isinstance(cur, bool): return "yes" if cur else "no"
+    return cur if isinstance(cur, (int, float, str)) else None
 
 
 def fill_rules(text, rules):

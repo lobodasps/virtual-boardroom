@@ -71,15 +71,51 @@ Write `plan.json`, `plan.md`, `calibration.md` and `calibration.json` (the calib
 
 ## 3. Sourced research
 
-In one message, launch one `market-researcher` per approved market plus one for cross-cutting constraints, so they run in parallel. Cross-cutting means the labor market, licensing, financing and payment norms, and policy changes affecting the company's eligibility or assumed advantages. Give each one the market definition, decisive questions, data items, geography, a one-line company description, and the chair's assumptions to test.
+The research rules and limits come from `spec/prompts/research.md` and `rules.json` → `research`, and are the same ones the browser app sends to a chat researcher. Each `market-researcher` already carries them, and its `maxTurns` enforces the turn limit.
 
-Then assemble the evidence:
-1. Merge the facts, drop duplicates, and number them `F1…Fn` in market order. Tag each with its exact market name, or `all` for cross-cutting facts.
-2. Re-verify the 3 to 5 facts most likely to swing votes yourself with WebFetch. Fix or drop anything the source doesn't support.
-3. Launch a `strategy-counsel` task with the merged facts. Ask for only this JSON: a `summary` (3 to 5 sentences citing `[F#]`); a `pestle` object per market (political, economic, social, technological, legal and environmental, each a list of `{point, facts:[ids]}`); and a `scorecard` per market (`demand, access, right_to_win, margin, capital_light, risk_low, speed, synergy`, each scored 1 to 5 where higher is better, plus a `basis` citing `[F#]`).
-4. Write `evidence.json` in this shape: `{researched_at, summary, markets:[{name,definition}], facts:[{id,market,pestle,claim,source,url,published}], pestle:[...], scorecard:[...], gaps:[{market,question,note}]}`. Also write `evidence.md`, a readable version with the register as a table.
+In one message, launch one `market-researcher` per approved market plus one for cross-cutting constraints, so they run in parallel. Give each market's researcher this brief, filled in from `plan.json`, `dilemma.md` and the approval:
 
-Tell the user how many facts you found and which of their assumptions the evidence challenges, then list the biggest gaps. Continue unless they want changes.
+<!-- SPEC:research.brief quote -->
+> MARKET: <market name>
+> DEFINITION: <market definition from plan.json>
+> COMPANY (for relevance only): <one-line company description>
+> GEOGRAPHY: <geography>
+> DECISIVE QUESTIONS:
+> <the market's decisive questions, one per line>
+> DATA TO PULL (likely primary sources in brackets):
+> <the market's data items with likely sources, one per line>
+> THE CHAIR'S ASSUMPTIONS TO TEST:
+> <the chair's assumptions to test>
+> <the chair's instructions to the researcher, if any>
+<!-- /SPEC:research.brief -->
+
+Give the cross-cutting researcher this one:
+
+<!-- SPEC:research.cross quote -->
+> MARKET: all (cross-cutting constraints)
+> COVER: the labor market, licensing, financing and payment norms, and policy changes affecting the company's eligibility or assumed advantages, for this company in this geography.
+> COMPANY (for relevance only): <one-line company description>
+> GEOGRAPHY: <geography>
+> THE CHAIR'S ASSUMPTIONS TO TEST:
+> <the chair's assumptions to test>
+> <the chair's instructions to the researcher, if any>
+<!-- /SPEC:research.cross -->
+
+Then assemble the register yourself, following these rules exactly (use WebFetch for the swing-fact check):
+
+<!-- SPEC:research.merge quote -->
+> ASSEMBLING THE EVIDENCE REGISTER:
+> 1. Merge every researcher's facts and drop duplicates. Tag each fact with its exact market name, or "all" for cross-cutting facts.
+> 2. Keep at most 80 facts. If there are more, keep those most relevant to the decisive questions and every fact that bears on the chair's assumptions, and log each one you drop under "dropped" with a one-line reason. Then number the kept facts F1…Fn in market order.
+> 3. Swing-fact check: pick the 3 to 5 facts most likely to swing votes and re-verify each yourself by opening its source. Two independent sources required: yes. When it is "yes", open a second, independent source for each swing fact; if none confirms it, keep the fact but add "(single source)" to its claim and add an evidence gap. Fix or drop anything a source does not support.
+> 4. Write a 3 to 5 sentence summary citing [F#]; a PESTLE synthesis per market (political, economic, social, technological, legal, environmental, each a list of {point, facts:[ids]}); a screening scorecard per market (demand, access, right_to_win, margin, capital_light, risk_low, speed, synergy, each 1 to 5 where higher is better, plus a basis citing [F#]); and the gaps, with where each researcher looked.
+<!-- /SPEC:research.merge -->
+
+Launch a `strategy-counsel` task for step 4 if you prefer: give it the kept facts and ask for only the summary, PESTLE and scorecard JSON.
+
+Write `evidence.json` in this shape: `{researched_at, summary, markets:[{name,definition}], facts:[{id,market,pestle,claim,source,url,published}], pestle:[...], scorecard:[...], gaps:[{market,question,note}], dropped:[{claim,source,reason}]}`. Also write `evidence.md`, a readable version with the register as a table and the dropped facts listed at the end.
+
+Tell the user how many facts you kept and dropped, which swing facts were confirmed by two sources and which stayed single-source, which of their assumptions the evidence challenges, and the biggest gaps. Continue unless they want changes.
 
 ## 4. The debate
 

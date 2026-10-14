@@ -9,4 +9,5 @@ echo "== score.py";         python3 tests/test_score.py
 echo "== app scoreVotes";   node tests/test_app_score.mjs
 echo "== app planMaterials"; node tests/test_data.mjs
 echo "== materials.py";     python3 tests/test_materials.py
+echo "== research prompt"; python3 tests/test_research_sync.py
 echo "All checks passed."

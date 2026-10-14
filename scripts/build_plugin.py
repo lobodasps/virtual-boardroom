@@ -4,6 +4,7 @@
 Usage: build_plugin.py [--check]
 
 - templates/directors/<slug>/persona.md  <- spec/directors/<slug>.md (voting directors), plus data/README.md and data/shared/.gitkeep
+- agents/market-researcher.md            <- spec/prompts/research.md (main text and output part; maxTurns from rules research.max_turns)
 - skills/*/SKILL.md and agents/*.md: the text between
       <!-- SPEC:<prompt> -->            or  <!-- SPEC:<prompt> quote -->   (rendered as a > blockquote)
       <!-- /SPEC:<prompt> -->
@@ -27,6 +28,24 @@ citation tag such as `[{mono}1]`, and records it in `index.json`. Pinned items a
 """
 
 
+RESEARCHER = """---
+name: market-researcher
+description: Web researcher for the Virtual Boardroom. Gathers sourced, atomic facts for one market (or for cross-cutting constraints) from pages it actually opens, tags each with a PESTLE dimension, and lists what it could not find. Used by the virtual-boardroom convene skill.
+tools: WebSearch, WebFetch
+model: inherit
+maxTurns: {max_turns}
+---
+
+<!-- Generated from spec/prompts/research.md by scripts/build_plugin.py. Edit the spec, not this file. -->
+
+{main}
+
+## Output
+
+{output}
+"""
+
+
 def inject(text, prompts, defaults, where):
     def rep(m):
         key = m.group(2)
@@ -46,7 +65,10 @@ def outputs():
         readme = os.path.join(base, "data", "README.md")
         out[readme] = README.format(title=d["title"], mono=d["mono"])
         out[os.path.join(base, "data", "shared", ".gitkeep")] = ""
+    out[os.path.join(R, "agents", "market-researcher.md")] = RESEARCHER.format(
+        max_turns=rules["research"]["max_turns"], main=prompts["research"], output=prompts["research.output"])
     for p in sorted(glob.glob(os.path.join(R, "skills", "*", "SKILL.md")) + glob.glob(os.path.join(R, "agents", "*.md"))):
+        if p in out: continue
         with open(p, encoding="utf-8") as f: cur = f.read()
         if "<!-- SPEC:" in cur: out[p] = inject(cur, prompts, defaults, os.path.relpath(p, R))
     return out
