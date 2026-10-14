@@ -331,11 +331,11 @@ const PROMPTS = {
   "draft-director":"You design voting directors for a company's AI advisory board. Each director is a composite archetype, never a real or named person.\nThe chair wants a new director described as: {{brief}}\nExisting directors (the new one must hold a distinct view that will clash with at least one of them):\n{{others}}\nReply with only JSON: {\"title\":\"<role title, 2-5 words>\",\"lens\":\"<one-sentence motto in the first person plural>\",\"mandate\":\"<2 sentences: what this director pushes the company toward>\",\"presses\":\"<the question they always ask>\",\"redLine\":\"<what they will never accept>\",\"tone\":\"<voice, a few adjectives>\",\"pestle\":[\"<1-2 of: Political, Economic, Social, Technological, Legal, Environmental>\"]}",
   "fact-rules":"EVIDENCE DISCIPLINE (strict):\n- Every factual statement about markets, buyers, agencies, budgets, programs, regulations, deadlines, competitors, prices, fees or wages must cite the evidence register by ID, e.g. [F7], or a briefing material by its tag, e.g. [PW2].\n- Never introduce a number, date, dollar amount or program detail that is not in the register, the briefing materials or the company context. If you need a fact the register lacks, say it is unknown and that it should be researched.\n- When a material is private to you, quote the figure or sentence you rely on so other directors can challenge it.\n- You may reason and give judgment freely; make clear when something is your judgment.",
   "materials":"YOUR BRIEFING MATERIALS (supplied by the chair to support your seat{{private_note}}; cite by tag, e.g. [{{example_tag}}])",
+  "materials.index_note":"{{count}} more item(s) are too large to include in full. Search them with the search_materials tool and read passages with read_material before you write. Each index entry shows only the item's name and its first 180 characters:\n{{index}}",
+  "materials.none_fit":"(None fit in full; see the index below.)",
   "materials.own_full":"{{head}}:\n{{items}}",
-  "materials.own_search":"{{head}}. They are too large to include in full, so search them with the search_materials tool and read passages with read_material before you write. Index:\n{{index}}",
   "materials.private_note":"; items not marked shared are yours alone, so quote what you rely on",
   "materials.shared_full":"SHARED BOARD MATERIALS (supplied by the chair; cite by tag):\n{{items}}",
-  "materials.shared_search":"SHARED BOARD MATERIALS (supplied by the chair; too large to include in full, so search them with the search_materials tool; cite by tag). Index:\n{{index}}",
   "materials.tool_read":"Read one part of a material in full, by its tag (e.g. PW2) and part number from the search results. Parts are about 1500 characters.",
   "materials.tool_search":"Keyword search over your briefing materials and the board's shared materials. Returns up to 6 matching passages with their tag and part number. Use specific terms: names, metrics, years, places.",
   "opening":"TASK: OPENING POSITION. This is sealed: you have not heard the other directors. In 220 words or fewer, say which options the company should pursue, test or avoid, and why, from your mandate. Check your briefing materials first and use at least one PESTLE finding. Name the single assumption your position depends on most.\n{{meta_note}}\n{\"headline\":\"<your position in one sentence>\",\"stances\":[{{stances_schema}}],\"key_assumption\":\"<one sentence>\",\"confidence\":<0-100>}",
@@ -454,6 +454,10 @@ function showNotice(msg){ state.notice=msg; render(); }
 /* ───────────────────────── Text helpers ───────────────────────── */
 const esc = s => String(s??"").replace(/[&<>"']/g,c=>({"&":"&amp;","<":"&lt;",">":"&gt;",'"':"&quot;","'":"&#39;"}[c]));
 const FIG = /(\$\s?\d|\b\d[\d,.]*\s?(%|percent\b|million\b|billion\b|bn\b|mm\b|[MBK]\b))/i;
+/* A token is a citation only if it is F<n> or a real material tag; [CO2], [I95] and [NJ1] are not. */
+const isTag = id => /^F\d+$/.test(id) || !!state.attIndex[id];
+const knownMono = id => { const m=String(id).match(/^([A-Z]{1,3})\d+$/); return !!m && Object.values(byId).some(p=>p&&p.mono===m[1]); };
+function citeIds(s){ return [...String(s).matchAll(/\[([^\]]+)\]/g)].flatMap(m=>m[1].split(/\s*[,;]\s*/)).map(x=>x.trim()).filter(isTag); }
 function factLink(id, facts){
   if(!/^F\d+$/.test(id)){ const a=state.attIndex[id];
     return a ? `<a class="aref" title="${esc("Briefing material: "+a.name+" ("+(byId[a.dir]?.title||"director")+")")}">${id}</a>` : `<a class="fref bad" title="Unknown citation">${id}?</a>`; }
@@ -464,13 +468,13 @@ function factLink(id, facts){
 function inl(raw, opt){
   let h = esc(raw);
   h = h.replace(/\*\*(.+?)\*\*/g,"<strong>$1</strong>");
-  h = h.replace(/\[((?:F\d+|[A-Z]{1,3}\d+)(?:\s*[,;]\s*(?:F\d+|[A-Z]{1,3}\d+))*)\]/g,(m,ids)=>ids.split(/\s*[,;]\s*/).map(id=>factLink(id,opt.facts)).join(" "));
+  h = h.replace(/\[((?:F\d+|[A-Z]{1,3}\d+)(?:\s*[,;]\s*(?:F\d+|[A-Z]{1,3}\d+))*)\]/g,(m,ids)=>{ const L=ids.split(/\s*[,;]\s*/); if(!L.some(id=>isTag(id)||knownMono(id))) return m; return L.map(id=>isTag(id)||knownMono(id)?factLink(id,opt.facts):id).join(" "); });
   h = h.replace(/\[(VERIFY|UNVERIFIED|NOT FOUND)\]/gi,'<span class="verify">$1</span>');
   return h;
 }
 function nums(str){ return (String(str).match(/\d[\d,]*(?:\.\d+)?/g)||[]).map(x=>x.replace(/,/g,"")).filter(x=>{ const n=+x; if(/^\d{4}$/.test(x)&&n>=1900&&n<=2100) return false; return x.replace(/\D/g,"").length>=2||x.includes("."); }); }
 function citedText(sent, facts){
-  const ids=[...String(sent).matchAll(/\b(F\d+|[A-Z]{1,3}\d+)\b/g)].map(m=>m[1]); const parts=[];
+  const ids=[...String(sent).matchAll(/\b(F\d+|[A-Z]{1,3}\d+)\b/g)].map(m=>m[1]).filter(isTag); const parts=[];
   ids.forEach(id=>{ if(/^F\d+$/.test(id)){ if(facts&&facts[id]) parts.push(facts[id].claim); } else if(state.attText[id]) parts.push(state.attText[id]); });
   return parts.length?parts.join(" ").replace(/,/g,""):null;
 }
@@ -480,7 +484,7 @@ function para(lines, opt){
   const parts = txt.split(/(?<=[.!?])\s+/);
   return "<p>"+parts.map(s=>{
     const h=inl(s,opt);
-    const cited=/\[(F\d+|[A-Z]{1,3}\d+)/.test(s);
+    const cited=citeIds(s).length>0;
     if(FIG.test(s) && !cited){ opt.count=(opt.count||0)+1; return `<span class="uncited" title="Figure without an evidence citation">${h}</span>`; }
     if(FIG.test(s) && cited){ const src=citedText(s.match(/\[[^\]]*\]/g)?.join(" ")||"",opt.facts); const miss=src?nums(s.replace(/\[[^\]]*\]/g,"")).filter(n=>!src.includes(n)):[];
       if(miss.length){ opt.mismatch=(opt.mismatch||0)+1; return `<span class="mism" title="${esc("Couldn't find "+miss.join(", ")+" in the cited source. Check it.")}">${h}</span>`; } }
@@ -566,25 +570,40 @@ function memberFrame(m, s){
   const all = members(s), others = all.filter(x=>x.id!==m.id).map(x=>x.title).join("; ");
   const own = (ATT_CTX||RUN)?.att?.[m.id]||[];
   const head = T("materials",{private_note:own.some(a=>!a.shared)?P("materials.private_note"):"", example_tag:own[0]?.tag||""});
-  const materials = !own.length ? "" : (totalChars(own)>OWN_BUDGET && state.toolsOK)
-    ? T("materials.own_search",{head, index:indexAtts(own)})
-    : T("materials.own_full",{head, items:packAtts(own,OWN_BUDGET)});
+  const materials = materialsText(own, OWN_BUDGET, "materials.own_full", head);
   return T("director-frame",{title:m.title, seat_phrase:all.length>1?T("director-frame.seat_many",{count:all.length}):P("director-frame.seat_one"),
     mandate:m.mandate, lens:m.lens, presses:lines(m.presses).join(" / "), red_line:m.redLine, pestle:m.pestle,
     local_lens:s?.calibration?.lenses?.[m.id]||P("director-frame.local_default"), tone:m.tone, others, materials,
     conduct:P("director-frame.conduct"), fact_rules:FACT_RULES});
 }
-function packAtts(list, budget){
-  const items=list.slice().sort((a,b)=>(a.chars||0)-(b.chars||0)); let left=budget; const out={};
-  items.forEach((a,i)=>{ const share=Math.floor(left/(items.length-i)); let t=String(a.text||""); if(t.length>share){ t=t.slice(0,share)+"\n[…truncated]"; } left-=t.length; out[a.id]=t; });
-  return list.map(a=>`[${a.tag}] ${a.name}${a.shared?" (shared with the board)":""}\n${out[a.id]}`).join("\n\n");
+/* SPEC:DATA:BEGIN */
+/* Which materials a director gets in full, cut short, or only through search. Mirrored by scripts/materials.py;
+   tests/test_data.mjs runs this block. items: [{tag,name,chars,text,pinned,shared,addedAt}]; budget in characters;
+   tools: whether search_materials/read_material are available. Pinned items go first (oldest first); unpinned items
+   fill what is left (smallest first). With tools, what doesn't fit is indexed for search; without, it is cut. */
+function planMaterials(items, budget, tools){
+  const len=a=>a.chars||String(a.text||"").length, full=[], cut=[], indexed=[]; let left=budget;
+  const pinned=(items||[]).filter(a=>a.pinned).sort((a,b)=>(a.addedAt||0)-(b.addedAt||0));
+  const rest=(items||[]).filter(a=>!a.pinned).sort((a,b)=>len(a)-len(b));
+  pinned.forEach(a=>{ const n=len(a); if(n<=left){ full.push(a); left-=n; } else { if(left>0) cut.push({item:a,keep:left}); left=0; if(tools) indexed.push(a); } });
+  if(tools) rest.forEach(a=>{ const n=len(a); if(n<=left){ full.push(a); left-=n; } else indexed.push(a); });
+  else rest.forEach((a,i)=>{ const share=Math.floor(left/(rest.length-i)), n=len(a); if(n<=share){ full.push(a); left-=n; } else { if(share>0) cut.push({item:a,keep:share}); left-=share; } });
+  const sum=l=>l.reduce((n,a)=>n+len(a),0), pinnedChars=sum(pinned);
+  return {full, cut, indexed, pinnedChars, searchableChars:sum(indexed), overPinned:pinnedChars>budget};
+}
+/* SPEC:DATA:END */
+function packText(plan, order){
+  const keep=new Map(plan.cut.map(c=>[c.item,c.keep])), inFull=new Set(plan.full);
+  return order.filter(a=>inFull.has(a)||keep.has(a)).map(a=>{ let t=String(a.text||""); if(keep.has(a)) t=t.slice(0,keep.get(a))+"\n[…truncated]";
+    return `[${a.tag}] ${a.name}${a.shared?" (shared with the board)":""}${a.pinned?" (pinned)":""}\n${t}`; }).join("\n\n");
+}
+function materialsText(list, budget, part, head){
+  if(!list.length) return "";
+  const plan=planMaterials(list,budget,!!state.toolsOK), items=packText(plan,list)||P("materials.none_fit");
+  return [T(part,{head,items}), plan.indexed.length?T("materials.index_note",{count:plan.indexed.length,index:indexAtts(plan.indexed)}):""].filter(Boolean).join("\n\n");
 }
 function sharedList(ctx){ const list=[]; (ctx.members||[]).forEach(m=>(ctx.att?.[m.id]||[]).forEach(a=>{ if(a.shared) list.push({...a,name:a.name+" — from the "+m.title}); })); return list; }
-function sharedBlock(ctx){
-  const list=sharedList(ctx); if(!list.length) return "";
-  if(totalChars(list)>SHARED_BUDGET && state.toolsOK) return T("materials.shared_search",{index:indexAtts(list)});
-  return T("materials.shared_full",{items:packAtts(list,SHARED_BUDGET)});
-}
+function sharedBlock(ctx){ return materialsText(sharedList(ctx), SHARED_BUDGET, "materials.shared_full", ""); }
 const totalChars = l => (l||[]).reduce((n,a)=>n+(a.chars||String(a.text||"").length),0);
 function indexAtts(list){ return list.map(a=>`[${a.tag}] ${a.name}${a.shared?" (shared)":""} · ${(a.chars||0).toLocaleString()} characters · begins: "${String(a.text||"").slice(0,RULES.PREVIEW_CHARS).replace(/\s+/g," ")}…"`).join("\n"); }
 /* Retrieval over attached materials */
@@ -609,7 +628,7 @@ function searchChunks(scope, q, k){
 }
 function toolsFor(ctx, who, key, onNote){
   if(!state.toolsOK) return undefined;
-  const ownOver = who && totalChars(ctx.att?.[who])>OWN_BUDGET, sharedOver = totalChars(sharedList(ctx))>SHARED_BUDGET;
+  const ownOver = who && planMaterials(ctx.att?.[who]||[],OWN_BUDGET,true).indexed.length>0, sharedOver = planMaterials(sharedList(ctx),SHARED_BUDGET,true).indexed.length>0;
   if(!ownOver && !sharedOver) return undefined;
   const scope=(ctx.chunks||[]).filter(c=>c.owner===who || c.shared);
   const bump=(msg)=>{ ctx.lookups[key]=(ctx.lookups[key]||0)+1; onNote&&onNote(msg); };
@@ -1393,7 +1412,7 @@ async function addAttachments(dirId, items){
   const p=persona(dirId); if(!p) return; const mono=p.mono; let n=0;
   Object.keys(state.attIndex).forEach(t=>{ const m=t.match(/^([A-Z]{1,3})(\d+)$/); if(m&&m[1]===mono) n=Math.max(n,+m[2]); });
   for(const it of items){ n++; let t=String(it.text).replace(/\u0000/g,""); const truncated=t.length>MAX_ATT; if(truncated) t=t.slice(0,MAX_ATT);
-    const aid=newId("a"), meta={name:it.name,kind:it.kind,tag:mono+n,chars:t.length,truncated,shared:false,addedAt:Date.now()};
+    const aid=newId("a"), meta={name:it.name,kind:it.kind,tag:mono+n,chars:t.length,truncated,shared:false,pinned:false,addedAt:Date.now()};
     if(t.length<=PART){ await Store.put(`directors/${dirId}/data`, aid, {...meta,text:t}); }
     else { const k=Math.ceil(t.length/PART); for(let i=0;i<k;i++) await Store.put(`directors/${dirId}/data/${aid}/parts`,"p"+i,{n:i,text:t.slice(i*PART,(i+1)*PART)});
       await Store.put(`directors/${dirId}/data`, aid, {...meta,text:t.slice(0,2000),parts:k}); } }
@@ -1482,13 +1501,16 @@ function dirFormHTML(p,isNew){
 }
 function dataHTML(id,isNew){
   if(isNew) return `<div class="sec panel"><h2>Supporting data</h2><p class="muted" style="margin:0">Save this director first, then attach files or notes.</p></div>`;
-  const list=state.atts[id]||[]; const total=list.reduce((n,a)=>n+(a.chars||0),0), pct=Math.min(100,total/OWN_BUDGET*100);
+  const list=state.atts[id]||[], plan=planMaterials(list,OWN_BUDGET,!!state.toolsOK), cutIds=new Set(plan.cut.map(c=>c.item.id)), idx=new Set(plan.indexed.map(a=>a.id));
+  const pct=Math.min(100,plan.pinnedChars/OWN_BUDGET*100), n=x=>x.toLocaleString();
   return `<div class="sec panel"><h2>Supporting data</h2>
    <p class="muted" style="margin-top:0">Files and notes this director brings to every session. Each item is private to this director unless you share it with the whole board. The director cites items by tag, and other directors can challenge what is cited.</p>
-   <div class="meter ${total>OWN_BUDGET?"over":""}"><div style="width:${pct}%"></div></div>
-   <div class="muted mono" style="font-size:11.5px">${total.toLocaleString()} of ${OWN_BUDGET.toLocaleString()} characters fit in each call${total>OWN_BUDGET?(state.toolsOK?" · too large to include in full, so this director searches it during the debate (a few extra Claude calls per turn)":" · longer items will be trimmed so every item fits"):""}</div>
-   ${list.length?list.map(a=>{ const k="att-del:"+a.id; return `<div class="att"><a class="aref">${esc(a.tag)}</a><div style="min-width:0"><div class="nm">${esc(a.name)}</div><div class="muted" style="font-size:12px">${a.kind==="file"?"File":"Note"} · ${(a.chars||0).toLocaleString()} characters${a.truncated?" · cut to the storage limit":""} · ${a.shared?"Shared with the board":"Private to this director"}</div></div>
-     <div class="row"><button class="btn sm" data-act="att-share" data-id="${esc(a.id)}">${a.shared?"Make private":"Share with board"}</button><button class="btn sm danger ${state.armed===k?"armed":""}" data-act="att-del" data-id="${esc(a.id)}">${state.armed===k?"Confirm remove":"Remove"}</button></div></div>`; }).join(""):`<div class="empty-note" style="margin-top:10px">No data yet. Add a file or paste notes below.</div>`}
+   <div class="meter ${plan.overPinned?"over":""}"><div style="width:${pct}%"></div></div>
+   <div class="muted mono" style="font-size:11.5px">Pinned: ${n(plan.pinnedChars)} of ${n(OWN_BUDGET)} characters (always read in full) · ${state.toolsOK?`Searchable: ${n(plan.searchableChars)} characters`:`Cut to fit: ${plan.cut.length} item${plan.cut.length===1?"":"s"}`}</div>
+   ${plan.overPinned?`<div class="notice bad">Pinned items alone exceed ${n(OWN_BUDGET)} characters, the most this director reads in full per call. The newest pinned items will be cut${state.toolsOK?" and left searchable":""}. Unpin something to fix this.</div>`:""}
+   <div class="muted" style="font-size:12px;margin-top:4px">Pinned items are always given in full; unpinned items fill whatever room is left, smallest first. ${state.toolsOK?`Items that don't fit are searchable only: the director sees just their name and first ${RULES.PREVIEW_CHARS} characters until it searches them (a few extra Claude calls per turn).`:"Search isn't available in this view, so items that don't fit are cut short."}</div>
+   ${list.length?list.map(a=>{ const k="att-del:"+a.id; return `<div class="att"><a class="aref">${esc(a.tag)}</a><div style="min-width:0"><div class="nm">${esc(a.name)}</div><div class="muted" style="font-size:12px">${a.kind==="file"?"File":"Note"} · ${(a.chars||0).toLocaleString()} characters${a.truncated?" · cut to the storage limit":""} · ${a.shared?"Shared with the board":"Private to this director"}${a.pinned?" · Pinned":""} · ${idx.has(a.id)?"searchable only":cutIds.has(a.id)?"cut to fit":"read in full"}</div></div>
+     <div class="row"><button class="btn sm" data-act="att-pin" data-id="${esc(a.id)}" aria-pressed="${!!a.pinned}">${a.pinned?"Unpin":"Pin"}</button><button class="btn sm" data-act="att-share" data-id="${esc(a.id)}">${a.shared?"Make private":"Share with board"}</button><button class="btn sm danger ${state.armed===k?"armed":""}" data-act="att-del" data-id="${esc(a.id)}">${state.armed===k?"Confirm remove":"Remove"}</button></div></div>`; }).join(""):`<div class="empty-note" style="margin-top:10px">No data yet. Add a file or paste notes below.</div>`}
    <div class="form" style="margin-top:16px">
      <div class="field full"><label for="att-file">Add files</label><div class="row"><input type="file" id="att-file" multiple accept=".pdf,.docx,.xlsx,.xls,.csv,.tsv,.txt,.md,.json,.html,.htm"><button class="btn sm" data-act="att-upload">Upload</button></div><small>PDF, Word (.docx), Excel, CSV or text, up to about 1,000 pages per file. Text is extracted in your browser; only the text is stored.</small></div>
      <div class="field full"><label for="att-name">Or paste a note</label><input type="text" id="att-name" placeholder="Title, e.g. 2025 utilization by service line"></div>
@@ -1693,6 +1715,7 @@ document.addEventListener("click",async e=>{
       if(o){ const keep={}; ["archived","active"].forEach(k=>{ if(o[k]!=null) keep[k]=o[k]; }); await Store.put("directors",id,{builtIn:true,...keep}); } state.dirColor=null; main_rerender_dir(true); break; }
     case "att-upload": await uploadFiles(); break;
     case "att-paste": await pasteAttachment(); break;
+    case "att-pin": { const a=(state.atts[state.dirId]||[]).find(x=>x.id===el.dataset.id); if(a) await Store.put(`directors/${state.dirId}/data`,a.id,{...a,pinned:!a.pinned}); break; }
     case "att-share": { const a=(state.atts[state.dirId]||[]).find(x=>x.id===el.dataset.id); if(a) await Store.put(`directors/${state.dirId}/data`,a.id,{...a,shared:!a.shared}); break; }
     case "att-del": { const k="att-del:"+el.dataset.id; if(state.armed!==k){ state.armed=k; render(); break; } state.armed=null; const a=(state.atts[state.dirId]||[]).find(x=>x.id===el.dataset.id); if(a) await deleteMaterial(state.dirId,a); break; }
     case "open": openSession(el.dataset.id); break;

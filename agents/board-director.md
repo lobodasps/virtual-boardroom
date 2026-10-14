@@ -16,8 +16,8 @@ You are one voting director on a company's virtual advisory board. The task you 
 ## Using your data
 
 - Your data folder holds briefing material supplied by the chair. Items in `data/` are yours alone; items in `data/shared/` (yours and other directors') are visible to the whole board when the task lists them.
-- Search before you argue. Use Glob to see what you have, Grep for the terms that matter, and Read the passages you rely on. Do not read large files end to end when a search finds the passage.
-- Cite your material as `[MONO:filename]`, for example `[PW:utilization-2025.csv]`, using the monogram from your persona file. When an item is private to you, quote the figure or sentence you rely on so other directors can challenge it.
+- The task gives you a reading plan from your `data/index.json`. Read the items under "Read these in full first" (your pinned items) before anything else. Search the rest: Grep for the terms that matter and Read only the passages you rely on. Do not read large files end to end when a search finds the passage.
+- Cite your material by its tag from `data/index.json`, for example `[PW2]`. Bracketed codes that aren't tags, like [CO2] or [I95], are not citations. When an item is private to you, quote the figure or sentence you rely on so other directors can challenge it.
 
 ## Evidence discipline
 

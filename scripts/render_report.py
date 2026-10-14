@@ -8,9 +8,12 @@ Usage:
 Standard library only.
 """
 import html, json, os, re, sys
+sys.path.insert(0, os.path.dirname(os.path.abspath(__file__)))
+import materials
 
 TURN_RE = re.compile(r"<!--\s*vb-turn\s+(\{.*?\})\s*-->", re.S)
-CITE_RE = re.compile(r"\[(F\d+|[A-Z]{1,3}:[^\]]+)\]")
+CITE_RE = re.compile(r"\[([^\]]+)\]")
+TAGS = {}  # material tags of the session's boardroom, filled by render_session/render_compare
 FIG_RE = re.compile(r"(\$\s?\d|\b\d[\d,.]*\s?(%|percent\b|million\b|billion\b|bn\b|[MBK]\b))", re.I)
 STAGE_LABEL = {"brief": "Counsel's evidence brief", "opening": "Opening positions (sealed)", "redteam": "Red-team dissent"}
 
@@ -43,14 +46,26 @@ def load(path, default=None):
         with open(path, encoding="utf-8") as f: return json.load(f)
     except Exception: return default
 
+def is_cite(tok):
+    """Only F<n> or a real material tag (including legacy MONO:file) counts; [CO2] or [NJ1] does not."""
+    tok = html.unescape(tok).strip()
+    return bool(re.fullmatch(r"F\d+", tok)) or tok in TAGS
+
+def has_cite(s): return any(is_cite(t) for b in CITE_RE.findall(s) for t in re.split(r"\s*[,;]\s*", b))
+
 def inline(text, facts):
     h = esc(text)
     h = re.sub(r"\*\*(.+?)\*\*", r"<strong>\1</strong>", h)
-    def rep(m):
-        key = m.group(1)
+    def one(key):
         f = facts.get(key)
         if f: return f'<a class="cite" href="{esc(f.get("url","#"))}" title="{esc(f.get("claim",""))}">{esc(key)}</a>'
-        return f'<span class="cite" title="Briefing material">{esc(key)}</span>'
+        if re.fullmatch(r"F\d+", key): return f'<span class="cite" title="Not in the evidence register">{esc(key)}?</span>'
+        t = TAGS.get(html.unescape(key)) or {}
+        return f'<span class="cite" title="{esc("Briefing material: " + str(t.get("file", "")))}">{key}</span>'
+    def rep(m):
+        toks = re.split(r"\s*[,;]\s*", m.group(1))
+        if not any(is_cite(t) for t in toks): return m.group(0)
+        return " ".join(one(t) if is_cite(t) else t for t in toks)
     return CITE_RE.sub(rep, h)
 
 def prose(text, facts, flag=False):
@@ -63,7 +78,7 @@ def prose(text, facts, flag=False):
         parts = []
         for s in sents:
             h = inline(s, facts)
-            if flag and FIG_RE.search(s) and not CITE_RE.search(s):
+            if flag and FIG_RE.search(s) and not has_cite(s):
                 uncited += 1; h = f'<span class="uncited" title="Figure without a citation">{h}</span>'
             parts.append(h)
         out.append("<p>" + " ".join(parts) + "</p>")
@@ -102,7 +117,13 @@ def red_flags(sc, names):
     who = [f"{esc(names.get(d, d))} (breached)" for d in rb] + [f"{esc(names.get(d, d))} (at risk)" for d in ra]
     return f'<p class="ui">Red lines on {esc(sc.get("rec"))}: ' + ", ".join(who) + "</p>"
 
+def load_tags(folder):
+    TAGS.clear()
+    try: TAGS.update(materials.all_tags(os.path.dirname(os.path.dirname(os.path.abspath(folder)))))
+    except Exception: pass
+
 def render_session(folder):
+    load_tags(folder)
     s = load(os.path.join(folder, "session.json"), {}) or {}
     ev = load(os.path.join(folder, "evidence.json"), {}) or {}
     facts = {f["id"]: f for f in ev.get("facts", []) if "id" in f}

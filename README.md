@@ -60,8 +60,8 @@ All seven are composite archetypes, not real people. Edit them or add your own.
 
 ## Evidence rules
 
-- Directors must cite every fact. They cite the evidence register as `[F7]` and their own material as `[PW:utilization-2025.csv]`.
-- `scripts/check_citations.py` flags three things: uncited figures, citations that don't exist, and cited figures it couldn't find in the cited source.
+- Directors must cite every fact. They cite the evidence register as `[F7]` and their own material by tag, such as `[PW2]` (tags live in each director's `data/index.json`; pinned items are always read in full).
+- `scripts/check_citations.py` flags three things: uncited figures, citations that don't exist, and cited figures it couldn't find in the cited source. Only real tags count, so `[CO2]` or `[I95]` is never mistaken for a citation.
 - `scripts/score.py` does all the verdict arithmetic, so the model never computes the scores itself.
 - Research sub-agents report only facts from pages they opened, and they log what they could not find as gaps instead of estimating.
 

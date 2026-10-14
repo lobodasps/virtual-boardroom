@@ -1,7 +1,7 @@
 ---
 name: director
 description: Manage Virtual Boardroom directors. List the board, add a new director (optionally drafted from a one-line description), edit a persona, choose who is seated by default, remove a director, or attach supporting data files to a director. Use when the user wants to customize board members or give a director data.
-argument-hint: "[list | add <description> | edit <director> | attach <director> <files> | seat | remove <director>]"
+argument-hint: "[list | add <description> | edit <director> | attach <director> <files> | pin <director> <tag> | seat | remove <director>]"
 ---
 
 # Manage the board's directors
@@ -11,11 +11,12 @@ Directors live in `boardroom/directors/<id>/`:
 - The folder name is for people; the frontmatter `id` is what sessions, votes and weights use. Never change an existing director's `id`.
 - `data/` holds material private to that director.
 - `data/shared/` holds material the whole board sees.
+- `data/index.json` is the manifest: one entry per item with its citation tag (`[MONO#]`, e.g. `[PW2]`), file, name, size, `shared`, `pinned` and `as_of`. Manage it with `python3 "${CLAUDE_PLUGIN_ROOT}/scripts/materials.py"`; never renumber tags by hand. If a director has files but no `index.json` (a v1.1 workspace), run `materials.py index <director-folder>` once to create it.
 
 If `boardroom/directors/` is missing, run the setup skill first (`${CLAUDE_PLUGIN_ROOT}/skills/setup/SKILL.md`).
 
 ## list
-Show a table of every director: title, monogram, seated by default, number of private files, number of shared files, and lens.
+Show a table of every director: title, monogram, seated by default, number of private items, number of shared items, number pinned, and lens. Read the counts from each `data/index.json`.
 
 ## add
 1. If the user gave a description, for example "a former hospital CFO who obsesses over reimbursement risk", draft a persona from it with this prompt (generated from `spec/prompts/draft-director.md`):
@@ -33,7 +34,7 @@ Show a table of every director: title, monogram, seated by default, number of pr
 3. Show the draft and ask the user to confirm or edit it. Then write `persona.md`, and create `data/` and `data/shared/`.
 
 ## edit
-Show the current persona, apply the user's changes, and keep the frontmatter valid. Warn the user that changing the monogram changes the citation tags in future sessions; past sessions keep theirs.
+Show the current persona, apply the user's changes, and keep the frontmatter valid. Never change `id`. If the monogram changes, existing items keep their tags (so past citations still resolve) and new items use the new monogram.
 
 ## seat
 Show the roster with `seated_by_default`, and update the flags the user changes. At least 3 directors should be seated by default.
@@ -53,4 +54,15 @@ Directors can only search text, so convert anything else:
 - `.txt`, `.md`, `.csv`, `.json`: copy as-is.
 - Scanned PDFs with no extractable text: tell the user they need OCR first. Don't guess at the content.
 
-Install a missing converter with `pip install --user` only after the user agrees. Then report each file's name, size in characters, and whether it is private or shared. Remind the user that the director cites these files as `[MONO:filename]`.
+Install a missing converter with `pip install --user` only after the user agrees.
+
+Register every converted file in the manifest, which assigns the next tag:
+
+```
+python3 "${CLAUDE_PLUGIN_ROOT}/scripts/materials.py" add boardroom/directors/<folder> <path relative to data/> [--name "<display name>"] [--as-of YYYY-MM] [--pin]
+```
+
+Ask whether to pin it: pinned items are always read in full, up to `OWN_BUDGET` characters (`SHARED_BUDGET` for shared items) from `spec/rules.json`; unpinned items fill the remaining budget and are otherwise searched. Then report each item's tag, name, size in characters, private or shared, and pinned or not, and show `materials.py plan boardroom/directors/<folder>` so the user sees what will be read in full. Warn if pinned items alone exceed the budget.
+
+## pin
+Pin or unpin an item by tag: `materials.py pin boardroom/directors/<folder> <TAG>` (add `--off` to unpin). Show the new plan afterwards.

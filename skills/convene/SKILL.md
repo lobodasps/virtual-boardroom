@@ -97,8 +97,8 @@ When a director's reply contains `<<<META`, the remarks are everything before it
 
 Each `board-director` task gets:
 - the persona file, `boardroom/directors/<folder>/persona.md`
-- the data folder, `boardroom/directors/<folder>/data/`
-- the shared folder of every other seated director, `boardroom/directors/<other>/data/shared/`
+- its reading plan: the output of `python3 "${CLAUDE_PLUGIN_ROOT}/scripts/materials.py" plan boardroom/directors/<folder>`, pasted verbatim. Pinned items appear under "Read these in full first"; the rest are searched.
+- the shared plan of every other seated director: `materials.py plan boardroom/directors/<other> --shared-only`
 - `dilemma.md`, `calibration.md` and `evidence.md`
 - only the transcript files the stage allows (listed below)
 - the seated directors' titles
