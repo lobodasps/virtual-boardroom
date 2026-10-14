@@ -23,9 +23,24 @@ def load_synonyms():
 _META = re.compile(r"[.^$*+?()\[\]{}|\\]")
 
 
+def term_forms(term):
+    """The term plus the simple singular or plural of its last word (mirrors termForms() in the app)."""
+    t = str(term or "").lower(); m = re.match(r"^(.*?)([a-z]+)$", t)
+    if not m: return [t]
+    pre, w = m.group(1), m.group(2); other = None
+    if len(w) > 4 and w.endswith("ies"): other = w[:-3] + "y"
+    elif len(w) > 4 and re.search(r"(ss|x|z|ch|sh)es$", w): other = w[:-2]
+    elif len(w) > 3 and w.endswith("s") and not re.search(r"(ss|us|is)$", w): other = w[:-1]
+    elif re.search(r"(s|x|z|ch|sh)$", w): other = w + "es"
+    elif re.search(r"[^aeiou]y$", w): other = w[:-1] + "ies"
+    else: other = w + "s"
+    return [t] if other == w else [t, pre + other]
+
+
 def _matcher(q):
     ql = str(q or "").lower()
-    return lambda t: re.search(r"(^|[^a-z0-9])" + _META.sub(lambda m: "\\" + m.group(0), t.lower()) + r"(?=[^a-z0-9]|$)", ql) is not None
+    one = lambda f: re.search(r"(^|[^a-z0-9])" + _META.sub(lambda m: "\\" + m.group(0), f) + r"(?=[^a-z0-9]|$)", ql) is not None
+    return lambda t: any(one(f) for f in term_forms(t))
 
 
 def matched_groups(q, groups):
@@ -47,8 +62,10 @@ def expand_query(q, groups, max_added):
 
 
 def grep_pattern(terms):
-    """A ripgrep alternation for the Grep tool: metacharacters escaped, longest terms first."""
-    return "|".join(_META.sub(lambda m: "\\" + m.group(0), t) for t in sorted(dict.fromkeys(terms), key=lambda x: (-len(x), x)))
+    """A ripgrep alternation for a case-insensitive Grep: every term and its singular/plural form, metacharacters
+    escaped, longest first."""
+    forms = dict.fromkeys(f for t in terms for f in term_forms(t))
+    return "|".join(_META.sub(lambda m: "\\" + m.group(0), t) for t in sorted(forms, key=lambda x: (-len(x), x)))
 
 
 def plan_for(depth, ratify, rounds=None, rules=None):

@@ -104,7 +104,7 @@ Searches by directors with large data come on top. `buildPlan` (app, `SPEC:PLAN`
 
 ## Query expansion (`spec/synonyms.json`, `rules.json` → `search`)
 
-A search query gains the other terms of every synonym group it mentions. Matching is whole words and case-insensitive (`marginal` does not match `margin`; plurals are not matched), groups are taken in order, and at most `search.max_added_terms` terms are added. The groups are `spec/synonyms.json` plus the SYNONYMS line of every summary card the director can see.
+A search query gains the other terms of every synonym group it mentions. Matching is whole words and case-insensitive, and also accepts the simple singular or plural of a term's last word (`rebates`~`rebate`, `policies`~`policy`, `taxes`~`tax`, `fee`~`fees`; words ending in -ss, -us and -is keep their form). `marginal` still does not match `margin`, groups are taken in order, and at most `search.max_added_terms` terms are added. The groups are `spec/synonyms.json` plus the SYNONYMS line of every summary card the director can see.
 
 - **App:** `search_materials` searches with the expanded query and reports `expanded_with`.
 - **Plugin:** each reading plan from `materials.py plan` lists the groups as Grep patterns, and the director agent is told to Grep for the whole pattern. `materials.py expand "<query>" [<director-folder>]` shows an expansion.

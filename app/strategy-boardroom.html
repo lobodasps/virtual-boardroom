@@ -376,7 +376,7 @@ const PROMPTS = {
   "research.output":"Reply with only this JSON:\n\n{\"facts\":[{\"claim\":\"...\",\"quote\":\"short verbatim excerpt\",\"source\":\"Publisher — Page title\",\"url\":\"https://...\",\"published\":\"YYYY-MM-DD, YYYY-MM or n.d.\",\"pestle\":\"Political|Economic|Social|Technological|Legal|Environmental\"}],\n \"gaps\":[{\"question\":\"...\",\"note\":\"where you looked\"}]}",
   "research.pack":"{\"researchedAt\":\"YYYY-MM-DD\",\"researchedBy\":\"who ran the research and how\",\n \"summary\":\"3 to 5 sentences citing [F#]\",\n \"markets\":[{\"name\":\"<exact market name>\",\"definition\":\"...\"}],\n \"facts\":[{\"id\":\"F1\",\"market\":\"<exact market name or all>\",\"pestle\":\"Political|Economic|Social|Technological|Legal|Environmental\",\"claim\":\"...\",\"source\":\"Publisher — Page title\",\"url\":\"https://...\",\"published\":\"YYYY-MM-DD, YYYY-MM or n.d.\"}],\n \"pestle\":[{\"market\":\"<exact market name>\",\"political\":[{\"point\":\"...\",\"facts\":[\"F1\"]}],\"economic\":[],\"social\":[],\"technological\":[],\"legal\":[],\"environmental\":[]}],\n \"scorecard\":[{\"market\":\"<exact market name>\",\"demand\":1,\"access\":1,\"right_to_win\":1,\"margin\":1,\"capital_light\":1,\"risk_low\":1,\"speed\":1,\"synergy\":1,\"basis\":\"... [F#]\"}],\n \"gaps\":[{\"market\":\"<exact market name or all>\",\"question\":\"...\",\"note\":\"where you looked\"}],\n \"dropped\":[{\"claim\":\"...\",\"source\":\"...\",\"reason\":\"why it was left out of the register\"}]}",
   "response":"TASK: REBUTTAL, round {{round}}. You were challenged:\n{{questions}}\nAnswer each question directly. Concede only what the evidence forces you to concede, and say exactly which fact or material changed your mind. Hold everything else and say why. Then answer each crux the Counsel named in one line. 220 words max.\n{{meta_note}}\n{\"headline\":\"<your position now, one sentence>\",\"conceded\":\"<what you concede, or 'nothing'>\",\"position_changed\":true|false,\"confidence\":<0-100>}",
-  "search":"Expand every search with synonyms. Your reading plan ends with synonym groups, each written as a Grep pattern. When the term you are looking for belongs to a group, Grep for the whole pattern (for example `gross profit margin|gross margin|gross profit|margin|GP%`) instead of the single word, so you also find the passages that use another name for it.",
+  "search":"Expand every search with synonyms. Your reading plan ends with synonym groups, each written as a Grep pattern. When the term you are looking for belongs to a group, Grep case-insensitively (`-i`) for the whole pattern instead of the single word, so you also find passages that use another name, or the plural, for it. For example: `gross profit margins|gross profit margin|gross margins|gross profits|gross margin|gross profit|margins|margin|gp%`.",
   "summary-card":"You write a summary card for one briefing material. A board director reads this card in full every session; the original stays available for searching, so the card must carry what the director needs most often.\n\nMATERIAL: {{name}} ({{chars}} characters{{truncated_note}})\nDIRECTOR: the {{director_title}}, whose lens is \"{{director_lens}}\"\n\nWrite 1500 to 3000 characters of plain text in exactly these four sections, each starting on its own line with its label:\nKEY FIGURES: every figure that matters, written exactly as in the material, each with its as-of date or period (\"date not stated\" if the material gives none).\nNAMED CLIENTS AND PEOPLE: every client, company, agency and person named, with their role.\nCONCLUSIONS: what the material concludes or shows, in its own terms. Mark anything you infer with \"(inference)\".\nSYNONYMS: one line of alternative terms for the material's key concepts, so searches find them. Separate groups with semicolons and terms within a group with commas, e.g. \"margin, gross margin, GP%, gross profit; utilization, billable hours, billable %\".\n\nNever add a figure, name or date that is not in the material. Reply with the card text only.\n\nMATERIAL TEXT:\n{{text}}",
   "summary-card.rest_marker":"[…the rest of the material is not shown. Headings from the rest:]",
   "summary-card.truncated_note":"; you see the first 100000 characters and the headings from the rest",
@@ -655,11 +655,23 @@ function parseSynonyms(card){
 }
 /* SPEC:CARDS:END */
 /* SPEC:SEARCH:BEGIN */
-/* Query expansion, mirrored by expand_query() in scripts/spec.py; tests/test_expand.* run the same fixtures.
-   Adds the other terms of every synonym group the query mentions (whole words, case-insensitive), in group order. */
+/* Query expansion, mirrored by expand_query()/term_forms() in scripts/spec.py; tests/test_expand.* run the same fixtures.
+   Adds the other terms of every synonym group the query mentions (whole words, case-insensitive, singular or plural), in group order. */
+/* The term plus the simple singular or plural of its last word (rebates~rebate, policies~policy, taxes~tax, fee~fees). */
+function termForms(term){
+  const t=String(term??"").toLowerCase(), m=t.match(/^(.*?)([a-z]+)$/); if(!m) return [t];
+  const pre=m[1], w=m[2]; let other;
+  if(w.length>4 && w.endsWith("ies")) other=w.slice(0,-3)+"y";
+  else if(w.length>4 && /(ss|x|z|ch|sh)es$/.test(w)) other=w.slice(0,-2);
+  else if(w.length>3 && w.endsWith("s") && !/(ss|us|is)$/.test(w)) other=w.slice(0,-1);
+  else if(/(s|x|z|ch|sh)$/.test(w)) other=w+"es";
+  else if(/[^aeiou]y$/.test(w)) other=w.slice(0,-1)+"ies";
+  else other=w+"s";
+  return other===w?[t]:[t,pre+other];
+}
 function expandQuery(q, groups, maxAdded){
-  const ql=String(q??"").toLowerCase(), esc=t=>t.toLowerCase().replace(/[.^$*+?()[\]{}|\\]/g,"\\$&");
-  const has=t=>new RegExp("(^|[^a-z0-9])"+esc(t)+"(?=[^a-z0-9]|$)").test(ql);
+  const ql=String(q??"").toLowerCase(), esc=t=>t.replace(/[.^$*+?()[\]{}|\\]/g,"\\$&");
+  const has=t=>termForms(t).some(f=>new RegExp("(^|[^a-z0-9])"+esc(f)+"(?=[^a-z0-9]|$)").test(ql));
   const added=[], seen=new Set();
   for(const g of groups||[]){ if(!g.some(has)) continue;
     for(const t of g){ if(added.length>=maxAdded) break; if(!has(t)&&!seen.has(t.toLowerCase())){ seen.add(t.toLowerCase()); added.push(t); } } }
