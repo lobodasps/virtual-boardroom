@@ -1,0 +1,1727 @@
+<!doctype html><html><head><meta charset=utf8><meta name=viewport content="width=device-width,initial-scale=1,viewport-fit=cover"><style>:root{color-scheme:light;box-sizing:border-box;padding-top:env(safe-area-inset-top,0px);padding-bottom:env(safe-area-inset-bottom,0px)}html{scroll-padding-top:env(safe-area-inset-top,0px)}body{margin:0;padding:0;font:14px -apple-system,BlinkMacSystemFont,sans-serif;background:#fff;color:#000}img{max-width:100%}[hidden]:not([hidden=until-found i]){display:none!important}</style></head><body>
+<title>Strategy Boardroom</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Archivo:wdth,wght@62..125,400..800&family=Newsreader:opsz,wght@6..72,400;6..72,500;6..72,600&family=JetBrains+Mono:wght@400;500&display=swap">
+<style>
+/* Layout: fixed records rail (left) + minutes of the meeting (right); stacks on phones. */
+:root{
+  --bg:#EEF0EE; --surface:#FFFFFF; --sunk:#E4E7E4; --ink:#15191C; --muted:#5A646C; --line:#D3D8D5;
+  --accent:#1F6F64; --accent-ink:#FFFFFF; --accent-soft:#D9ECE8;
+  --good:#2C7A47; --warn:#A86A06; --bad:#B23A32; --flag:#FFF1C2; --flag-ink:#6B4B00;
+  --c-titan:#2F5D9E; --c-developer:#946311; --c-hawk:#A23B3B; --c-technologist:#6A4CA3;
+  --c-allocator:#2E7D4F; --c-maverick:#5B8A1F; --c-warden:#7A5A44; --c-counsel:#36424D;
+  --c-x1:#8A3B7A; --c-x2:#B05A1A; --c-x3:#1E7A8C; --c-x4:#6B6B2A; --c-x5:#9C2F5E; --c-x6:#3E4FA3;
+  --f-display:"Archivo","Helvetica Neue",Arial,sans-serif;
+  --f-read:"Newsreader",Georgia,"Times New Roman",serif;
+  --f-mono:"JetBrains Mono",ui-monospace,Menlo,Consolas,monospace;
+  --r:6px;
+}
+@media (prefers-color-scheme: dark){:root:not([data-theme="light"]){
+  --bg:#101315; --surface:#181C1F; --sunk:#0C0E10; --ink:#E6EAEC; --muted:#98A2AA; --line:#2B3136;
+  --accent:#55B8A8; --accent-ink:#0B1714; --accent-soft:#16312C;
+  --good:#5DBB7E; --warn:#E2A53A; --bad:#E2716A; --flag:#3A3010; --flag-ink:#F3D37A;
+  --c-titan:#7FA6E0; --c-developer:#D9A84C; --c-hawk:#E07A7A; --c-technologist:#A98EE0;
+  --c-allocator:#6CC08E; --c-maverick:#9CCB5E; --c-warden:#C29F86; --c-counsel:#9AA8B5;
+  --c-x1:#D58BC6; --c-x2:#E89A5C; --c-x3:#6CC5D6; --c-x4:#C2C27A; --c-x5:#E07FA8; --c-x6:#8F9CE6;
+  color-scheme:dark}}
+:root[data-theme="dark"]{
+  --bg:#101315; --surface:#181C1F; --sunk:#0C0E10; --ink:#E6EAEC; --muted:#98A2AA; --line:#2B3136;
+  --accent:#55B8A8; --accent-ink:#0B1714; --accent-soft:#16312C;
+  --good:#5DBB7E; --warn:#E2A53A; --bad:#E2716A; --flag:#3A3010; --flag-ink:#F3D37A;
+  --c-titan:#7FA6E0; --c-developer:#D9A84C; --c-hawk:#E07A7A; --c-technologist:#A98EE0;
+  --c-allocator:#6CC08E; --c-maverick:#9CCB5E; --c-warden:#C29F86; --c-counsel:#9AA8B5;
+  --c-x1:#D58BC6; --c-x2:#E89A5C; --c-x3:#6CC5D6; --c-x4:#C2C27A; --c-x5:#E07FA8; --c-x6:#8F9CE6;
+  color-scheme:dark}
+html,body{height:100%}
+body{background:var(--bg);color:var(--ink);font-family:var(--f-display);font-size:14px;line-height:1.45}
+*{box-sizing:border-box}
+button,input,textarea,select{font:inherit;color:inherit}
+:focus-visible{outline:2px solid var(--accent);outline-offset:2px}
+a{color:var(--accent)}
+.app{display:grid;grid-template-columns:290px minmax(0,1fr);min-height:100%}
+@media (max-width:900px){.app{grid-template-columns:minmax(0,1fr)}}
+
+/* Rail */
+.rail{border-right:1px solid var(--line);background:var(--surface);padding:20px 16px;display:flex;flex-direction:column;gap:16px;position:sticky;top:env(safe-area-inset-top,0px);height:100vh;overflow:auto}
+@media (max-width:900px){.rail{position:static;height:auto;border-right:0;border-bottom:1px solid var(--line)}}
+.brand{display:flex;flex-direction:column;gap:2px}
+.brand b{font-stretch:75%;font-weight:800;font-size:22px;letter-spacing:.01em;text-transform:uppercase;line-height:1}
+.brand span{font-family:var(--f-mono);font-size:11px;color:var(--muted);letter-spacing:.04em}
+.rail-actions{display:flex;gap:8px;flex-wrap:wrap}
+.hist{display:flex;flex-direction:column;gap:2px}
+.hist h3{font-size:11px;letter-spacing:.08em;text-transform:uppercase;color:var(--muted);margin:4px 0 6px;font-weight:600}
+.hitem{display:grid;grid-template-columns:auto minmax(0,1fr);gap:8px;align-items:start;padding:8px;border-radius:var(--r);cursor:pointer;border:1px solid transparent;text-align:left;background:none;width:100%}
+.hitem:hover{background:var(--sunk)}
+.hitem.on{border-color:var(--line);background:var(--bg)}
+.hitem .t{font-weight:600;line-height:1.25;overflow-wrap:anywhere}
+.hitem .s{font-family:var(--f-mono);font-size:11px;color:var(--muted);margin-top:2px}
+.hitem input{margin-top:3px}
+.empty-note{color:var(--muted);font-size:13px;padding:8px;border:1px dashed var(--line);border-radius:var(--r)}
+
+/* Main */
+.main{padding-block:24px 64px;padding-inline:clamp(16px,4vw,48px);min-width:0;max-width:1180px}
+.eyebrow{font-family:var(--f-mono);font-size:11px;letter-spacing:.06em;text-transform:uppercase;color:var(--muted)}
+h1{font-stretch:85%;font-weight:750;font-size:clamp(24px,3.2vw,34px);line-height:1.1;margin:6px 0 8px;text-wrap:balance}
+h2{font-stretch:90%;font-weight:700;font-size:19px;margin:0 0 10px;text-wrap:balance}
+h4{font-size:13px;letter-spacing:.06em;text-transform:uppercase;margin:16px 0 6px;font-weight:700;color:var(--muted)}
+.lede{font-family:var(--f-read);font-size:17px;max-width:68ch;color:var(--ink)}
+.sec{margin-top:28px}
+.panel{background:var(--surface);border:1px solid var(--line);border-radius:var(--r);padding:18px}
+.muted{color:var(--muted)}
+.mono{font-family:var(--f-mono)}
+
+.btn{display:inline-flex;align-items:center;gap:6px;border:1px solid var(--line);background:var(--surface);padding:7px 12px;border-radius:var(--r);cursor:pointer;font-weight:600;font-size:13px;white-space:nowrap}
+.btn:hover{border-color:var(--muted)}
+.btn.primary{background:var(--accent);color:var(--accent-ink);border-color:var(--accent)}
+.btn.danger{color:var(--bad)}
+.btn.danger.armed{background:var(--bad);color:#fff;border-color:var(--bad)}
+.btn:disabled{opacity:.45;cursor:not-allowed}
+.btn.sm{padding:4px 9px;font-size:12px}
+.row{display:flex;gap:8px;flex-wrap:wrap;align-items:center}
+
+/* Form */
+.form{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:14px 18px}
+@media (max-width:700px){.form{grid-template-columns:minmax(0,1fr)}}
+.field{display:flex;flex-direction:column;gap:5px;min-width:0}
+.field.full{grid-column:1/-1}
+.field label{font-weight:650;font-size:13px}
+.field small{color:var(--muted);font-size:12px}
+.field input[type=text],.field textarea,.field select{background:var(--bg);border:1px solid var(--line);border-radius:var(--r);padding:8px 10px;width:100%}
+.field textarea{min-height:84px;resize:vertical;font-family:var(--f-display)}
+.seg{display:inline-flex;align-self:flex-start;border:1px solid var(--line);border-radius:var(--r);overflow:hidden}
+.seg label{padding:6px 12px;cursor:pointer;font-weight:600;font-size:13px}
+.seg input{position:absolute;opacity:0;pointer-events:none}
+.seg input:checked+span{color:var(--accent)}
+.seg label:has(input:checked){background:var(--accent-soft)}
+.seg label:has(input:focus-visible){outline:2px solid var(--accent)}
+
+/* Roster */
+.roster{display:grid;grid-template-columns:repeat(8,minmax(0,1fr));gap:8px}
+@media (max-width:1100px){.roster{grid-template-columns:repeat(4,minmax(0,1fr))}}
+.seat{border:1px solid var(--line);border-radius:var(--r);padding:10px;background:var(--surface);display:flex;flex-direction:column;gap:6px;min-width:0;position:relative}
+.seat .nm{font-weight:650;font-size:12.5px;line-height:1.2}
+.seat .ln{font-family:var(--f-read);font-size:12.5px;color:var(--muted);font-style:italic;line-height:1.3}
+.seat.speaking{border-color:var(--who)}
+.seat.speaking::after{content:"speaking";position:absolute;top:8px;right:8px;font-family:var(--f-mono);font-size:10px;color:var(--who)}
+.seat.nv{background:var(--sunk)}
+.av{width:30px;height:30px;border-radius:50%;display:grid;place-items:center;font-family:var(--f-mono);font-weight:500;font-size:11px;color:var(--surface);background:var(--who);flex:none}
+
+/* Pipeline */
+.pipe{display:flex;flex-wrap:wrap;gap:6px;counter-reset:item}
+.pi{display:flex;align-items:center;gap:6px;border:1px solid var(--line);border-radius:999px;padding:4px 10px 4px 6px;font-size:12px;background:var(--surface)}
+.pi::before{counter-increment:item;content:counter(item);font-family:var(--f-mono);font-size:10px;width:18px;height:18px;border-radius:50%;display:grid;place-items:center;background:var(--sunk);color:var(--muted)}
+.pi.done::before{background:var(--accent);color:var(--accent-ink);content:"✓"}
+.pi.now{border-color:var(--accent);color:var(--accent);font-weight:650}
+.pi.now::before{background:var(--accent-soft);color:var(--accent)}
+.pi.skip{opacity:.55;text-decoration:line-through}
+
+.statuspill{font-family:var(--f-mono);font-size:11px;padding:2px 8px;border-radius:999px;border:1px solid var(--line);white-space:nowrap}
+.st-complete{color:var(--good);border-color:currentColor}
+.st-running,.st-planning{color:var(--accent);border-color:currentColor}
+.st-interrupted{color:var(--bad);border-color:currentColor}
+.st-research_requested,.st-plan_ready{color:var(--warn);border-color:currentColor}
+
+.notice{border-left:3px solid var(--warn);background:var(--surface);padding:10px 14px;border-radius:0 var(--r) var(--r) 0;margin-top:14px}
+.notice.bad{border-color:var(--bad)}
+
+/* Plan editor */
+.pm{display:grid;grid-template-columns:auto minmax(0,1fr);gap:10px;border-top:1px solid var(--line);padding-block:12px}
+.pm:first-of-type{border-top:0}
+.pm .q{font-size:13px;color:var(--muted)}
+.pm ul{margin:4px 0 0 18px;padding:0}
+.pestle-tags{display:flex;gap:4px;flex-wrap:wrap}
+.ptag{font-family:var(--f-mono);font-size:10.5px;padding:1px 6px;border-radius:3px;background:var(--sunk);color:var(--muted)}
+
+/* Evidence */
+.mkt-chips{display:flex;gap:6px;flex-wrap:wrap;margin-bottom:12px}
+.chip{border:1px solid var(--line);border-radius:999px;padding:4px 10px;font-size:12.5px;cursor:pointer;background:var(--surface);font-weight:600}
+.chip.on{background:var(--ink);color:var(--surface);border-color:var(--ink)}
+.pestle{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:1px;background:var(--line);border:1px solid var(--line);border-radius:var(--r);overflow:hidden}
+@media (max-width:800px){.pestle{grid-template-columns:minmax(0,1fr)}}
+.pc{background:var(--surface);padding:12px;min-width:0}
+.pc .k{display:flex;align-items:baseline;gap:8px;margin-bottom:6px}
+.pc .k b{font-family:var(--f-mono);font-size:20px;font-weight:500;color:var(--accent);line-height:1}
+.pc .k span{font-size:11px;letter-spacing:.07em;text-transform:uppercase;font-weight:700;color:var(--muted)}
+.pc ul{margin:0;padding-left:16px;font-family:var(--f-read);font-size:14px}
+.pc li{margin-bottom:5px}
+.scroll-x{overflow-x:auto}
+table{border-collapse:collapse;width:100%;font-size:13px}
+th,td{text-align:left;padding:7px 9px;border-bottom:1px solid var(--line);vertical-align:top}
+th{font-size:11px;letter-spacing:.05em;text-transform:uppercase;color:var(--muted);font-weight:650}
+td.n{font-family:var(--f-mono);text-align:center;font-variant-numeric:tabular-nums}
+.sc{display:inline-grid;place-items:center;width:26px;height:22px;border-radius:3px;background:color-mix(in srgb,var(--accent) calc(var(--v)*18%),transparent);font-weight:500}
+.reg td:first-child{font-family:var(--f-mono);white-space:nowrap}
+.reg td.src{font-size:12px;color:var(--muted);min-width:180px}
+.gap{border-left:3px solid var(--warn);padding:6px 10px;margin:6px 0;background:var(--bg)}
+details>summary{cursor:pointer;font-weight:650;padding:6px 0}
+
+/* Transcript */
+.stage-div{display:flex;align-items:center;gap:10px;margin:26px 0 10px}
+.stage-div::after{content:"";flex:1;border-top:1px solid var(--line)}
+.stage-div span{font-family:var(--f-mono);font-size:11px;letter-spacing:.06em;text-transform:uppercase;color:var(--muted)}
+.turn{display:grid;grid-template-columns:auto minmax(0,1fr);gap:12px;padding:14px 16px;background:var(--surface);border:1px solid var(--line);border-radius:var(--r);margin-bottom:10px}
+.turn.counsel{background:var(--sunk)}
+.turn.live{border-style:dashed}
+.th{display:flex;flex-wrap:wrap;gap:6px 10px;align-items:baseline}
+.th .who{font-weight:700;color:var(--who)}
+.th .role{font-size:12px;color:var(--muted)}
+.th .tgt{font-family:var(--f-mono);font-size:11px;color:var(--muted)}
+.headline{font-weight:650;margin:6px 0 4px;font-size:14.5px}
+.body{font-family:var(--f-read);font-size:15.5px;line-height:1.55;max-width:72ch}
+.body p{margin:0 0 9px}
+.body ul,.body ol{margin:0 0 9px;padding-left:20px}
+.body h4{font-family:var(--f-display)}
+.claim{border-left:3px solid var(--who);padding:4px 10px;margin:6px 0;font-family:var(--f-read);font-style:italic;color:var(--muted)}
+.question{margin-top:6px;font-weight:650}
+.tf{display:flex;flex-wrap:wrap;gap:6px;margin-top:8px}
+.tag{font-family:var(--f-mono);font-size:10.5px;padding:2px 7px;border-radius:3px;background:var(--bg);border:1px solid var(--line);color:var(--muted)}
+.tag.pursue{color:var(--good)}.tag.test{color:var(--warn)}.tag.avoid{color:var(--bad)}
+.tag.flag{background:var(--flag);color:var(--flag-ink);border-color:transparent}
+a.fref{font-family:var(--f-mono);font-size:.78em;text-decoration:none;padding:0 3px;border-radius:3px;background:var(--accent-soft);color:var(--accent);white-space:nowrap}
+a.fref.bad{background:var(--flag);color:var(--flag-ink)}
+.uncited{background:linear-gradient(transparent 62%,var(--flag) 62%)}
+.verify{font-family:var(--f-mono);font-size:.75em;background:var(--flag);color:var(--flag-ink);padding:0 4px;border-radius:3px}
+.cursor::after{content:"▍";color:var(--accent);animation:blink 1s steps(2) infinite}
+@keyframes blink{50%{opacity:0}}
+@media (prefers-reduced-motion:reduce){.cursor::after{animation:none}}
+
+/* Votes */
+.tally{display:flex;height:26px;border-radius:var(--r);overflow:hidden;border:1px solid var(--line);margin:10px 0 6px}
+.tally div{display:grid;place-items:center;font-family:var(--f-mono);font-size:11px;color:var(--accent-ink);background:var(--accent);min-width:0;overflow:hidden;white-space:nowrap}
+.tally div:nth-child(2){background:color-mix(in srgb,var(--accent) 60%,var(--muted))}
+.tally div:nth-child(3){background:var(--muted)}
+.tally div:nth-child(n+4){background:color-mix(in srgb,var(--muted) 60%,var(--line))}
+.votes{display:grid;grid-template-columns:repeat(auto-fill,minmax(250px,1fr));gap:10px}
+.vote{border:1px solid var(--line);border-top:3px solid var(--who);border-radius:var(--r);padding:12px;background:var(--surface);display:flex;flex-direction:column;gap:6px;min-width:0}
+.vote .ch{font-weight:700;font-size:15px;line-height:1.25}
+.vote .rat{font-family:var(--f-read);font-size:14px}
+.vote ul{margin:0;padding-left:16px;font-size:12.5px}
+.sup{font-family:var(--f-mono);font-size:10.5px;padding:1px 6px;border-radius:3px}
+.sup.strong{background:var(--accent-soft);color:var(--accent)}
+.sup.conditional{background:var(--flag);color:var(--flag-ink)}
+
+/* Synthesis */
+.resolution{font-family:var(--f-read);font-size:21px;line-height:1.35;font-weight:500;border-left:4px solid var(--accent);padding:4px 0 4px 16px;margin:4px 0 14px;text-wrap:pretty}
+.cols{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:18px}
+@media (max-width:760px){.cols{grid-template-columns:minmax(0,1fr)}}
+.cols ul{margin:0;padding-left:18px;font-family:var(--f-read);font-size:15px}
+.cols li{margin-bottom:6px}
+.paths{display:grid;grid-template-columns:repeat(auto-fit,minmax(260px,1fr));gap:12px}
+.path{border:1px solid var(--line);border-radius:var(--r);padding:14px;background:var(--bg)}
+.path b{font-size:15px}
+.sev{font-family:var(--f-mono);font-size:10.5px;padding:1px 6px;border-radius:3px;text-transform:uppercase}
+.sev.high{background:var(--bad);color:#fff}.sev.medium{background:var(--flag);color:var(--flag-ink)}.sev.low{background:var(--sunk);color:var(--muted)}
+
+/* Compare */
+.cmp th{position:sticky;top:0;background:var(--surface)}
+.cmp td{min-width:180px}
+.cmp td:first-child,.cmp th:first-child{min-width:150px;font-weight:650}
+
+.dgrid{display:grid;grid-template-columns:repeat(auto-fill,minmax(260px,1fr));gap:12px}
+.dcard{border:1px solid var(--line);border-top:3px solid var(--who);border-radius:var(--r);background:var(--surface);padding:14px;display:flex;flex-direction:column;gap:8px;min-width:0}
+.dcard .ln{font-family:var(--f-read);font-style:italic;color:var(--muted);font-size:14px}
+.dcard .acts{margin-top:auto;display:flex;gap:6px;flex-wrap:wrap}
+.seats{display:flex;flex-wrap:wrap;gap:6px}
+.seat-chip{display:inline-flex;align-items:center;gap:6px;border:1px solid var(--line);border-radius:999px;padding:4px 10px 4px 8px;cursor:pointer;font-size:12.5px;font-weight:600;background:var(--surface)}
+.seat-chip:has(input:checked){border-color:var(--who);background:color-mix(in srgb,var(--who) 12%,var(--surface))}
+.seat-chip input{accent-color:var(--who);margin:0}
+.swatches{display:flex;gap:8px;flex-wrap:wrap}
+.swatch{width:26px;height:26px;border-radius:50%;background:var(--who);border:2px solid var(--surface);outline:1px solid var(--line);cursor:pointer;padding:0}
+.swatch[aria-pressed=true]{outline:2px solid var(--ink)}
+.att{display:grid;grid-template-columns:auto minmax(0,1fr) auto;gap:10px;align-items:center;padding:9px 0;border-top:1px solid var(--line)}
+.att .nm{font-weight:600;overflow-wrap:anywhere}
+.meter{height:6px;background:var(--sunk);border-radius:3px;overflow:hidden;margin:6px 0 2px}
+.meter div{height:100%;background:var(--accent)}
+.meter.over div{background:var(--warn)}
+a.aref{font-family:var(--f-mono);font-size:.78em;text-decoration:none;padding:0 3px;border-radius:3px;background:color-mix(in srgb,var(--accent) 10%,var(--sunk));color:var(--ink);white-space:nowrap;border:1px dashed var(--line)}
+.verdict{display:flex;flex-wrap:wrap;align-items:center;gap:10px 14px}
+.vlabel{font-family:var(--f-mono);font-weight:500;font-size:13px;padding:5px 10px;border-radius:4px;color:#fff;background:var(--muted);letter-spacing:.03em}
+.vlabel.GO{background:var(--good)}.vlabel.GOC{background:var(--accent)}.vlabel.RESHAPE{background:var(--warn)}.vlabel.NO{background:var(--bad)}.vlabel.HOLD{background:var(--muted)}
+.obar{display:grid;grid-template-columns:minmax(0,240px) minmax(0,1fr) 36px;gap:10px;align-items:center;margin:6px 0;font-size:13px}
+.obar .t{height:12px;background:var(--sunk);border-radius:3px;overflow:hidden}.obar .t div{height:100%;background:var(--accent)}
+.obar.rec .t div{background:var(--good)}
+.mism{text-decoration:underline dotted var(--bad);text-underline-offset:3px}
+.crux{border-left:3px solid var(--c-counsel);padding:6px 10px;margin:6px 0;background:var(--bg);font-size:14px}
+.intro-steps{display:grid;grid-template-columns:repeat(auto-fit,minmax(170px,1fr));gap:10px;counter-reset:st}
+.intro-steps div{border:1px solid var(--line);border-radius:var(--r);padding:12px;background:var(--surface);font-size:13px}
+.intro-steps div::before{counter-increment:st;content:"Step " counter(st);display:block;font-family:var(--f-mono);font-size:10.5px;color:var(--accent);margin-bottom:4px;letter-spacing:.05em;text-transform:uppercase}
+.copybox{display:flex;gap:8px;align-items:stretch;margin-top:10px;flex-wrap:wrap}
+.copybox code{flex:1;min-width:0;font-family:var(--f-mono);font-size:12.5px;background:var(--bg);border:1px solid var(--line);border-radius:var(--r);padding:9px 10px;overflow-wrap:anywhere;user-select:all}
+</style>
+
+<div class="app">
+  <aside class="rail" aria-label="Board records">
+    <div class="brand"><b>Strategy<br>Boardroom</b><span>Growth decisions, argued on evidence</span></div>
+    <div class="rail-actions">
+      <button class="btn primary" data-act="new">New dilemma</button>
+      <button class="btn" data-act="compare">Compare sessions</button>
+      <button class="btn" data-act="board">Board members</button>
+      <button class="btn" data-act="guide">How it works</button>
+    </div>
+    <div class="hist" id="hist"></div>
+    <div id="railnote" class="muted" style="font-size:12px;margin-top:auto"></div>
+  </aside>
+  <main class="main" id="main"></main>
+</div>
+
+<script>
+"use strict";
+/* ───────────────────────── Board ───────────────────────── */
+const BOARD = [
+  {id:"titan",title:"Market Expansion Strategist",mono:"ME",color:"--c-titan",pestle:"Political, Economic",
+   lens:"Growth goes where demand is forming. Get there before the field crowds in.",
+   mandate:"Find where demand is growing: new segments, new geographies, large institutional and public buyers, channel partners and joint ventures. Builds the qualifications, relationships and teaming that let a mid-sized company win bigger work.",
+   presses:"Which buyers, through which buying process, on what timeline, and who must we partner with to qualify?",
+   redLine:"Jeopardizing qualifications, certifications or relationships that took years to build.",
+   tone:"Pragmatic, politically astute, patient with long sales and procurement cycles."},
+  {id:"developer",title:"Customer & Deal Champion",mono:"CD",color:"--c-developer",pestle:"Economic, Social",
+   lens:"Follow the customer's money. Build what they will pay a premium for.",
+   mandate:"Pull the company toward the most valuable customers and deals: premium segments, commercial and private buyers, large accounts, bundled offers and pricing power. Prefers customers who pay faster and value speed and trust over lowest price.",
+   presses:"Who exactly is the buyer, what is our work worth to them, and why would they buy from us twice?",
+   redLine:"Staying a commoditized, lowest-price supplier forever.",
+   tone:"Confident, deal-driven, impatient with bureaucracy, thinks in customer lifetime value."},
+  {id:"hawk",title:"Risk & Regulatory Hawk",mono:"RH",color:"--c-hawk",pestle:"Legal, Political",
+   lens:"One bad contract or one compliance failure can erase years of profit.",
+   mandate:"Protect the balance sheet and the licenses to operate: liability and insurance limits, contract terms (indemnity, payment terms, consequential damages), litigation exposure, licensing and regulatory requirements, labor and employment law, safety and quality record.",
+   presses:"What is the worst-case loss, who carries it, and does our insurance actually respond?",
+   redLine:"Uncapped liability, risk beyond insurance capacity, or cutting corners on legally required qualifications.",
+   tone:"Analytical, skeptical, precise, unmoved by enthusiasm."},
+  {id:"technologist",title:"First-Principles Technologist",mono:"FT",color:"--c-technologist",pestle:"Technological",
+   lens:"If revenue only grows when headcount grows, we are renting out people, not building a company.",
+   mandate:"Rebuild the delivery model from first principles: automation, software, data, AI and new tools that change the cost and speed of delivery. Grow revenue per person instead of headcount.",
+   presses:"What does each unit of output actually cost to produce, and which steps exist only because they always have?",
+   redLine:"Growth plans that just add people in a straight line.",
+   tone:"Blunt, fast, numerate, dismissive of legacy excuses but willing to be shown the rule."},
+  {id:"allocator",title:"Capital & M&A Allocator",mono:"CA",color:"--c-allocator",pestle:"Economic",
+   lens:"Organic growth is slow. What can we buy, and what is it worth once it is ours?",
+   mandate:"Maximize enterprise value: EBITDA margin, recurring revenue, working capital and days sales outstanding, debt capacity, buy-versus-build. Looks for tuck-in acquisitions of smaller competitors and adjacent businesses and for how each move changes the company's valuation.",
+   presses:"What is the return on each dollar and each month, and what multiple does this move earn us?",
+   redLine:"Pouring capital into markets that cannot scale or that tie up cash for years.",
+   tone:"Exacting, transactional, macro-aware, speaks in returns."},
+  {id:"maverick",title:"Sustainability & Long-Horizon Maverick",mono:"SM",color:"--c-maverick",pestle:"Environmental, Legal",
+   lens:"Mandates create buyers who must buy. Be there before the deadlines bite.",
+   mandate:"Ride the long-term shifts that force buyers to spend: regulation and mandates, decarbonization and climate resilience, demographic and technology transitions. Thinks 10 to 20 years out and wants the company positioned before the wave.",
+   presses:"Which rule or shift forces a buyer to spend, by what date, and who is already positioned to serve them?",
+   redLine:"Ignoring a structural shift until competitors own it.",
+   tone:"Energetic, forward-looking, persuasive, impatient with short-termism."},
+  {id:"warden",title:"Lean Operator / Profit Warden",mono:"PW",color:"--c-warden",pestle:"Social, Economic",
+   lens:"Who exactly is going to deliver this, and what does it do to our overhead and cash?",
+   mandate:"Guard unit economics and delivery capacity: utilization, margins, overhead, cash conversion and days sales outstanding, bench depth, hiring and retaining scarce licensed or skilled people, management span of control.",
+   presses:"Names, hours, and the month the cash actually arrives.",
+   redLine:"Adding overhead before revenue, or growth that outruns the people who must deliver it.",
+   tone:"Grounded, systematic, realistic about people, allergic to slideware."},
+  {id:"counsel",title:"Strategy Counsel",mono:"SC",color:"--c-counsel",nonVoting:true,
+   lens:"Facts first, then the fight. I don't vote."}
+];
+const byId = {}; BOARD.forEach(b=>byId[b.id]=b);
+const DEFAULT_IDS = BOARD.filter(b=>!b.nonVoting).map(b=>b.id);
+const COUNSEL = BOARD.find(b=>b.nonVoting);
+const COLORS = ["--c-titan","--c-developer","--c-hawk","--c-technologist","--c-allocator","--c-maverick","--c-warden","--c-x1","--c-x2","--c-x3","--c-x4","--c-x5","--c-x6"];
+const PFIELDS = ["title","mono","color","lens","mandate","presses","redLine","tone","pestle"];
+const MIN_SEATS=3, MAX_SEATS=12, OWN_BUDGET=30000, SHARED_BUDGET=40000, MAX_ATT=3000000, PART=120000, CHUNK=1500;
+function rosterList(all){
+  const out=[];
+  BOARD.filter(b=>!b.nonVoting).forEach(d=>{ const o=state.dirs[d.id]; const p={...d,...(o||{}),id:d.id,builtIn:true}; if(all||!p.archived) out.push(p); });
+  Object.values(state.dirs).filter(x=>x.custom).sort((a,b)=>(a.createdAt||0)-(b.createdAt||0)).forEach(p=>{ if(all||!p.archived) out.push({...p}); });
+  return out;
+}
+function persona(id){ return rosterList(true).find(p=>p.id===id) || null; }
+function seatIds(s){ return s?.seats?.length ? s.seats : DEFAULT_IDS; }
+function members(s){ if(s?.board?.length) return s.board; return seatIds(s).map(persona).filter(Boolean); }
+function registerPeople(list){ (list||[]).forEach(p=>{ if(p&&p.id) byId[p.id]=p; }); }
+function defaultSeats(){ return rosterList().filter(p=>p.active!==false).map(p=>p.id); }
+const DEFAULT_FAULTS = [["allocator","warden"],["technologist","hawk"],["titan","maverick"],["developer","hawk"],["maverick","allocator"],["titan","developer"],["technologist","warden"]];
+const PESTLE = [["political","P","Political"],["economic","E","Economic"],["social","S","Social"],["technological","T","Technological"],["legal","L","Legal"],["environmental","E","Environmental"]];
+
+const EXAMPLE = {
+  title:"Electrification growth (example)", company:"Northline Mechanical (example company)", sector:"Commercial HVAC and building services contracting",
+  geography:"Colorado Front Range (Denver, Boulder, Colorado Springs)", growthArea:"Building electrification and heat pump retrofits",
+  question:"Which electrification market should we pursue first over the next 24 months, and how should we enter it?",
+  markets:"Heat pump retrofits for mid-size commercial office and retail buildings\nPublic school district HVAC replacement programs",
+  context:"Example profile: about 140 employees, of whom 95 are field technicians. Services: commercial HVAC installation, service contracts and controls. About 60% of revenue is recurring service agreements. Two licensed mechanical engineers on staff. Offices in Denver and Colorado Springs.",
+  constraints:"Line of credit limits working capital for large projects.\nTechnician hiring is the main bottleneck.",
+  assumptions:"Building performance standards will force owners to replace gas equipment within 5 years.\nOur service-agreement customers will buy retrofits from us first."
+};
+function calibSpec(list){
+  const keys=list.map(m=>`"${m.id}":"<one sentence: what the ${m.title}'s lens means for this company's sector and geography>"`).join(",");
+  const wk=list.map(m=>`"${m.id}":{"w":<1-3>,"why":"<one line: how much this director's mandate matters to this decision>"}`).join(",");
+  return `"calibration":{"themes":["<4-6 structural realities of this sector and geography a board must reason about: regulators and licensing, buyer types and buying process, labor model, funding and payment cycles, competitive structure; framing only, no figures>"],"lenses":{${keys}},"weights":{${wk}}}`;
+}
+function profileText(s){
+  return [`COMPANY: ${s.company||"(not named)"}`, `SECTOR: ${s.sector||"(infer from the company context)"}`, `GEOGRAPHY: ${s.geography||"(infer from the company context)"}`, `COMPANY CONTEXT:\n${s.context||"(not provided)"}`].join("\n");
+}
+function contextBlock(s){
+  const c=s.calibration;
+  if(!c?.themes?.length) return `SECTOR: ${s.sector||"(see company context)"}\nGEOGRAPHY: ${s.geography||"(see company context)"}`;
+  return `SECTOR: ${s.sector||"(see company context)"}\nGEOGRAPHY: ${s.geography||"(see company context)"}\n\nSECTOR AND GEOGRAPHY THEMES (Counsel's framing to reason about, not verified facts):\n`+c.themes.map(t=>"- "+t).join("\n");
+}
+
+/* ───────────────────────── Runtime + store ───────────────────────── */
+const C = window.claude;
+const use = n => (C && typeof C.use==="function") ? C.use(n).catch(()=>null) : Promise.resolve(null);
+let SAMPLE = null, USER = null, CAN_WRITE = true;
+
+const Store = {
+  kind:"loading", db:null, mem:new Map(), subs:new Map(), q:new Map(),
+  async init(){ const db = await use("db"); if(db){ this.db=db; this.kind="db"; } else { this.kind="memory"; } },
+  _m(col){ if(!this.mem.has(col)) this.mem.set(col,new Map()); return this.mem.get(col); },
+  _n(col){ (this.subs.get(col)||new Set()).forEach(f=>f()); },
+  _sub(col,f){ if(!this.subs.has(col)) this.subs.set(col,new Set()); this.subs.get(col).add(f); f(); return ()=>this.subs.get(col).delete(f); },
+  watchCol(col, cb, order){
+    if(this.db){ let q=this.db.collection(col); if(order) q=q.orderBy(order,"desc").limit(300);
+      return q.onSnapshot(s=>cb(s.docs.map(d=>({id:d.id,...d.data()}))), e=>showNotice("Could not load saved records ("+e.code+")."));}
+    return this._sub(col,()=>{ let a=[...this._m(col).values()]; if(order) a.sort((x,y)=>(y[order]||0)-(x[order]||0)); cb(a); });
+  },
+  watchDoc(col,id,cb){
+    if(this.db) return this.db.doc(col+"/"+id).onSnapshot(d=>cb(d.exists?d.data():null), e=>showNotice("Could not load a saved record ("+e.code+")."));
+    return this._sub(col,()=>cb(this._m(col).get(id)||null));
+  },
+  async list(col){
+    if(this.db){ const r=await this.db.collection(col).get(); return r.docs.map(d=>({id:d.id,...d.data()})); }
+    return [...this._m(col).values()];
+  },
+  chain(key,fn){ const p=(this.q.get(key)||Promise.resolve()).catch(()=>{}).then(fn); this.q.set(key,p); return p; },
+  put(col,id,data){ const body=JSON.parse(JSON.stringify(data)); delete body.id;
+    return this.chain(col+"/"+id, async()=>{ if(this.db) return this.db.doc(col+"/"+id).set(body); this._m(col).set(id,{id,...body}); this._n(col); }); },
+  del(col,id){ return this.chain(col+"/"+id, async()=>{ if(this.db) return this.db.doc(col+"/"+id).delete(); this._m(col).delete(id); this._n(col); }); },
+  watchSessions(cb){ return this.watchCol("sessions",cb,"updatedAt"); },
+  watchTurns(sid,cb){ return this.watchCol(`sessions/${sid}/turns`,cb); },
+  watchPack(sid,cb){ return this.watchDoc(`sessions/${sid}/evidence`,"pack",cb); },
+  putSession(id,data){ return this.put("sessions",id,data); },
+  putTurn(sid,t){ return this.put(`sessions/${sid}/turns`,t.id,t); },
+  delTurn(sid,tid){ return this.del(`sessions/${sid}/turns`,tid); },
+  async delSession(sid, turnIds){ for(const t of turnIds) await this.delTurn(sid,t); await this.del(`sessions/${sid}/evidence`,"pack").catch(()=>{}); return this.del("sessions",sid); }
+};
+
+/* ───────────────────────── State ───────────────────────── */
+const state = {
+  view:"intake", sid:null, sessions:[], turns:[], pack:null, live:{},
+  notice:"", evMarket:0, pending:{}, cmpSel:new Set(), armed:null, draft:null, booted:false,
+  dirs:{}, atts:{}, attIndex:{}, attText:{}, dirId:null, dirColor:null, attSubs:{}, consults:{}, consultSubs:{}, consultLive:null
+};
+let unsubTurns=null, unsubPack=null, RUN=null, ATT_CTX=null;
+
+const getS = id => (RUN && RUN.sid===id) ? RUN.s : (state.sessions.find(s=>s.id===id) || state.pending[id]);
+const LK = (sid,id) => sid+"|"+id;
+function liveFor(sid){ const o={}; Object.entries(state.live).forEach(([k,v])=>{ if(v.sid===sid) o[k.slice(sid.length+1)]=v; }); return o; }
+const curS = () => state.sid ? getS(state.sid) : null;
+const clone = o => JSON.parse(JSON.stringify(o));
+const slotOf = id => { const L=RUN?.members||[]; const i=L.findIndex(x=>x.id===id); return i<0?0:i+1; };
+const newId = p => p + Date.now().toString(36) + Math.random().toString(36).slice(2,6);
+function showNotice(msg){ state.notice=msg; render(); }
+
+/* ───────────────────────── Text helpers ───────────────────────── */
+const esc = s => String(s??"").replace(/[&<>"']/g,c=>({"&":"&amp;","<":"&lt;",">":"&gt;",'"':"&quot;","'":"&#39;"}[c]));
+const FIG = /(\$\s?\d|\b\d[\d,.]*\s?(%|percent\b|million\b|billion\b|bn\b|mm\b|[MBK]\b))/i;
+function factLink(id, facts){
+  if(!/^F\d+$/.test(id)){ const a=state.attIndex[id];
+    return a ? `<a class="aref" title="${esc("Briefing material: "+a.name+" ("+(byId[a.dir]?.title||"director")+")")}">${id}</a>` : `<a class="fref bad" title="Unknown citation">${id}?</a>`; }
+  const f = facts && facts[id];
+  if(!f) return `<a class="fref bad" title="Not in the evidence register">${id}?</a>`;
+  return `<a class="fref" href="${esc(f.url||"#")}" target="_blank" rel="noopener" title="${esc(f.claim+" — "+(f.source||""))}">${id}</a>`;
+}
+function inl(raw, opt){
+  let h = esc(raw);
+  h = h.replace(/\*\*(.+?)\*\*/g,"<strong>$1</strong>");
+  h = h.replace(/\[((?:F\d+|[A-Z]{1,3}\d+)(?:\s*[,;]\s*(?:F\d+|[A-Z]{1,3}\d+))*)\]/g,(m,ids)=>ids.split(/\s*[,;]\s*/).map(id=>factLink(id,opt.facts)).join(" "));
+  h = h.replace(/\[(VERIFY|UNVERIFIED|NOT FOUND)\]/gi,'<span class="verify">$1</span>');
+  return h;
+}
+function nums(str){ return (String(str).match(/\d[\d,]*(?:\.\d+)?/g)||[]).map(x=>x.replace(/,/g,"")).filter(x=>{ const n=+x; if(/^\d{4}$/.test(x)&&n>=1900&&n<=2100) return false; return x.replace(/\D/g,"").length>=2||x.includes("."); }); }
+function citedText(sent, facts){
+  const ids=[...String(sent).matchAll(/\b(F\d+|[A-Z]{1,3}\d+)\b/g)].map(m=>m[1]); const parts=[];
+  ids.forEach(id=>{ if(/^F\d+$/.test(id)){ if(facts&&facts[id]) parts.push(facts[id].claim); } else if(state.attText[id]) parts.push(state.attText[id]); });
+  return parts.length?parts.join(" ").replace(/,/g,""):null;
+}
+function para(lines, opt){
+  const txt = lines.join(" ");
+  if(!opt.flag) return `<p>${inl(txt,opt)}</p>`;
+  const parts = txt.split(/(?<=[.!?])\s+/);
+  return "<p>"+parts.map(s=>{
+    const h=inl(s,opt);
+    const cited=/\[(F\d+|[A-Z]{1,3}\d+)/.test(s);
+    if(FIG.test(s) && !cited){ opt.count=(opt.count||0)+1; return `<span class="uncited" title="Figure without an evidence citation">${h}</span>`; }
+    if(FIG.test(s) && cited){ const src=citedText(s.match(/\[[^\]]*\]/g)?.join(" ")||"",opt.facts); const miss=src?nums(s.replace(/\[[^\]]*\]/g,"")).filter(n=>!src.includes(n)):[];
+      if(miss.length){ opt.mismatch=(opt.mismatch||0)+1; return `<span class="mism" title="${esc("Couldn't find "+miss.join(", ")+" in the cited source. Check it.")}">${h}</span>`; } }
+    return h;
+  }).join(" ")+"</p>";
+}
+function md(text, opt={}){
+  const lines = String(text||"").replace(/\r/g,"").split("\n");
+  let out="", p=[], list=null;
+  const flushP=()=>{ if(p.length){ out+=para(p,opt); p=[]; } };
+  const flushL=()=>{ if(list){ out+=`<${list.t}>`+list.items.map(i=>`<li>${inl(i,opt)}</li>`).join("")+`</${list.t}>`; list=null; } };
+  for(const l of lines){
+    const t=l.trim();
+    if(!t){ flushP(); flushL(); continue; }
+    const h=t.match(/^#{1,4}\s+(.*)/);
+    if(h){ flushP(); flushL(); out+=`<h4>${inl(h[1],opt)}</h4>`; continue; }
+    const b=t.match(/^([-*•]|\d+[.)])\s+(.*)/);
+    if(b){ flushP(); const ty=/\d/.test(b[1])?"ol":"ul"; if(!list||list.t!==ty){ flushL(); list={t:ty,items:[]}; } list.items.push(b[2]); continue; }
+    flushL(); p.push(t);
+  }
+  flushP(); flushL();
+  return out;
+}
+function splitMeta(text){
+  const i = text.indexOf("<<<META");
+  if(i<0) return {body:text.replace(/<{1,3}(M(E(T(A)?)?)?)?\s*$/,"").trim(), meta:null};
+  const raw=text.slice(i+7); let meta=null;
+  const a=raw.indexOf("{"), b=raw.lastIndexOf("}");
+  if(a>=0 && b>a){ try{ meta=JSON.parse(raw.slice(a,b+1)); }catch(e){ meta=null; } }
+  return {body:text.slice(0,i).trim(), meta};
+}
+const fmtDate = t => t ? new Date(t).toLocaleDateString(undefined,{month:"short",day:"numeric",year:"numeric"}) : "";
+const STATUS_LABEL = {draft:"Draft",planning:"Planning",plan_ready:"Plan ready",research_requested:"Awaiting research",evidence_ready:"Evidence ready",running:"In session",adjourned:"Adjourned",interrupted:"Interrupted",complete:"Decided"};
+function statusOf(s){ if(s.status==="running" && !(RUN && RUN.sid===s.id)) return "interrupted"; if(s.status==="planning" && !(RUN && RUN.sid===s.id)) return "draft"; return s.status||"draft"; }
+
+/* ───────────────────────── Stages ───────────────────────── */
+function stageInfo(k){
+  const fixed={cruxes:["Counsel's cruxes","Cruxes"],draft:["Draft resolution","Draft"],ratify:["Ratification (sealed)","Ratify"],brief:["Counsel's evidence brief","Brief"],opening:["Opening positions (sealed)","Openings"],redteam:["Red-team dissent","Red team"],vote:["Roll-call vote (sealed)","Vote"],synthesis:["Counsel's synthesis","Synthesis"]};
+  if(fixed[k]) return {label:fixed[k][0],short:fixed[k][1]};
+  const m=String(k).match(/^(challenge|response)(\d+)$/);
+  if(m) return m[1]==="challenge"?{label:`Cross-examination, round ${m[2]}`,short:`Cross-exam ${m[2]}`}:{label:`Rebuttals, round ${m[2]}`,short:`Rebuttals ${m[2]}`};
+  return {label:k,short:k};
+}
+function buildPlan(rounds, ratify){ const p=["brief","opening","cruxes"]; for(let i=1;i<=rounds;i++) p.push("challenge"+i,"response"+i); p.push("redteam","vote"); if(ratify) p.push("draft","ratify"); p.push("synthesis"); return p; }
+const pIdx = (s,k) => (s.plan||[]).indexOf(k);
+const sortTurns = (s,turns) => turns.slice().sort((a,b)=>(pIdx(s,a.stage)-pIdx(s,b.stage))||((a.slot||0)-(b.slot||0)));
+
+/* ───────────────────────── Prompt building ───────────────────────── */
+function factsMap(pack){ const m={}; (pack?.facts||[]).forEach(f=>m[f.id]=f); return m; }
+function options(s, pack){ const m=(pack?.markets||[]).map(x=>x.name); return m.length?m:(s.approvedPlan?.markets||[]).map(x=>x.name); }
+function evidenceText(pack){
+  if(!pack) return "EVIDENCE REGISTER: none.";
+  const L=["EVIDENCE REGISTER (web-sourced; cite by ID like [F3]):"];
+  (pack.facts||[]).forEach(f=>L.push(`[${f.id}] (${f.market||"all"}${f.pestle?" | "+f.pestle:""}) ${f.claim} — ${f.source||""}${f.published?" ("+f.published+")":""}`));
+  if(pack.pestle?.length){ L.push("","PESTLE SYNTHESIS (by Counsel, from the register):");
+    pack.pestle.forEach(p=>{ L.push(`Market: ${p.market}`); PESTLE.forEach(([k,,lab])=>(p[k]||[]).forEach(x=>L.push(`  ${lab}: ${x.point} [${(x.facts||[]).join(", ")}]`))); }); }
+  if(pack.scorecard?.length){ L.push("","SCREENING SCORECARD (Counsel judgment, 1-5, higher is better):");
+    pack.scorecard.forEach(r=>L.push(`  ${r.market}: demand ${r.demand}, access ${r.access}, right-to-win ${r.right_to_win}, margin ${r.margin}, capital-light ${r.capital_light}, low risk ${r.risk_low}, speed ${r.speed}, synergy ${r.synergy}. Basis: ${r.basis||""}`)); }
+  if(pack.gaps?.length){ L.push("","KNOWN GAPS (no reliable public data found):"); pack.gaps.forEach(g=>L.push(`  ${g.market||"all"}: ${g.question}${g.note?" — "+g.note:""}`)); }
+  return L.join("\n");
+}
+function dossier(s, pack){
+  const opts = options(s,pack);
+  return [
+    profileText(s),
+    `THE DILEMMA:\nGrowth area: ${s.growthArea}\nQuestion: ${s.question}`,
+    s.constraints?`Constraints:\n${s.constraints}`:"",
+    s.assumptions?`The chair's stated assumptions (open to challenge):\n${s.assumptions}`:"",
+    `Options on the table (markets researched):\n${opts.map(o=>"- "+o).join("\n")}\n- Hold (pursue none of these now)`,
+    s.notes?`CHAIR'S NOTES:\n${s.notes}`:""
+  ].filter(Boolean).join("\n\n");
+}
+const FACT_RULES = `EVIDENCE DISCIPLINE (strict):
+- Every factual statement about markets, agencies, budgets, programs, regulations, deadlines, competitors, fees, or wages must cite the evidence register by ID, e.g. [F7], or a briefing material by its tag, e.g. [PW2].
+- Never introduce a number, date, dollar amount, or program detail that is not in the register, the briefing materials, or the company context. If you need a fact the register lacks, say it is unknown and that it should be researched.
+- You may reason and give judgment freely; make clear when something is your judgment.`;
+function memberFrame(m, s){
+  const others = members(s).filter(x=>x.id!==m.id).map(x=>x.title).join("; ");
+  const local = s?.calibration?.lenses?.[m.id];
+  const own = (ATT_CTX||RUN)?.att?.[m.id]||[];
+  const head = `\n\nYOUR BRIEFING MATERIALS (supplied by the chair to support your seat${own.some(a=>!a.shared)?"; items not marked shared are yours alone, so quote what you rely on":""}; cite by tag, e.g. [${own[0]?.tag}])`;
+  const brief = !own.length ? "" : (totalChars(own)>OWN_BUDGET && state.toolsOK)
+    ? head+". They are too large to include in full, so search them with the search_materials tool and read passages with read_material before you write. Index:\n"+indexAtts(own)
+    : head+":\n"+packAtts(own,OWN_BUDGET);
+  return `You are the ${m.title}, ${members(s).length>1?`one of ${members(s).length} voting directors`:"a voting director"} on this company's advisory board. You are a composite archetype, not any real person; never claim to be or quote a real executive.
+
+MANDATE: ${m.mandate}
+YOUR LENS: "${m.lens}"
+WHAT YOU ALWAYS PRESS ON: ${m.presses}
+YOUR RED LINE: ${m.redLine}
+PESTLE FACTORS YOU WATCH MOST: ${m.pestle}
+IN THIS COMPANY'S SECTOR AND GEOGRAPHY: ${local||"Apply your mandate to this company's specific sector, geography and size."}
+VOICE: ${m.tone}
+
+Other directors: ${others}. The non-voting Strategy Counsel briefs and facilitates.
+
+${brief}
+
+DEBATE CONDUCT:
+- Argue from your mandate. You are on this board because you see what the others miss; do not drift toward consensus.
+- Agreement must add something: name what the other director missed or when they would be wrong.
+- Refer to colleagues by role (e.g. "the Risk Hawk"). Sharp and professional, never insulting.
+- Ground every point in how this sector and geography actually work, the PESTLE findings, and this company's actual size and capabilities.
+- Plain prose, no headings, no sign-off.
+
+${FACT_RULES}`;
+}
+function packAtts(list, budget){
+  const items=list.slice().sort((a,b)=>(a.chars||0)-(b.chars||0)); let left=budget; const out={};
+  items.forEach((a,i)=>{ const share=Math.floor(left/(items.length-i)); let t=String(a.text||""); if(t.length>share){ t=t.slice(0,share)+"\n[…truncated]"; } left-=t.length; out[a.id]=t; });
+  return list.map(a=>`[${a.tag}] ${a.name}${a.shared?" (shared with the board)":""}\n${out[a.id]}`).join("\n\n");
+}
+function sharedList(ctx){ const list=[]; (ctx.members||[]).forEach(m=>(ctx.att?.[m.id]||[]).forEach(a=>{ if(a.shared) list.push({...a,name:a.name+" — from the "+m.title}); })); return list; }
+function sharedBlock(ctx){
+  const list=sharedList(ctx); if(!list.length) return "";
+  if(totalChars(list)>SHARED_BUDGET && state.toolsOK) return "SHARED BOARD MATERIALS (supplied by the chair; too large to include in full, so search them with the search_materials tool; cite by tag). Index:\n"+indexAtts(list);
+  return "SHARED BOARD MATERIALS (supplied by the chair; cite by tag):\n"+packAtts(list,SHARED_BUDGET);
+}
+const totalChars = l => (l||[]).reduce((n,a)=>n+(a.chars||String(a.text||"").length),0);
+function indexAtts(list){ return list.map(a=>`[${a.tag}] ${a.name}${a.shared?" (shared)":""} · ${(a.chars||0).toLocaleString()} characters · begins: "${String(a.text||"").slice(0,180).replace(/\s+/g," ")}…"`).join("\n"); }
+/* Retrieval over attached materials */
+const STOP=new Set("the and for with that this from are was were has have had not but its into our their than then they them what when which will would shall can could about over under after before also more most such only other some each per any all".split(" "));
+const toks = t => (String(t).toLowerCase().match(/[a-z0-9][a-z0-9.%$-]*[a-z0-9%]|[a-z0-9]/g)||[]).filter(w=>w.length>2&&!STOP.has(w));
+function buildChunks(ctx){
+  const out=[];
+  (ctx.members||[]).forEach(m=>(ctx.att?.[m.id]||[]).forEach(a=>{
+    const t=String(a.text||""); const n=Math.max(1,Math.ceil(t.length/CHUNK));
+    for(let i=0;i<n;i++){ const tx=t.slice(Math.max(0,i*CHUNK-150),(i+1)*CHUNK); const tf=new Map(); toks(tx).forEach(w=>tf.set(w,(tf.get(w)||0)+1));
+      out.push({tag:a.tag,name:a.name,part:i+1,of:n,owner:m.id,shared:!!a.shared,text:tx,tf}); }
+  }));
+  return out;
+}
+function searchChunks(scope, q, k){
+  const qs=[...new Set(toks(q))]; if(!qs.length) return [];
+  const N=scope.length||1, df={}; qs.forEach(w=>df[w]=scope.reduce((n,c)=>n+(c.tf.has(w)?1:0),0));
+  const phrase=String(q).toLowerCase().trim();
+  return scope.map(c=>{ let sc=0; qs.forEach(w=>{ const f=c.tf.get(w)||0; if(f) sc+=(1+Math.log(f))*Math.log(1+N/(df[w]||1)); });
+      if(phrase.length>5 && c.text.toLowerCase().includes(phrase)) sc+=3; return {c,sc}; })
+    .filter(x=>x.sc>0).sort((a,b)=>b.sc-a.sc).slice(0,k).map(x=>x.c);
+}
+function toolsFor(ctx, who, key, onNote){
+  if(!state.toolsOK) return undefined;
+  const ownOver = who && totalChars(ctx.att?.[who])>OWN_BUDGET, sharedOver = totalChars(sharedList(ctx))>SHARED_BUDGET;
+  if(!ownOver && !sharedOver) return undefined;
+  const scope=(ctx.chunks||[]).filter(c=>c.owner===who || c.shared);
+  const bump=(msg)=>{ ctx.lookups[key]=(ctx.lookups[key]||0)+1; onNote&&onNote(msg); };
+  return [
+    {name:"search_materials",description:"Keyword search over your briefing materials and the board's shared materials. Returns up to 6 matching passages with their tag and part number. Use specific terms: names, metrics, years, places.",
+     inputSchema:{type:"object",properties:{query:{type:"string",description:"Keywords to search for"}},required:["query"]},
+     execute:(inp)=>{ const q=String(inp?.query||""); bump(`Searching data: “${q.slice(0,60)}”`); const hits=searchChunks(scope,q,6);
+       return hits.length ? hits.map(h=>({tag:h.tag,part:h.part,of:h.of,name:h.name,text:h.text})) : "No matching passages. Try different keywords."; }},
+    {name:"read_material",description:"Read one part of a material in full, by its tag (e.g. PW2) and part number from the search results. Parts are about 1,500 characters.",
+     inputSchema:{type:"object",properties:{tag:{type:"string"},part:{type:"number"}},required:["tag","part"]},
+     execute:(inp)=>{ const tag=String(inp?.tag||"").toUpperCase().replace(/[^A-Z0-9]/g,""), part=Number(inp?.part)||1; bump(`Reading ${tag} part ${part}`);
+       const c=scope.find(x=>x.tag===tag&&x.part===part); if(!c) throw new Error("No such part. Use search_materials first.");
+       return {tag:c.tag,part:c.part,of:c.of,name:c.name,text:c.text}; }}
+  ];
+}
+const TOOL_NOTE = `\n\nBefore you write, use the tools to check the materials you rely on. When you are done searching, write a line containing exactly <<<REMARKS and then your remarks (and the META block if one is requested). Nothing before <<<REMARKS is shown to anyone.`;
+const TOOL_NOTE_JSON = `\n\nUse the tools first if you need to check materials. Your final message must contain only the JSON.`;
+const COUNSEL_FRAME = `You are the Strategy Counsel to this board: a non-voting adviser in the style of a top-tier strategy consultancy engagement partner. You structure problems so the parts don't overlap and nothing is missed, lead with what the board needs to know, challenge weak evidence, and stay scrupulously neutral between directors. You never vote.`;
+function transcriptText(s, turns, beforeKey){
+  const lim = pIdx(s,beforeKey);
+  const list = sortTurns(s,turns).filter(t=>pIdx(s,t.stage)<lim && !["vote","synthesis","ratify","draft"].includes(t.stage));
+  if(!list.length) return "TRANSCRIPT SO FAR: (none)";
+  return "TRANSCRIPT SO FAR:\n\n"+list.map(t=>{
+    const who=byId[t.speaker]?.title||t.speaker;
+    const tgt=t.target?` → challenging the ${byId[t.target]?.title}`:(t.targets?.length?` → answering ${t.targets.map(x=>byId[x]?.title).join(", ")}`:"");
+    return `[${stageInfo(t.stage).short}] ${who}${tgt}:\n${t.text}`;
+  }).join("\n\n");
+}
+const META_NOTE = `After your remarks, on a new line write exactly <<<META and then one JSON object, nothing after it:`;
+
+/* ───────────────────────── Claude calls ───────────────────────── */
+async function ask(prompt, {tier="default", signal, onText, json=false, tools}={}){
+  if(!SAMPLE) throw {code:"not_granted"};
+  const opts={modelTier:tier, cache:false}; if(signal) opts.signal=signal; if(onText) opts.onText=({text})=>onText(text); if(tools) opts.tools=tools;
+  return json ? SAMPLE.json(prompt,opts) : SAMPLE(prompt,opts);
+}
+function errCopy(e){
+  const c=e&&e.code;
+  return ({not_granted:"Claude access wasn't allowed for this page. Reload and allow it to run the board.",
+    rate_limited:"Claude usage limit reached. Completed turns are saved; continue the session later.",
+    session_expired:"Your Claude session expired. Sign in again, then continue.",
+    sampling_disabled:"Claude isn't available on this account.",
+    refused:"Claude declined one turn. Edit the dilemma wording or regenerate this stage.",
+    invalid_json:"One response came back malformed. Continue to retry that turn.",
+    prompt_too_large:"The evidence pack is too large for one call. Trim the register and continue."}[c])
+    || "A Claude call failed ("+(c||"error")+"). Completed turns are saved; continue to retry.";
+}
+async function pool(items, n, fn){
+  let i=0, failed=null;
+  const work=async()=>{ while(i<items.length && !failed){ const it=items[i++]; try{ await fn(it); }catch(e){ failed=failed||e; throw e; } } };
+  const res = await Promise.allSettled(Array.from({length:Math.min(n,items.length)},work));
+  const rej = res.find(r=>r.status==="rejected"); if(rej) throw rej.reason;
+}
+
+/* ───────────────────────── Phase 1: analysis plan ───────────────────────── */
+async function runPlan(sid, base){
+  if(RUN) return;
+  const src=base||getS(sid); if(!src) return;
+  const s=clone(src); const ctx={sid,s,ctl:new AbortController(),turns:new Map()}; RUN=ctx;
+  s.status="planning"; s.error=""; await saveS(ctx); render();
+  const id=LK(sid,"plan"); state.live[id]={id:"plan",sid,speaker:"counsel",stage:"plan",text:""};
+  try{
+    const prompt = [COUNSEL_FRAME, profileText(s), `GROWTH AREA THE CHAIR WANTS TO EXPLORE: ${s.growthArea}`, `QUESTION: ${s.question}`,
+      s.markets?.length?`Markets the chair already has in mind:\n${s.markets.map(m=>"- "+m).join("\n")}`:"",
+      s.constraints?`Constraints:\n${s.constraints}`:"", s.notes?`Chair's notes:\n${s.notes}`:"",
+      `TASK: Recommend the market analysis the board needs before it can decide, and calibrate the board to this company's sector and geography.
+1. Define 3 to 5 distinct, specific markets or segments within or adjacent to the growth area that this company could realistically enter in its geography (include the chair's markets if named; you may add or sharpen). For each, list the questions that decide it and the specific public data to pull, naming the likely primary sources for this sector and geography (government statistics, regulators and their rules, public budgets and procurement portals, industry associations, public company filings, labor market data). Assign the PESTLE dimensions most relevant to each.
+2. Calibrate: describe the structural realities of this sector and geography, and translate each director's lens into this context.
+Do not state any facts or figures; this is a research plan and framing, not findings.
+
+Reply with only JSON:
+{"framing":"<2 sentences: what the board is really deciding>",
+ "markets":[{"name":"<short market name>","definition":"<one sentence: customer type, offering, geography>","why":"<why it is worth analyzing for this company>","questions":["<decisive question>", "..."],"data":[{"item":"<data point to find>","sources":"<likely primary sources>"}],"pestle":["political","economic","social","technological","legal","environmental"]}],
+ ${calibSpec(members(s))},
+ "criteria":"<one sentence on how markets will be screened>"}`
+    ].filter(Boolean).join("\n\n");
+    const r = await ask(prompt,{tier:"complex",json:true,signal:ctx.ctl.signal});
+    if(!r || !Array.isArray(r.markets) || !r.markets.length) throw {code:"invalid_json"};
+    s.analysisPlan = r; if(r.calibration?.lenses) s.calibration = r.calibration; s.status="plan_ready";
+  }catch(e){
+    s.status = "draft"; s.error = e&&e.code==="cancelled" ? "" : errCopy(e);
+  }finally{ delete state.live[id]; await saveS(ctx); RUN=null; render(); }
+}
+
+/* ───────────────────────── Phase 3: debate ───────────────────────── */
+async function saveS(ctx){ ctx.s.updatedAt=Date.now(); await Store.putSession(ctx.sid, ctx.s); }
+async function speak(ctx, t){
+  if(ctx.turns.has(t.id)) return ctx.turns.get(t.id);
+  const lk=LK(ctx.sid,t.id); state.live[lk]={...t,sid:ctx.sid,text:""}; render();
+  const tools = toolsFor(ctx, t.speaker==="counsel"?null:t.speaker, t.id, msg=>{ if(state.live[lk]){ state.live[lk].note=msg; render(); } });
+  const after = x => { const i=x.lastIndexOf("<<<REMARKS"); return i<0 ? (tools?"":x) : x.slice(i+10); };
+  const r = await ask(t.prompt+(tools?TOOL_NOTE:""),{tier:t.tier||"default",signal:ctx.ctl.signal,tools,onText:text=>{ if(state.live[lk]){ state.live[lk].text=after(text); render(); } }});
+  const raw = tools ? (r.text.includes("<<<REMARKS") ? after(r.text) : r.text) : r.text;
+  const {body,meta} = splitMeta(raw);
+  if(meta && ctx.lookups[t.id]) meta.lookups=ctx.lookups[t.id];
+  const turn={id:t.id,stage:t.stage,slot:t.slot,speaker:t.speaker,target:t.target||null,targets:t.targets||null,text:body,meta:{...(meta||{}),...(ctx.lookups[t.id]?{lookups:ctx.lookups[t.id]}:{})},truncated:!!r.truncated,at:Date.now()};
+  delete state.live[lk]; ctx.turns.set(t.id,turn); await Store.putTurn(ctx.sid,turn); render();
+  return turn;
+}
+const turnsArr = ctx => [...ctx.turns.values()];
+
+function stanceMap(ctx, mid){
+  const t=ctx.turns.get("opening__"+mid); const m={};
+  (t?.meta?.stances||[]).forEach(x=>{ m[String(x.option||"").toLowerCase()] = ({pursue:2,test:1,avoid:0})[String(x.stance||"").toLowerCase()] ?? 1; });
+  return m;
+}
+function computePairings(ctx, round){
+  const opts=options(ctx.s,ctx.pack).map(o=>o.toLowerCase());
+  const counselFaults=(ctx.turns.get("brief__counsel")?.meta?.fault_lines)||[];
+  const prev = new Set(); for(let r=1;r<round;r++){ const p=ctx.s.pairings?.["challenge"+r]||{}; Object.entries(p).forEach(([a,b])=>prev.add(a+">"+b)); }
+  const has=(list,a,b)=>list.some(x=>Array.isArray(x)?((x[0]===a&&x[1]===b)||(x[0]===b&&x[1]===a)):((x.a===a&&x.b===b)||(x.a===b&&x.b===a)));
+  const score=(a,b)=>{ const sa=stanceMap(ctx,a), sb=stanceMap(ctx,b); let d=0; opts.forEach(o=>d+=Math.abs((sa[o]??1)-(sb[o]??1)));
+    if(has(counselFaults,a,b)) d+=2; if(has(DEFAULT_FAULTS,a,b)) d+=1; if(prev.has(a+">"+b)) d-=4;
+    (ctx.turns.get("cruxes__counsel")?.meta?.cruxes||[]).forEach(c=>{ const A=c.side_a?.directors||[], B=c.side_b?.directors||[]; if((A.includes(a)&&B.includes(b))||(B.includes(a)&&A.includes(b))) d+=2; });
+    return d; };
+  const load={}, out={};
+  const order = ctx.members.map(m=>m.id).sort((x,y)=>(round%2?1:-1)*(slotOf(x)-slotOf(y)));
+  for(const a of order){
+    let best=null,bs=-1e9;
+    for(const m of ctx.members){ const b=m.id; if(b===a||(load[b]||0)>=2) continue; const sc=score(a,b)+Math.random()*0.01; if(sc>bs){bs=sc;best=b;} }
+    out[a]=best; load[best]=(load[best]||0)+1;
+  }
+  return out;
+}
+function leadingOption(ctx){
+  const opts=options(ctx.s,ctx.pack); let best=null,bc=-1;
+  opts.forEach(o=>{ const c=ctx.members.filter(m=>stanceMap(ctx,m.id)[o.toLowerCase()]===2).length; if(c>bc){bc=c;best=o;} });
+  return {option:best,count:bc};
+}
+
+async function runStage(ctx, key){
+  const s=ctx.s, pack=ctx.pack, base=[contextBlock(s), dossier(s,pack), sharedBlock(ctx), evidenceText(pack)].filter(Boolean).join("\n\n");
+  const tx = () => transcriptText(s, turnsArr(ctx), key);
+
+  if(key==="brief"){
+    await speak(ctx,{id:"brief__counsel",stage:"brief",slot:0,speaker:"counsel",tier:"complex",prompt:[COUNSEL_FRAME,base,
+`TASK: EVIDENCE BRIEF opening the session. Write these sections, each under a "### " heading:
+### The real question — one or two sentences, including what is not being decided.
+### Market map — for each option: buyers and procurement path, competitive intensity, right to win for this company, margin and cash profile, people required, time to first revenue. Cite [F#] for every fact.
+### PESTLE highlights — the two or three forces per market most likely to decide it, cited.
+### Evidence challenge — where the register is thin, single-sourced, stale, or silent; which of the chair's assumptions the evidence does not support; what the board must not treat as settled.
+### Synergies — how each option reuses or strains existing service lines, certifications, licenses, and staff.
+### Expected fault lines — which directors will clash and over what.
+About 650 words. Neutral: no recommendation.
+${FACT_RULES}
+${META_NOTE}
+{"fault_lines":[{"a":"<director id>","b":"<director id>","issue":"<12 words max>"}],"evidence_flags":[{"fact":"<F# or 'gap'>","issue":"<why it is weak>"}]}
+Director ids: ${ctx.members.map(m=>m.id+" ("+m.title+")").join(", ")}.`].join("\n\n")});
+    return;
+  }
+  if(key==="opening"){
+    const opts=options(s,pack);
+    await pool(ctx.members, 2, m=>speak(ctx,{id:"opening__"+m.id,stage:"opening",slot:slotOf(m.id),speaker:m.id,prompt:[memberFrame(m,s),base,
+      "COUNSEL'S BRIEF:\n"+(ctx.turns.get("brief__counsel")?.text||""),
+`TASK: OPENING POSITION. This is sealed: you have not heard the other directors. In 220 words or fewer, say which options the company should pursue, test, or avoid, and why, from your mandate. Use at least one PESTLE finding. Name the single assumption your position depends on most.
+${META_NOTE}
+{"headline":"<your position in one sentence>","stances":[${opts.map(o=>`{"option":${JSON.stringify(o)},"stance":"pursue|test|avoid"}`).join(",")}],"key_assumption":"<one sentence>","confidence":<0-100>}`].join("\n\n")}));
+    return;
+  }
+  if(key==="cruxes"){
+    const lead=leadingOption(ctx), alarm=lead.count>=Math.max(3,ctx.members.length-1);
+    await speak(ctx,{id:"cruxes__counsel",stage:"cruxes",slot:0,speaker:"counsel",prompt:[COUNSEL_FRAME,base,tx(),
+`TASK: NAME THE CRUXES. From the sealed opening positions, in 150 words or fewer, name the one to three underlying disagreements that explain why the directors split. Classify each as factual (resolvable with evidence), numbers (turns on an estimate) or values (a trade-off such as speed versus safety), and say which directors sit on each side. ${alarm?`The openings converged on "${lead.option}" (${lead.count} of ${ctx.members.length} directors). Treat that as a warning, not a win: make the strongest unargued alternative a crux and name the directors who must argue it at full strength.`:""} Neutral: no recommendation.
+${META_NOTE}
+{"cruxes":[{"question":"<the disagreement as a question>","type":"factual|numbers|values","side_a":{"position":"<short>","directors":["<id>"]},"side_b":{"position":"<short>","directors":["<id>"]}}],"unanimity":${alarm},"unargued_alternative":"<option, or empty>"}
+Director ids: ${ctx.members.map(m=>m.id+" ("+m.title+")").join(", ")}.`].join("\n\n")});
+    return;
+  }
+  if(key==="draft"){
+    const sc=s.outcome?.scoring;
+    await speak(ctx,{id:"draft__counsel",stage:"draft",slot:0,speaker:"counsel",tier:"complex",prompt:[COUNSEL_FRAME,base,transcriptText(s,turnsArr(ctx),"vote"),rollText(ctx),scoringText(sc),
+`TASK: DRAFT RESOLUTION for the board to ratify. Recommend the option with the highest weighted score${sc?` (${sc.rec})`:""} and state the verdict label${sc?` (${sc.label})`:""}. In 200 words or fewer: the recommendation; the conditions directors asked for (merge duplicates, make each checkable with a number, a date or a test result; where directors differ, pick one and say whose); next steps with dates; the cheapest test; kill criteria; and a mitigation for every ruin flag. Weigh arguments, not headcount: one director with a decisive fact beats three with opinions.
+${FACT_RULES}
+${META_NOTE}
+{"recommendation":"<option>","label":"<verdict label>","conditions":["..."],"next_steps":["..."],"cheapest_test":"...","kill_criteria":"...","mitigations":[{"for":"<director id>","mitigation":"..."}]}`].join("\n\n")});
+    return;
+  }
+  if(key==="ratify"){
+    const d=ctx.turns.get("draft__counsel"), dm=d?.meta||{};
+    const draftText=`DRAFT RESOLUTION:\n${d?.text||""}\nRecommendation: ${dm.recommendation||""} (${dm.label||""})\nConditions: ${(dm.conditions||[]).join("; ")}\nNext steps: ${(dm.next_steps||[]).join("; ")}\nCheapest test: ${dm.cheapest_test||""}\nKill criteria: ${dm.kill_criteria||""}\nMitigations: ${(dm.mitigations||[]).map(x=>(byId[x.for]?.title||x.for)+": "+x.mitigation).join("; ")}`;
+    await pool(ctx.members, 2, async mm=>{
+      const id="ratify__"+mm.id; if(ctx.turns.has(id)) return;
+      state.live[LK(ctx.sid,id)]={id,sid:ctx.sid,stage:"ratify",slot:slotOf(mm.id),speaker:mm.id,text:"Ratifying…",sealed:true}; render();
+      const v = await ask([memberFrame(mm,s),base,draftText,`YOUR VOTE: ${JSON.stringify(ctx.turns.get("vote__"+mm.id)?.meta?.choice||"")}`,
+`TASK: RATIFY THE DRAFT RESOLUTION. Sealed: you cannot see other directors' ratification votes. Endorse it, endorse with one amendment, or dissent. If you flagged ruin risk, endorse only if the mitigation answers it.
+Reply with only JSON: {"vote":"endorse|amend|dissent","final_score":<0-10, your support for the resolution as written>,"amendment":"<what to change, or why you dissent; empty if you endorse>","one_line":"<the one thing from your mandate the chair must not forget>"}`].join("\n\n"),{json:true,signal:ctx.ctl.signal});
+      const vv=String(v?.vote||"").toLowerCase(); const turn={id,stage:"ratify",slot:slotOf(mm.id),speaker:mm.id,text:String(v?.amendment||""),meta:{...v,vote:/dissent/.test(vv)?"dissent":/amend/.test(vv)?"amend":"endorse"},at:Date.now()};
+      delete state.live[LK(ctx.sid,id)]; ctx.turns.set(id,turn); await Store.putTurn(ctx.sid,turn); render();
+    });
+    s.outcome={...(s.outcome||tally(s,turnsArr(ctx))),scoring:scoreBoard(s,turnsArr(ctx))}; await saveS(ctx);
+    return;
+  }
+  let m;
+  if((m=key.match(/^challenge(\d+)$/))){
+    const round=+m[1];
+    s.pairings=s.pairings||{};
+    if(!s.pairings[key]){ s.pairings[key]=computePairings(ctx,round); await saveS(ctx); }
+    const pairs=s.pairings[key];
+    await pool(ctx.members, 2, a=>{ const tgt=byId[pairs[a.id]]; if(!tgt) return null; const t=tx();
+      return speak(ctx,{id:key+"__"+a.id,stage:key,slot:slotOf(a.id),speaker:a.id,target:tgt.id,prompt:[memberFrame(a,s),base,t,
+cruxText(ctx),
+`TASK: CROSS-EXAMINATION, round ${round}. You are directed to challenge the ${tgt.title}. Make the challenge bear on a crux where the two of you sit on opposite sides, if there is one. Quote or closely paraphrase one specific claim they made, explain concretely why it fails in this sector and geography or for a company this size (cite the register where you can, or show that their claim is uncited), and end with one pointed question they must answer. 150 words max. Challenge no one else.
+${META_NOTE}
+{"claim":"<the claim you attack, 25 words max>","question":"<your question>","confidence":<0-100>}`].join("\n\n")}); });
+    return;
+  }
+  if((m=key.match(/^response(\d+)$/))){
+    const ck="challenge"+m[1], pairs=s.pairings?.[ck]||{}, against={};
+    Object.entries(pairs).forEach(([a,b])=>{ (against[b]=against[b]||[]).push(a); });
+    const targets=ctx.members.filter(x=>against[x.id]);
+    await pool(targets, 2, b=>{ const t=tx();
+      const qs=against[b.id].map(a=>{ const ct=ctx.turns.get(ck+"__"+a); return `The ${byId[a].title} asked: ${ct?.meta?.question||"(see transcript)"}`; }).join("\n");
+      return speak(ctx,{id:key+"__"+b.id,stage:key,slot:slotOf(b.id),speaker:b.id,targets:against[b.id],prompt:[memberFrame(b,s),base,t,cruxText(ctx),
+`TASK: REBUTTAL, round ${m[1]}. You were challenged:
+${qs}
+Answer each question directly. Concede only what the evidence forces you to concede and say exactly which fact changed your mind; hold everything else and say why. Then answer each crux the Counsel named in one line. 220 words max.
+${META_NOTE}
+{"headline":"<your position now, one sentence>","conceded":"<what you concede, or 'nothing'>","position_changed":true|false,"confidence":<0-100>}`].join("\n\n")}); });
+    return;
+  }
+  if(key==="redteam"){
+    const lead=leadingOption(ctx);
+    const alarm = lead.count>=Math.max(3,ctx.members.length-1);
+    if(s.depth!=="deep" && !alarm){ s.skipped=[...new Set([...(s.skipped||[]),"redteam"])]; return; }
+    let pick=null,low=9,lc=101;
+    ctx.members.forEach(x=>{ const v=stanceMap(ctx,x.id)[String(lead.option).toLowerCase()]??1; const c=ctx.turns.get("opening__"+x.id)?.meta?.confidence??50; if(v<low||(v===low&&c<lc)){low=v;lc=c;pick=x;} });
+    pick = pick||byId.hawk;
+    await speak(ctx,{id:"redteam__"+pick.id,stage:"redteam",slot:slotOf(pick.id),speaker:pick.id,prompt:[memberFrame(pick,s),base,tx(),
+`TASK: RED-TEAM DISSENT. ${alarm?"Counsel has sounded a consensus alarm: ":""}the board is leaning toward "${lead.option}". Counsel gives you the floor to make the strongest possible case against it and for the best alternative, even beyond your usual lens. Name the specific evidence (or missing evidence) that would prove the majority wrong. 230 words max.
+${META_NOTE}
+{"headline":"<the dissent in one sentence>","confidence":<0-100>}`].join("\n\n")});
+    return;
+  }
+  if(key==="vote"){
+    const opts=options(s,pack), all=transcriptText(s,turnsArr(ctx),"vote");
+    await pool(ctx.members, 2, async mm=>{
+      const id="vote__"+mm.id; if(ctx.turns.has(id)) return;
+      state.live[LK(ctx.sid,id)]={id,sid:ctx.sid,stage:"vote",slot:slotOf(mm.id),speaker:mm.id,text:"Casting a sealed vote…",sealed:true}; render();
+      const vt = toolsFor(ctx, mm.id, id, msg=>{ const L=state.live[LK(ctx.sid,id)]; if(L){ L.note=msg; render(); } });
+      const v = await ask([memberFrame(mm,s),base,all,
+`TASK: SEALED ROLL-CALL VOTE. You cannot see anyone else's vote. Choose exactly one option for the company to pursue as its priority, or "Hold" (pursue none now). Options: ${opts.map(o=>JSON.stringify(o)).join(", ")}, "Hold".
+Also score EVERY option including Hold:
+- scores: 0-10, how strongly you back it.
+- pillar_scores: 0-10, the option judged only on your own mandate.
+- ruin_risk: "none", "possible" or "likely" — an irreversible downside that could sink the company if it pursued that option.
+- door: "one-way" (hard to reverse) or "two-way" (easy to reverse).
+Reply with only JSON:
+{"choice":"<exact option name or Hold>","scores":{${[...opts,"Hold"].map(o=>JSON.stringify(o)+":<0-10>").join(",")}},"pillar_scores":{${[...opts,"Hold"].map(o=>JSON.stringify(o)+":<0-10>").join(",")}},"ruin_risk":{${[...opts,"Hold"].map(o=>JSON.stringify(o)+':"none|possible|likely"').join(",")}},"door":{${[...opts,"Hold"].map(o=>JSON.stringify(o)+':"one-way|two-way"').join(",")}},"support":"strong|conditional","ranking":["<options best to worst>"],"conditions":["<what your vote depends on, max 3>"],"flip_if":"<the one finding that would flip your vote>","confidence":<0-100>,"rationale":"<2-3 sentences in your voice, citing [F#] or material tags for facts>","changed_from_opening":true|false,"change_reason":"<why, or empty>"}`].join("\n\n")+(vt?TOOL_NOTE_JSON:""),{json:true,signal:ctx.ctl.signal,tools:vt});
+      const choice = normChoice(v?.choice, opts);
+      ["scores","pillar_scores","ruin_risk","door"].forEach(k=>{ if(v && v[k] && typeof v[k]==="object"){ const o={}; Object.entries(v[k]).forEach(([kk,vv])=>{ o[normChoice(kk,opts)]=vv; }); v[k]=o; } });
+      const turn={id,stage:"vote",slot:slotOf(mm.id),speaker:mm.id,text:String(v?.rationale||""),meta:{...v,choice,...(ctx.lookups[id]?{lookups:ctx.lookups[id]}:{})},at:Date.now()};
+      delete state.live[LK(ctx.sid,id)]; ctx.turns.set(id,turn); await Store.putTurn(ctx.sid,turn); render();
+    });
+    s.outcome = {...tally(s, turnsArr(ctx)), scoring:scoreBoard(s,turnsArr(ctx))}; await saveS(ctx);
+    return;
+  }
+  if(key==="synthesis"){
+    const id="synthesis__counsel"; if(ctx.turns.has(id)) return;
+    const out = s.outcome || tally(s,turnsArr(ctx));
+    const roll = ctx.members.map(x=>{ const v=ctx.turns.get("vote__"+x.id)?.meta||{}; return `${x.id} (${x.title}): ${v.choice} — ${v.support}, confidence ${v.confidence}. Conditions: ${(v.conditions||[]).join("; ")}. Flips if: ${v.flip_if}. Rationale: ${v.rationale}`; }).join("\n");
+    state.live[LK(ctx.sid,id)]={id,sid:ctx.sid,stage:"synthesis",speaker:"counsel",text:"Drafting the record of decision…",sealed:true}; render();
+    const ct = toolsFor(ctx, null, id);
+    const r = await ask([COUNSEL_FRAME,base,transcriptText(s,turnsArr(ctx),"vote"),
+`ROLL CALL:\n${roll}\nFIRST CHOICES: ${Object.entries(out.counts).map(([k,v])=>k+" "+v).join(", ")}.`, scoringText(s.outcome?.scoring), ratifyText(ctx),
+`TASK: FACILITATED SYNTHESIS. You do not vote. Produce the record of decision from the transcript, roll call and weighted scores. The resolution must state the computed verdict label and recommended option, and any caps applied; reflect the vote as cast, including its strength, spread and any split between first choices and weighted scores. Name a fix for every weak pillar. Challenge the evidence base: say which decisive claims rest on thin or missing evidence.
+${FACT_RULES}
+Reply with only JSON:
+{"resolution":"<one-sentence board resolution reflecting the actual vote>","summary":"<3-4 sentences: what was decided and why>","agreements":["<points nearly all directors accepted>"],"dissents":[{"director":"<id>","point":"<their dissent, one sentence>"}],"key_assumptions":[{"assumption":"...","held_by":["<ids>"],"test":"<how to verify, and by when>"}],"risks":[{"risk":"...","severity":"high|medium|low","mitigation":"..."}],"evidence_gaps":["<decisive questions the evidence did not answer>"],"paths":[{"name":"<short name>","backers":["<ids>"],"thesis":"<one sentence>","first_moves":["<first 90-day moves, max 3>"],"kill_criteria":"<what would make the company stop>"}],"pillar_fixes":[{"director":"<id>","fix":"<named fix for a pillar scored 4 or below>"}],"amendments":[{"director":"<id>","amendment":"...","adopted":true,"reason":"..."}],"open_questions":["..."]}
+Give 2-3 paths that represent the genuinely conflicting directions, not variations of one.`].join("\n\n")+(ct?TOOL_NOTE_JSON:""),{tier:"complex",json:true,signal:ctx.ctl.signal,tools:ct});
+    const turn={id,stage:"synthesis",slot:0,speaker:"counsel",text:String(r?.summary||""),meta:r||{},at:Date.now()};
+    delete state.live[LK(ctx.sid,id)]; ctx.turns.set(id,turn); await Store.putTurn(ctx.sid,turn);
+    s.synthesis={resolution:r?.resolution||"",paths:(r?.paths||[]).map(p=>p.name),risks:(r?.risks||[]).slice(0,3),label:s.outcome?.scoring?.label||"",score:s.outcome?.scoring?.score??null,rec:s.outcome?.scoring?.rec||""};
+    await saveS(ctx); render();
+  }
+}
+function normChoice(c, opts){
+  const t=String(c||"").trim(); if(!t) return "Hold";
+  const hit=opts.find(o=>o.toLowerCase()===t.toLowerCase()) || opts.find(o=>t.toLowerCase().includes(o.toLowerCase())||o.toLowerCase().includes(t.toLowerCase()));
+  return hit || (/hold/i.test(t)?"Hold":t);
+}
+const LABEL_ORDER=["DON'T DO IT","RESHAPE","GO WITH CONDITIONS","GO"];
+function bandOf(x){ return x>=7.5?"GO":x>=6?"GO WITH CONDITIONS":x>=4.5?"RESHAPE":"DON'T DO IT"; }
+function scoreBoard(s, turns){
+  const M=members(s), W=id=>Math.min(3,Math.max(1,Math.round(+(s.calibration?.weights?.[id]?.w)||2)));
+  const votes=M.map(m=>({m,v:turns.find(t=>t.id==="vote__"+m.id)?.meta})).filter(x=>x.v&&x.v.scores);
+  if(!votes.length) return null;
+  const keys=[...new Set(votes.flatMap(x=>Object.keys(x.v.scores||{})))]; const options={};
+  keys.forEach(k=>{ let num=0,den=0; const parts=[], per=[];
+    votes.forEach(({m,v})=>{ const sc=Number(v.scores[k]); if(Number.isFinite(sc)){ const w=W(m.id); num+=w*sc; den+=w; parts.push(`${w}×${sc}`); per.push(sc); } });
+    options[k]={score:den?Math.round(num/den*10)/10:0, math:`(${parts.join(" + ")}) / ${den}`, spread:per.length?Math.max(...per)-Math.min(...per):0}; });
+  const ranked=Object.entries(options).sort((a,b)=>b[1].score-a[1].score); const rec=ranked[0][0], score=ranked[0][1].score, spread=ranked[0][1].spread;
+  let label = rec==="Hold" ? "HOLD" : bandOf(score); const caps=[];
+  const rat={}; M.forEach(m=>{ const r=turns.find(t=>t.id==="ratify__"+m.id); if(r) rat[m.id]=r.meta; });
+  const title=id=>byId[id]?.title||id;
+  const capTo=(to,why)=>{ if(rec!=="Hold" && LABEL_ORDER.indexOf(label)>LABEL_ORDER.indexOf(to)) label=to; caps.push(why); };
+  const ruin=votes.filter(x=>String(x.v.ruin_risk?.[rec]||"").toLowerCase()==="likely").map(x=>x.m.id);
+  if(ruin.length && rec!=="Hold"){
+    const lifted = Object.keys(rat).length && ruin.every(id=>rat[id] && rat[id].vote!=="dissent");
+    if(lifted) caps.push(`Ruin cap lifted: ${ruin.map(title).join(", ")} endorsed the resolution's mitigation`);
+    else capTo("RESHAPE",`Ruin cap: ${ruin.map(title).join(", ")} flagged likely ruin on "${rec}"`);
+  }
+  const oneway=votes.filter(x=>String(x.v.door?.[rec]||"").toLowerCase()==="one-way").length;
+  if(rec!=="Hold" && oneway>votes.length/2 && spread>=4) capTo("GO WITH CONDITIONS",`One-way door: ${oneway} of ${votes.length} directors call "${rec}" hard to reverse and scores spread ${spread} points`);
+  const avgC=votes.reduce((n,x)=>n+(+x.v.confidence||0),0)/votes.length;
+  const confidence=Math.max(1,Math.min(10,Math.round(avgC/10)-(spread>=5?1:0)));
+  const pillars=votes.map(x=>({id:x.m.id,score:Number(x.v.pillar_scores?.[rec])})).filter(p=>Number.isFinite(p.score));
+  let support=null; const rk=Object.keys(rat); if(rk.length){ let n=0,d=0; rk.forEach(id=>{ const f=Number(rat[id].final_score); if(Number.isFinite(f)){ n+=W(id)*f; d+=W(id); } }); support=d?Math.round(n/d*10)/10:null; }
+  return {options, ranked:ranked.map(r=>r[0]), rec, score, label, caps, spread, confidence, ruin, pillars, weak:pillars.filter(p=>p.score<=4).map(p=>p.id), weights:Object.fromEntries(M.map(m=>[m.id,W(m.id)])), support};
+}
+function scoringText(sc){
+  if(!sc) return "";
+  return `WEIGHTED SCORES (director weight × score):\n${sc.ranked.map(k=>`  ${k}: ${sc.options[k].score} = ${sc.options[k].math}, spread ${sc.options[k].spread}`).join("\n")}\nRecommended: ${sc.rec} · verdict ${sc.label}${sc.caps.length?`\nCaps and overrides: ${sc.caps.join("; ")}`:""}\nSpread on the recommended option: ${sc.spread} · council confidence ${sc.confidence}/10${sc.weak.length?`\nWeak pillars (4 or below) on the recommendation: ${sc.weak.map(id=>byId[id]?.title||id).join(", ")}`:""}${sc.support!=null?`\nSupport for the resolution: ${sc.support}/10`:""}`;
+}
+function cruxText(ctx){
+  const c=ctx.turns.get("cruxes__counsel")?.meta?.cruxes||[]; if(!c.length) return "";
+  const t=ids=>(ids||[]).map(id=>byId[id]?.title||id).join(", ");
+  return "THE CRUXES THE COUNSEL SEES:\n"+c.map((x,i)=>`${i+1}. ${x.question} [${x.type}] — ${x.side_a?.position||""} (${t(x.side_a?.directors)}) vs ${x.side_b?.position||""} (${t(x.side_b?.directors)})`).join("\n");
+}
+function rollText(ctx){ return "ROLL CALL:\n"+ctx.members.map(x=>{ const v=ctx.turns.get("vote__"+x.id)?.meta||{}; return `${x.id} (${x.title}): ${v.choice} — ${v.support}, confidence ${v.confidence}. Conditions: ${(v.conditions||[]).join("; ")}. Flips if: ${v.flip_if}.`; }).join("\n"); }
+function ratifyText(ctx){
+  const r=ctx.members.map(m=>[m,ctx.turns.get("ratify__"+m.id)?.meta]).filter(x=>x[1]); if(!r.length) return "";
+  return "DRAFT RESOLUTION:\n"+(ctx.turns.get("draft__counsel")?.text||"")+"\nRATIFICATION:\n"+r.map(([m,v])=>`${m.id} (${m.title}): ${v.vote}, support ${v.final_score}/10${v.amendment?`. Amendment/dissent: ${v.amendment}`:""}`).join("\n");
+}
+function tally(s, turns){
+  const votes=members(s).map(m=>turns.find(t=>t.id==="vote__"+m.id)).filter(Boolean);
+  const counts={}; let conf=0, strong=0;
+  votes.forEach(v=>{ const c=v.meta.choice||"Hold"; counts[c]=(counts[c]||0)+1; conf+=+v.meta.confidence||0; if(v.meta.support==="strong") strong++; });
+  const sorted=Object.entries(counts).sort((a,b)=>b[1]-a[1]);
+  return {counts:Object.fromEntries(sorted), leader:sorted[0]?.[0]||"", lead:sorted[0]?.[1]||0, tie:sorted.length>1&&sorted[0][1]===sorted[1][1], cast:votes.length, strong, avgConf:votes.length?Math.round(conf/votes.length):0,
+    byMember:Object.fromEntries(votes.map(v=>[v.speaker,{choice:v.meta.choice,support:v.meta.support,confidence:v.meta.confidence}]))};
+}
+
+async function runDebate(sid, mode){
+  if(RUN) return;
+  const s0=getS(sid); if(!s0) return;
+  if(!state.pack){ showNotice("The evidence pack hasn't arrived yet. The board convenes only on sourced research."); return; }
+  const ctx={sid,s:clone(s0),pack:state.pack,turns:new Map(state.turns.map(t=>[t.id,t])),ctl:new AbortController(),mode};
+  if(!ctx.s.plan){
+    let seat=members(ctx.s);
+    if(seat.length<MIN_SEATS){ showNotice(`Seat at least ${MIN_SEATS} directors before convening.`); return; }
+    if(ctx.s.depth==="quick" && seat.length>4){
+      ctx.members=seat;
+      if(seat.some(m=>!ctx.s.calibration?.weights?.[m.id])){ try{ await calibrate(ctx); }catch(e){ showNotice(errCopy(e)); return; } }
+      const w=id=>+(ctx.s.calibration?.weights?.[id]?.w)||2;
+      seat=seat.map((m,i)=>({m,i})).sort((a,b)=>(w(b.m.id)-w(a.m.id))||(a.i-b.i)).slice(0,4).sort((a,b)=>a.i-b.i).map(x=>x.m);
+    }
+    ctx.s.board = seat.map(p=>{ const o={id:p.id,custom:!!p.custom}; PFIELDS.forEach(k=>o[k]=p[k]); return o; });
+    ctx.s.seats = seat.map(p=>p.id);
+    ctx.s.rounds=ctx.s.depth==="deep"?2:1; ctx.s.plan=buildPlan(ctx.s.rounds,!!ctx.s.ratify); ctx.s.next=0; }
+  ctx.members = members(ctx.s); registerPeople(ctx.members); ctx.att={};
+  RUN=ctx; ctx.s.status="running"; ctx.s.error=""; state.notice=""; await saveS(ctx); render();
+  try{
+    for(const m of ctx.members){ try{ ctx.att[m.id]=await loadMaterials(m.id); }catch(_){ ctx.att[m.id]=[]; } }
+    ctx.chunks=buildChunks(ctx); ctx.lookups={};
+    if(ctx.members.some(m=>!ctx.s.calibration?.lenses?.[m.id])) await calibrate(ctx);
+    while(ctx.s.next < ctx.s.plan.length){
+      await runStage(ctx, ctx.s.plan[ctx.s.next]);
+      ctx.s.next++; await saveS(ctx);
+      if(mode==="step" && ctx.s.next<ctx.s.plan.length) break;
+    }
+    ctx.s.status = ctx.s.next>=ctx.s.plan.length ? "complete" : "adjourned";
+  }catch(e){
+    ctx.ctl.abort();
+    if(e&&e.code==="cancelled"){ ctx.s.status="adjourned"; }
+    else { ctx.s.status="interrupted"; ctx.s.error=errCopy(e); }
+  }finally{
+    Object.keys(state.live).forEach(k=>{ if(state.live[k].sid===ctx.sid) delete state.live[k]; });
+    await saveS(ctx); RUN=null; render();
+  }
+}
+async function calibrate(ctx){
+  const s=ctx.s, lk=LK(ctx.sid,"calibrate");
+  state.live[lk]={id:"calibrate",sid:ctx.sid,stage:"plan",speaker:"counsel",text:""}; render();
+  try{
+    const r = await ask([COUNSEL_FRAME, profileText(s), `GROWTH AREA: ${s.growthArea}`, `QUESTION: ${s.question}`,
+      `TASK: Calibrate the board to this company's sector and geography before the debate. Framing only, no figures.\nReply with only JSON: {${calibSpec(ctx.members)}}`].join("\n\n"),
+      {tier:"default",json:true,signal:ctx.ctl.signal});
+    const c = r?.calibration || r;
+    if(c?.lenses){ s.calibration={themes:(c.themes&&c.themes.length?c.themes:s.calibration?.themes)||[],lenses:{...(s.calibration?.lenses||{}),...c.lenses},weights:{...(s.calibration?.weights||{}),...(c.weights||{})}}; await saveS(ctx); }
+  } finally { delete state.live[lk]; }
+}
+function stopRun(){ if(RUN) RUN.ctl.abort(); }
+
+async function rewindTo(sid, key, opts={}){
+  if(RUN) return;
+  const s=clone(getS(sid)); if(opts.addRound){ s.rounds=(s.rounds||1)+1; s.plan=buildPlan(s.rounds,!!s.ratify); }
+  const i = opts.addRound ? s.plan.indexOf("challenge"+s.rounds) : s.plan.indexOf(key);
+  if(i<0) return;
+  const cut = i;
+  const doomed = state.turns.filter(t=>{ const k=s.plan.indexOf(t.stage); return k<0 || k>=cut; });
+  for(const t of doomed) await Store.delTurn(sid,t.id);
+  s.next = Math.min(s.next??0, i);
+  s.skipped=(s.skipped||[]).filter(k=>s.plan.indexOf(k)<cut);
+  Object.keys(s.pairings||{}).forEach(k=>{ if(s.plan.indexOf(k)>=cut) delete s.pairings[k]; });
+  if(s.plan.indexOf("vote")>=cut){ delete s.outcome; delete s.synthesis; }
+  s.status="adjourned"; s.updatedAt=Date.now();
+  await Store.putSession(sid,s);
+}
+
+/* ───────────────────────── Rendering ───────────────────────── */
+let rq=false;
+function render(){ if(rq) return; rq=true; requestAnimationFrame(()=>{ rq=false; draw(); }); }
+function setHTML(el, html){ if(el && el._h!==html){ el._h=html; el.innerHTML=html; } }
+const av = id => `<div class="av" style="--who:var(${byId[id]?.color||"--c-counsel"})">${esc(byId[id]?.mono||"?")}</div>`;
+
+function draw(){
+  drawRail();
+  const main=document.getElementById("main");
+  const vk=state.view+"|"+(state.sid||state.dirId||"");
+  if(main.dataset.view!==vk){ main.dataset.view=vk; main.innerHTML=""; main._h=null; }
+  if(state.view==="intake") drawIntake(main);
+  else if(state.view==="compare") drawCompare(main);
+  else if(state.view==="guide") drawGuide(main);
+  else if(state.view==="board") drawBoard(main);
+  else if(state.view==="director") drawDirector(main);
+  else if(state.view==="consult") drawConsult(main);
+  else drawSession(main);
+}
+function drawRail(){
+  const h=document.getElementById("hist");
+  const cmp=state.view==="compare";
+  let html=`<h3>${cmp?"Select sessions to compare":"Session history"}</h3>`;
+  if(!state.booted) html+=`<div class="empty-note">Loading board records…</div>`;
+  else if(!state.sessions.length) html+=`<div class="empty-note">No sessions yet. Each dilemma you convene is saved here with its evidence, transcript and votes.</div>`;
+  state.sessions.forEach(s=>{
+    const st=statusOf(s);
+    const sub = s.outcome?.leader ? `→ ${s.outcome.leader}` : STATUS_LABEL[st];
+    html+=`<button class="hitem ${state.sid===s.id&&!cmp?"on":""}" data-act="${cmp?"cmptoggle":"open"}" data-id="${esc(s.id)}" ${cmp?`aria-pressed="${state.cmpSel.has(s.id)}"`:""}>
+      ${cmp?`<span class="mono" aria-hidden="true" style="opacity:${s.outcome?1:.35}">${state.cmpSel.has(s.id)?"☑":"☐"}</span>`:`<span class="statuspill st-${st}" style="font-size:9px;padding:1px 5px">${esc((STATUS_LABEL[st]||"").split(" ")[0])}</span>`}
+      <span><div class="t">${esc(s.title||s.growthArea)}</div><div class="s">${esc(fmtDate(s.createdAt))} · ${esc(sub)}</div></span></button>`;
+  });
+  setHTML(h,html);
+  setHTML(document.getElementById("railnote"), Store.kind==="memory"?"Records can't be saved in this view; sessions last until you close the page.":(CAN_WRITE?"":"View only: you can read sessions but not convene the board."));
+}
+
+function drawIntake(main){
+  if(main.querySelector("#intake")){
+    const cur=[...main.querySelectorAll('input[name=seat]')]; const sel = cur.length ? cur.filter(x=>x.checked).map(x=>x.value) : (state.draft?.seats||defaultSeats());
+    setHTML(main.querySelector("#seat-list"), seatChips("seat", sel));
+    setHTML(main.querySelector("#intake-note"), state.notice?`<div class="notice">${esc(state.notice)}</div>`:state.booted&&!SAMPLE?`<div class="notice">Claude isn't available in this view, so the board can't convene here. Open this page in Claude to run sessions.</div>`:(state.booted&&!CAN_WRITE?`<div class="notice">You have view access only, so you can't start sessions.</div>`:"")); return; }
+  const d=state.draft||{};
+  const prev=state.sessions.filter(x=>x.context);
+  const seen=new Set(); const profiles=prev.filter(x=>{ const k=(x.company||"")+"|"+x.context.slice(0,60); if(seen.has(k)) return false; seen.add(k); return true; });
+  const v=(k)=>esc(d[k]??"");
+  main.innerHTML=`
+  <div class="eyebrow">New dilemma</div>
+  <h1>Put a growth question to the board</h1>
+  <p class="lede">Describe your company, where it operates and the growth area you are weighing. The Strategy Counsel scopes the analysis and calibrates seven directors to your sector and geography; sourced web research builds the evidence; then the board debates and votes on cited facts only. <a href="#guide" data-act="guide">See how it works</a>.</p>
+  <div id="intake-note"></div>
+  <div class="sec row">
+    <button type="button" class="btn sm" data-act="example">Load an example</button>
+    ${profiles.length?`<span class="row" style="gap:6px"><label class="muted" for="f-copy">Reuse a company profile from</label>
+      <select id="f-copy" class="btn sm" style="font-weight:500"><option value="">Choose a past session…</option>${profiles.map(x=>`<option value="${esc(x.id)}">${esc(x.company||x.title)}</option>`).join("")}</select></span>`:""}
+  </div>
+  <form id="intake" class="sec panel form" autocomplete="off" style="margin-top:12px">
+    <div class="field"><label for="f-company">Company name</label><input type="text" id="f-company" value="${v("company")}" placeholder="Your company"></div>
+    <div class="field"><label for="f-sector">Sector or industry</label><input type="text" id="f-sector" value="${v("sector")}" placeholder="e.g. Specialty food manufacturing, IT managed services"></div>
+    <div class="field"><label for="f-geo">Geography you serve</label><input type="text" id="f-geo" value="${v("geography")}" placeholder="e.g. Greater Chicago, the Nordics, US Southeast"></div>
+    <div class="field"><label for="f-growth">Growth area to explore</label><input type="text" id="f-growth" required value="${v("growthArea")}" placeholder="e.g. Private-label products, cybersecurity services"><small>Counsel turns this into specific markets to research.</small></div>
+    <div class="field full"><label for="f-question">Decision question</label><input type="text" id="f-question" value="${v("question")}" placeholder="Which market within this growth area should we pursue first, and how should we enter it?"></div>
+    <div class="field full"><label for="f-markets">Markets you already have in mind (optional, one per line)</label><textarea id="f-markets" placeholder="Leave blank to let Counsel propose them">${v("markets")}</textarea></div>
+    <div class="field full"><label for="f-context">Company profile</label><textarea id="f-context" style="min-height:110px" placeholder="Size, products or services, customers, locations, licenses or certifications, financial position, what you do well">${v("context")}</textarea><small>The board argues against this profile, so be specific about capacity and limits.</small></div>
+    <div class="field"><label for="f-constraints">Constraints</label><textarea id="f-constraints" placeholder="Capital limits, scarce people, contracts, deadlines">${v("constraints")}</textarea></div>
+    <div class="field"><label for="f-assumptions">Your assumptions (the board will test them)</label><textarea id="f-assumptions" placeholder="What you believe but haven't proven">${v("assumptions")}</textarea></div>
+    <div class="field full"><label>Directors seated for this session</label><div class="seats" id="seat-list"></div>
+      <small>${MIN_SEATS}–${MAX_SEATS} directors. Each adds about 4 Claude calls. <a href="#board" data-act="board">Add or customize board members</a></small></div>
+    <div class="field"><label for="f-title">Session title</label><input type="text" id="f-title" value="${v("title")}" placeholder="Defaults to the growth area"></div>
+    <div class="field"><label for="f-notes">Notes for the researcher (optional)</label><textarea id="f-notes" style="min-height:60px" placeholder="Sources to check, things you already know">${v("notes")}</textarea></div>
+    <div class="field"><label>Debate depth</label>
+      <div class="seg" role="radiogroup">
+        <label><input type="radio" name="depth" value="standard" ${(d.depth??"standard")==="standard"?"checked":""}><span>Standard</span></label>
+        <label><input type="radio" name="depth" value="deep" ${d.depth==="deep"?"checked":""}><span>Deep</span></label>
+        <label><input type="radio" name="depth" value="quick" ${d.depth==="quick"?"checked":""}><span>Quick</span></label>
+      </div><label class="row" style="font-weight:600;margin-top:6px"><input type="checkbox" id="f-ratify" ${d.ratify?"checked":""}> Ratify a draft resolution after the vote (about one more call per director)</label><small>Quick: the 4 most relevant directors, 1 round. Standard: 1 cross-exam round, red team only if all but one director agree (~30 calls with 7 directors). Deep: 2 rounds plus a red team every time (~45 calls).</small></div>
+    <div class="field" style="justify-content:flex-end"><div class="row" style="justify-content:flex-end">
+      <button type="button" class="btn" data-act="savedraft">Save draft</button>
+      <button type="submit" class="btn primary">Ask Counsel for an analysis plan</button></div></div>
+  </form>`;
+  drawIntake(main);
+}
+function readIntake(){
+  const v=id=>document.getElementById(id)?.value.trim()||"";
+  const markets=v("f-markets").split("\n").map(x=>x.trim()).filter(Boolean);
+  const seats=[...document.querySelectorAll('input[name=seat]:checked')].map(x=>x.value);
+  return {seats,company:v("f-company"),sector:v("f-sector"),geography:v("f-geo"),growthArea:v("f-growth"),title:v("f-title")||v("f-growth"),question:v("f-question")||`Which markets within ${v("f-growth")} should we pursue first?`,
+    markets,context:v("f-context"),constraints:v("f-constraints"),assumptions:v("f-assumptions"),notes:v("f-notes"),
+    depth:document.querySelector('input[name=depth]:checked')?.value||"standard", ratify:!!document.getElementById("f-ratify")?.checked};
+}
+async function createSession(startPlan){
+  const f=readIntake(); if(!f.growthArea){ document.getElementById("f-growth").focus(); return; }
+  if(f.seats.length<MIN_SEATS||f.seats.length>MAX_SEATS){ showNotice(`Seat between ${MIN_SEATS} and ${MAX_SEATS} directors.`); return; }
+  state.notice="";
+  if(startPlan && !SAMPLE){ showNotice("Claude isn't available in this view."); return; }
+  const id=newId("s"); const now=Date.now();
+  const s={...f,status:"draft",createdAt:now,updatedAt:now};
+  state.pending[id]={id,...s}; await Store.putSession(id,s);
+  state.draft=null; openSession(id);
+  if(startPlan) runPlan(id,{id,...s});
+}
+
+function openSession(id){
+  state.view="session"; state.sid=id; state.turns=[]; state.pack=null; state.notice=""; state.evMarket=0; state.armed=null;
+  unsubTurns&&unsubTurns(); unsubPack&&unsubPack();
+  unsubTurns=Store.watchTurns(id,t=>{ state.turns=t; render(); });
+  unsubPack=Store.watchPack(id,p=>{ state.pack=p; maybeMarkEvidence(); render(); });
+  try{ history.replaceState(null,"","#"+id); }catch(e){}
+  render();
+}
+async function maybeMarkEvidence(){
+  const s=curS(); if(!s||!state.pack||RUN) return;
+  if(s.status==="research_requested"||s.status==="plan_ready"){ const n=clone(s); n.status="evidence_ready"; n.updatedAt=Date.now(); await Store.putSession(s.id,n); }
+}
+
+function pipelineHTML(s){
+  const st=statusOf(s), items=[];
+  const pre=[["Analysis plan", !!s.approvedPlan, ["planning","plan_ready"].includes(st)],["Sourced research", !!state.pack, st==="research_requested"]];
+  pre.forEach(([l,d,n])=>items.push(`<span class="pi ${d?"done":n?"now":""}">${l}</span>`));
+  const plan=s.plan||buildPlan(s.depth==="deep"?2:1,!!s.ratify), next=s.plan?s.next:0;
+  plan.forEach((k,i)=>{ const skip=(s.skipped||[]).includes(k); const live=RUN&&RUN.sid===s.id&&i===next&&s.plan;
+    items.push(`<span class="pi ${skip?"skip":(s.plan&&i<next)?"done":live?"now":""}">${esc(stageInfo(k).short)}</span>`); });
+  return `<div class="pipe" aria-label="Session agenda">${items.join("")}</div>`;
+}
+function rosterHTML(s){
+  const speaking=new Set(Object.values(liveFor(s.id)).map(l=>l.speaker));
+  return `<div class="roster">${[...members(s),COUNSEL].map(b=>`<div class="seat ${b.nonVoting?"nv":""} ${speaking.has(b.id)?"speaking":""}" style="--who:var(${b.color})">
+    <div class="row" style="gap:8px;flex-wrap:nowrap">${av(b.id)}<div class="nm">${esc(b.title)}</div></div>
+    <div class="ln">${b.nonVoting?"Non-voting · ":""}“${esc(b.lens)}”</div></div>`).join("")}</div>`;
+}
+
+function drawSession(main){
+  const s=curS();
+  if(!s){ setHTML(main, state.booted?`<div class="empty-note">This session no longer exists.</div>`:`<div class="empty-note">Loading…</div>`); return; }
+  if(!main.querySelector("#sv-head")){
+    main.innerHTML=`<div id="sv-head"></div><div id="sv-pipe" class="sec" style="margin-top:14px"></div><div id="sv-ctrl" class="sec" style="margin-top:12px"></div><div id="sv-note"></div>
+    <div id="sv-roster" class="sec"></div><div id="sv-seats"></div><div id="sv-plan"></div><div id="sv-research"></div><div id="sv-evidence"></div>
+    <div id="sv-transcript"></div><div id="sv-votes"></div><div id="sv-synth"></div>`;
+  }
+  const st=statusOf(s), running=!!(RUN&&RUN.sid===s.id);
+  registerPeople(members(s));
+  setHTML(main.querySelector("#sv-head"),`<div class="row" style="justify-content:space-between"><div class="eyebrow">Minutes of the board · ${esc(fmtDate(s.createdAt))} · ${esc(s.depth==="deep"?"Deep":s.depth==="quick"?"Quick":"Standard")} session${s.ratify?" · with ratification":""}</div><span class="statuspill st-${st}">${esc(STATUS_LABEL[st])}</span></div>
+    <h1>${esc(s.title)}</h1><p class="lede" style="margin:0">${esc(s.question)}</p>
+    <div class="muted" style="margin-top:6px">${s.company?`<b>${esc(s.company)}</b> · `:""}${s.sector?esc(s.sector)+" · ":""}${s.geography?esc(s.geography)+" · ":""}Growth area: <b>${esc(s.growthArea)}</b></div>`);
+  setHTML(main.querySelector("#sv-pipe"),pipelineHTML(s));
+  setHTML(main.querySelector("#sv-ctrl"),controlsHTML(s,st,running));
+  const notes=[]; if(s.error) notes.push(`<div class="notice bad">${esc(s.error)}</div>`); if(state.notice) notes.push(`<div class="notice">${esc(state.notice)}</div>`);
+  if(st==="interrupted"&&!s.error) notes.push(`<div class="notice">This session stopped mid-stage when the page closed. Completed turns are saved; continue to finish it.</div>`);
+  setHTML(main.querySelector("#sv-note"),notes.join(""));
+  setHTML(main.querySelector("#sv-roster"),rosterHTML(s));
+  setHTML(main.querySelector("#sv-seats"), (!s.plan && !running && CAN_WRITE) ? `<details class="sec panel"><summary>Seated directors: ${members(s).length} · change before convening</summary>
+    <div class="seats" style="margin-top:8px">${seatChips("sseat", seatIds(s))}</div>
+    <small class="muted">${MIN_SEATS}–${MAX_SEATS} directors. Each adds about 4 Claude calls. <a href="#board" data-act="board">Manage board members</a></small></details>` : "");
+  setHTML(main.querySelector("#sv-plan"),planHTML(s,st));
+  setHTML(main.querySelector("#sv-research"),researchHTML(s,st));
+  setHTML(main.querySelector("#sv-evidence"),evidenceHTML(s));
+  setHTML(main.querySelector("#sv-transcript"),transcriptHTML(s));
+  setHTML(main.querySelector("#sv-votes"),votesHTML(s));
+  setHTML(main.querySelector("#sv-synth"),synthHTML(s));
+}
+function controlsHTML(s,st,running){
+  const can=CAN_WRITE&&!!SAMPLE&&!RUN;
+  const btns=[];
+  if(running) btns.push(`<button class="btn danger" data-act="stop">Stop session</button><span class="muted">Completed turns are saved as they finish.</span>`);
+  else {
+    if(st==="draft") btns.push(`<button class="btn primary" data-act="plan" ${can?"":"disabled"}>Ask Counsel for an analysis plan</button><button class="btn" data-act="edit">Edit dilemma</button>`);
+    if(st==="plan_ready") btns.push(`<button class="btn" data-act="plan" ${can?"":"disabled"}>Regenerate plan</button>`);
+    if(state.pack && (s.plan ? s.next<s.plan.length : true)){
+      const started=!!s.plan;
+      btns.push(`<button class="btn primary" data-act="run" ${can?"":"disabled"}>${started?"Continue to the decision":"Convene the board"}</button>`);
+      btns.push(`<button class="btn" data-act="step" ${can?"":"disabled"}>${started?"Run next stage only":"Run first stage only"}</button>`);
+    }
+    if(s.plan && s.next>0){
+      const done=s.plan.slice(0,s.next).filter(k=>!(s.skipped||[]).includes(k));
+      btns.push(`<span class="row" style="gap:6px"><label class="muted" for="regen">Regenerate from</label><select id="regen" class="btn sm" style="font-weight:500">${done.map(k=>`<option value="${esc(k)}">${esc(stageInfo(k).label)}</option>`).join("")}</select>
+        <button class="btn sm ${state.armed==="regen"?"danger armed":""}" data-act="regen" ${can?"":"disabled"}>${state.armed==="regen"?"Confirm: replaces later turns":"Regenerate"}</button></span>`);
+      btns.push(`<button class="btn sm" data-act="addround" ${can?"":"disabled"} title="Adds a cross-examination and rebuttal round, then re-votes">Add a debate round</button>`);
+    }
+    btns.push(`<button class="btn sm danger ${state.armed==="del"?"armed":""}" data-act="delete" ${CAN_WRITE&&!RUN?"":"disabled"}>${state.armed==="del"?"Confirm delete":"Delete session"}</button>`);
+  }
+  return `<div class="row">${btns.join("")}</div>`;
+}
+
+function planHTML(s,st){
+  const live=liveFor(s.id).plan;
+  if(live) return `<div class="sec"><div class="turn counsel live" style="--who:var(--c-counsel)">${av("counsel")}<div><div class="th"><span class="who">Strategy Counsel</span><span class="role">is scoping the market analysis…</span></div><div class="body muted cursor">Defining markets, decisive questions and data sources</div></div></div></div>`;
+  const p=s.analysisPlan; if(!p) return "";
+  if(s.approvedPlan){
+    return `<div class="sec"><details class="panel"><summary>Approved analysis plan · ${s.approvedPlan.markets.length} markets · ${esc(fmtDate(s.approvedPlan.approvedAt))}</summary>
+      <p class="body">${esc(p.framing||"")}</p>${s.approvedPlan.markets.map(m=>`<div class="pm" style="grid-template-columns:minmax(0,1fr)"><div><b>${esc(m.name)}</b><div class="q">${esc(m.definition||"")}</div>
+      <ul>${(m.questions||[]).map(q=>`<li>${esc(q)}</li>`).join("")}</ul></div></div>`).join("")}
+      ${s.approvedPlan.instructions?`<p><b>Instructions to researcher:</b> ${esc(s.approvedPlan.instructions)}</p>`:""}${calibHTML(s)}</details></div>`;
+  }
+  const editable = st==="plan_ready" && CAN_WRITE;
+  return `<div class="sec"><h2>Counsel's recommended market analysis</h2>
+  <div class="panel"><p class="body" style="margin-top:0">${esc(p.framing||"")}</p>
+  <div class="muted" style="font-size:13px">Screening: ${esc(p.criteria||"")}</div>
+  ${calibHTML(s)}
+  <div id="plan-edit">${(p.markets||[]).map((m,i)=>`<div class="pm">
+    <input type="checkbox" id="pm-on-${i}" checked ${editable?"":"disabled"} aria-label="Include this market">
+    <div class="field"><input type="text" id="pm-name-${i}" value="${esc(m.name)}" ${editable?"":"disabled"} style="font-weight:650">
+      <div class="q">${esc(m.definition||"")}</div><div class="q"><i>Why:</i> ${esc(m.why||"")}</div>
+      <div class="pestle-tags">${(m.pestle||[]).map(x=>`<span class="ptag">${esc(x)}</span>`).join("")}</div>
+      <details><summary class="q">Decisive questions and data to pull (${(m.questions||[]).length} / ${(m.data||[]).length})</summary>
+      <ul>${(m.questions||[]).map(q=>`<li>${esc(q)}</li>`).join("")}</ul>
+      <ul>${(m.data||[]).map(d=>`<li>${esc(d.item)} <span class="muted">— ${esc(d.sources)}</span></li>`).join("")}</ul></details></div></div>`).join("")}
+  ${editable?`<div class="pm"><span></span><div class="field"><label for="pm-add">Add a market (optional)</label><input type="text" id="pm-add" placeholder="Another market to research"></div></div>
+  <div class="field"><label for="pm-instr">Instructions to the researcher (optional)</label><textarea id="pm-instr" placeholder="e.g. prioritize state sources; check the regulator's current rule; look for open RFPs"></textarea></div>
+  <div class="row" style="margin-top:12px"><button class="btn primary" data-act="approve">Approve plan and request research</button></div>`:""}
+  </div></div></div>`;
+}
+function calibHTML(s){
+  const c=s.calibration; if(!c?.lenses) return "";
+  return `<details style="margin-top:10px"><summary>How the board is calibrated to ${esc(s.sector||"this sector")}${s.geography?" in "+esc(s.geography):""}</summary>
+  ${(c.themes||[]).length?`<ul class="body" style="font-size:14.5px">${c.themes.map(t=>`<li>${esc(t)}</li>`).join("")}</ul>`:""}
+  <div class="scroll-x"><table><tbody>${members(s).filter(m=>c.lenses[m.id]).map(m=>`<tr><td style="white-space:nowrap;color:var(${m.color});font-weight:650">${esc(m.title)}</td><td style="font-family:var(--f-read);font-size:14px">${esc(c.lenses[m.id]||"")}</td></tr>`).join("")}</tbody></table></div>
+  <div class="muted" style="font-size:12px;margin-top:4px">Framing written by the Counsel, not sourced facts. Directors still cite only the evidence register.</div></details>`;
+}
+function researchHTML(s,st){
+  if(st!=="research_requested") return "";
+  const cmd=`Run Boardroom research for session ${s.id} ("${s.title}")`;
+  return `<div class="sec panel"><h2>Waiting for sourced research</h2>
+  <p class="body" style="margin-top:0">The board convenes only on facts found on the web, so the research runs in a Claude chat with web search. Paste this into Claude; the evidence register, PESTLE scan and scorecard appear here when it finishes.</p>
+  <div class="copybox"><code id="cmd">${esc(cmd)}</code><button class="btn" data-act="copy">Copy</button></div></div>`;
+}
+const CRIT=[["demand","Demand"],["access","Access"],["right_to_win","Right to win"],["margin","Margin"],["capital_light","Capital-light"],["risk_low","Low risk"],["speed","Speed"],["synergy","Synergy"]];
+function evidenceHTML(s){
+  const p=state.pack; if(!p) return "";
+  const facts=factsMap(p), mk=(p.markets||[]), cur=Math.min(state.evMarket,Math.max(mk.length-1,0)), m=mk[cur];
+  const ps=(p.pestle||[]).find(x=>x.market===m?.name);
+  const opt={facts};
+  return `<div class="sec"><h2>Evidence pack</h2>
+  <div class="muted" style="margin-bottom:10px">${(p.facts||[]).length} sourced facts · researched ${esc(p.researchedAt||"")} · ${esc(p.researchedBy||"")}</div>
+  ${p.summary?`<div class="panel body" style="margin-bottom:12px">${md(p.summary,opt)}</div>`:""}
+  <div class="mkt-chips" role="tablist">${mk.map((x,i)=>`<button class="chip ${i===cur?"on":""}" data-act="evm" data-i="${i}" role="tab" aria-selected="${i===cur}">${esc(x.name)}</button>`).join("")}</div>
+  ${m?`<div class="muted" style="margin-bottom:8px">${esc(m.definition||"")}</div>`:""}
+  ${ps?`<div class="pestle">${PESTLE.map(([k,l,lab])=>`<div class="pc"><div class="k"><b>${l}</b><span>${lab}</span></div>${(ps[k]||[]).length?`<ul>${ps[k].map(x=>`<li>${inl(x.point,opt)} ${(x.facts||[]).map(f=>factLink(f,facts)).join(" ")}</li>`).join("")}</ul>`:`<div class="muted" style="font-size:13px">No sourced finding.</div>`}</div>`).join("")}</div>`:""}
+  ${(p.scorecard||[]).length?`<h4>Screening scorecard (Counsel judgment from the register, 1–5)</h4><div class="scroll-x panel" style="padding:0"><table><thead><tr><th>Market</th>${CRIT.map(c=>`<th style="text-align:center">${c[1]}</th>`).join("")}<th>Basis</th></tr></thead><tbody>
+    ${p.scorecard.map(r=>`<tr><td><b>${esc(r.market)}</b></td>${CRIT.map(c=>`<td class="n"><span class="sc" style="--v:${+r[c[0]]||0}">${esc(r[c[0]]??"–")}</span></td>`).join("")}<td style="min-width:240px;font-size:12.5px">${inl(r.basis||"",opt)}</td></tr>`).join("")}</tbody></table></div>`:""}
+  ${(p.gaps||[]).length?`<h4>Gaps: no reliable public data found</h4>${p.gaps.map(g=>`<div class="gap"><b>${esc(g.market||"All")}:</b> ${esc(g.question)} <span class="muted">${esc(g.note||"")}</span></div>`).join("")}`:""}
+  <details style="margin-top:12px"><summary>Evidence register (${(p.facts||[]).length})</summary><div class="scroll-x panel" style="padding:0"><table class="reg"><thead><tr><th>ID</th><th>Fact</th><th>Market · PESTLE</th><th>Source</th></tr></thead><tbody>
+    ${(p.facts||[]).map(f=>`<tr id="fact-${esc(f.id)}"><td>${esc(f.id)}</td><td style="font-family:var(--f-read);font-size:14px">${esc(f.claim)}</td><td style="font-size:12px">${esc(f.market||"all")}<br><span class="muted">${esc(f.pestle||"")}</span></td><td class="src"><a href="${esc(f.url)}" target="_blank" rel="noopener">${esc(f.source||f.url)}</a><br>${esc(f.published||"")}</td></tr>`).join("")}</tbody></table></div></details>
+  </div>`;
+}
+function turnHTML(t, s, facts, live){
+  const b=byId[t.speaker]||byId.counsel, me=t.meta||{}, isC=!!b.nonVoting;
+  const opt={facts, flag:!isC};
+  const crux = (me.cruxes||[]).map(c=>`<div class="crux"><b>${esc(c.question)}</b> <span class="tag">${esc(c.type)}</span><div class="muted" style="font-size:13px">${esc(c.side_a?.position||"")} — ${(c.side_a?.directors||[]).map(x=>esc(byId[x]?.title||x)).join(", ")}<br>vs ${esc(c.side_b?.position||"")} — ${(c.side_b?.directors||[]).map(x=>esc(byId[x]?.title||x)).join(", ")}</div></div>`).join("")
+    + (me.recommendation?`<div class="crux"><b>Recommends ${esc(me.recommendation)}</b> <span class="tag">${esc(me.label||"")}</span>${(me.conditions||[]).length?`<div style="font-size:13px">Conditions: ${me.conditions.map(x=>inl(x,{facts})).join("; ")}</div>`:""}${me.cheapest_test?`<div style="font-size:13px">Cheapest test: ${inl(me.cheapest_test,{facts})}</div>`:""}${me.kill_criteria?`<div style="font-size:13px">Kill criteria: ${inl(me.kill_criteria,{facts})}</div>`:""}</div>`:"");
+  const bodyText = live ? splitMeta(t.text||"").body : t.text;
+  const body = (live && t.note && !t.text) ? `<div class="body muted cursor">${esc(t.note)}</div>` : t.sealed ? `<div class="body muted cursor">${esc(t.note||t.text)}</div>` : `<div class="body ${live?"cursor":""}">${md(bodyText,opt)||(live?'<span class="muted">Thinking…</span>':"")}</div>`;
+  const tgt = t.target?`<span class="tgt">→ challenges ${esc(byId[t.target]?.title)}</span>`:(t.targets?.length?`<span class="tgt">answers ${t.targets.map(x=>esc(byId[x]?.title)).join(", ")}</span>`:"");
+  const tags=[];
+  if(me.confidence!=null && !live) tags.push(`<span class="tag">confidence ${esc(me.confidence)}</span>`);
+  (me.stances||[]).forEach(x=>tags.push(`<span class="tag ${esc(String(x.stance).toLowerCase())}">${esc(x.option)}: ${esc(x.stance)}</span>`));
+  if(me.position_changed===true) tags.push(`<span class="tag flag">position changed</span>`);
+  if(me.conceded && !/^nothing/i.test(me.conceded)) tags.push(`<span class="tag">conceded: ${esc(me.conceded)}</span>`);
+  if(opt.count) tags.push(`<span class="tag flag">${opt.count} uncited figure${opt.count>1?"s":""}</span>`);
+  if(opt.mismatch) tags.push(`<span class="tag flag">${opt.mismatch} figure${opt.mismatch>1?"s":""} not found in the cited source</span>`);
+  if(t.truncated) tags.push(`<span class="tag flag">cut short</span>`);
+  if(me.lookups) tags.push(`<span class="tag">searched its data ${me.lookups}×</span>`);
+  (me.evidence_flags||[]).forEach(x=>tags.push(`<span class="tag flag">${esc(x.fact)}: ${esc(x.issue)}</span>`));
+  return `<article class="turn ${isC?"counsel":""} ${live?"live":""}" style="--who:var(${b.color})">${av(b.id)}<div style="min-width:0">
+    <div class="th"><span class="who">${esc(b.title)}</span><span class="role">${isC?"Non-voting":"Voting director"}</span>${tgt}</div>
+    ${me.claim?`<div class="claim">Claim under challenge: ${inl(me.claim,{facts})}</div>`:""}
+    ${me.headline?`<div class="headline">${inl(me.headline,{facts})}</div>`:""}
+    ${body}${crux}
+    ${me.question?`<div class="question">Question: ${inl(me.question,{facts})}</div>`:""}
+    ${me.key_assumption?`<div class="muted" style="font-size:13px;margin-top:4px">Depends on: ${esc(me.key_assumption)}</div>`:""}
+    ${tags.length?`<div class="tf">${tags.join("")}</div>`:""}</div></article>`;
+}
+function transcriptHTML(s){
+  const facts=factsMap(state.pack);
+  const list=sortTurns(s,state.turns.filter(t=>!["vote","synthesis","ratify"].includes(t.stage)));
+  const live=Object.values(liveFor(s.id)).filter(l=>!["vote","synthesis","plan","ratify"].includes(l.stage));
+  if(!list.length&&!live.length) return "";
+  let html=`<div class="sec"><h2>Transcript</h2>`, last=null;
+  const all=[...list.map(t=>({t,live:false})),...live.map(t=>({t,live:true}))].sort((a,b)=>(pIdx(s,a.t.stage)-pIdx(s,b.t.stage))||((a.t.slot||0)-(b.t.slot||0)));
+  all.forEach(({t,live})=>{ if(t.stage!==last){ last=t.stage; html+=`<div class="stage-div"><span>${esc(stageInfo(t.stage).label)}</span></div>`; } html+=turnHTML(t,s,facts,live); });
+  if((s.skipped||[]).includes("redteam")) html+=`<div class="stage-div"><span>Red team skipped: no consensus alarm (the board did not converge on one option)</span></div>`;
+  return html+`</div>`;
+}
+function votesHTML(s){
+  const facts=factsMap(state.pack);
+  const LV=liveFor(s.id); const votes=members(s).map(m=>state.turns.find(t=>t.id==="vote__"+m.id)||LV["vote__"+m.id]).filter(Boolean);
+  if(!votes.length) return "";
+  const out=s.outcome||tally(s,state.turns), total=members(s).length;
+  const sc=out.scoring, vcls=l=>({"GO":"GO","GO WITH CONDITIONS":"GOC","RESHAPE":"RESHAPE","DON'T DO IT":"NO","HOLD":"HOLD"}[l]||"");
+  const rat=members(s).map(m=>[m,state.turns.find(t=>t.id==="ratify__"+m.id)]).filter(x=>x[1]);
+  const verdict = sc ? `<div class="panel"><div class="eyebrow">Weighted verdict</div>
+    <div class="verdict" style="margin:8px 0"><span class="vlabel ${vcls(sc.label)}">${esc(sc.label)}</span><b style="font-size:18px">${esc(sc.rec)}</b><span class="mono muted" style="font-size:12px">${sc.score}/10 · spread ${sc.spread} · council confidence ${sc.confidence}/10${sc.support!=null?` · support for the resolution ${sc.support}/10`:""}</span></div>
+    ${sc.caps.map(c=>`<span class="tag flag">${esc(c)}</span>`).join(" ")}
+    <div style="margin-top:10px">${sc.ranked.map(k=>`<div class="obar ${k===sc.rec?"rec":""}"><span>${esc(k)}</span><div class="t"><div style="width:${sc.options[k].score*10}%"></div></div><span class="mono" title="${esc(sc.options[k].math)}">${sc.options[k].score}</span></div>`).join("")}</div>
+    <details><summary class="muted" style="font-size:13px">Score math and pillar scorecard</summary>
+      <div class="mono muted" style="font-size:12px">${sc.ranked.map(k=>`${esc(k)}: ${esc(sc.options[k].math)} = ${sc.options[k].score}`).join("<br>")}</div>
+      <table style="margin-top:8px"><thead><tr><th>Director</th><th>Weight</th><th>Pillar score on ${esc(sc.rec)}</th></tr></thead><tbody>${members(s).map(m=>{ const p=sc.pillars.find(x=>x.id===m.id); return `<tr><td>${esc(m.title)}</td><td class="n">${sc.weights[m.id]??""}</td><td class="n">${p?`<span class="${p.score<=4?"tag flag":""}">${p.score}</span>`:"—"}</td></tr>`; }).join("")}</tbody></table>
+      <div class="muted" style="font-size:12px">Weights come from the Counsel's calibration: ${members(s).map(m=>`${esc(m.title)} ${sc.weights[m.id]} (${esc(s.calibration?.weights?.[m.id]?.why||"default")})`).join("; ")}</div></details></div>` : "";
+  return `<div class="sec"><h2>Roll call</h2>${verdict}
+  ${out.cast?`<div class="panel"><div class="row" style="justify-content:space-between"><div><span class="eyebrow">${sc?"First choices":"Board choice"}</span><div style="font-size:18px;font-weight:700">${esc(out.leader)} ${out.tie?'<span class="tag flag">tie</span>':""}</div></div>
+  <div class="mono muted" style="font-size:12px">${out.lead} of ${total} · ${out.strong} strong · avg confidence ${out.avgConf}</div></div>
+  <div class="tally">${Object.entries(out.counts).map(([k,v])=>`<div style="flex:${v}" title="${esc(k)}: ${v}">${esc(k)} · ${v}</div>`).join("")}</div></div>`:""}
+  <div class="votes" style="margin-top:10px">${votes.map(v=>{ const b=byId[v.speaker], me=v.meta||{};
+    if(v.sealed) return `<div class="vote" style="--who:var(${b.color})"><div class="row">${av(b.id)}<b>${esc(b.title)}</b></div><div class="muted cursor">Sealed vote in progress</div></div>`;
+    const op=splitOpen(v.speaker);
+    return `<div class="vote" style="--who:var(${b.color})"><div class="row" style="flex-wrap:nowrap">${av(b.id)}<b style="font-size:13px">${esc(b.title)}</b></div>
+      <div class="ch">${esc(me.choice)}</div>
+      <div class="row"><span class="sup ${esc(me.support)}">${esc(me.support)}</span><span class="tag">confidence ${esc(me.confidence)}</span>${me.changed_from_opening?`<span class="tag flag">moved since opening</span>`:""}</div>
+      ${me.scores?`<div class="mono muted" style="font-size:11.5px">${Object.entries(me.scores).map(([k,x])=>`${esc(k)} ${esc(x)}`).join(" · ")}</div>`:""}
+      ${Object.entries(me.ruin_risk||{}).filter(([k,x])=>String(x).toLowerCase()==="likely").map(([k])=>`<span class="tag flag">ruin risk: ${esc(k)}</span>`).join(" ")}
+      <div class="rat">${inl(me.rationale||"",{facts})}</div>
+      ${(me.conditions||[]).length?`<div><div class="eyebrow">Conditions</div><ul>${me.conditions.map(c=>`<li>${inl(c,{facts})}</li>`).join("")}</ul></div>`:""}
+      ${me.flip_if?`<div style="font-size:12.5px"><span class="eyebrow">Flips if</span><br>${inl(me.flip_if,{facts})}</div>`:""}
+      ${me.changed_from_opening&&me.change_reason?`<div class="muted" style="font-size:12.5px">Why it moved: ${esc(me.change_reason)}</div>`:""}
+      ${op?`<div class="muted" style="font-size:12px">Opening: ${esc(op)}</div>`:""}</div>`; }).join("")}</div>
+  ${rat.length?`<h4>Ratification of the draft resolution</h4><div class="scroll-x panel" style="padding:0"><table><thead><tr><th>Director</th><th>Vote</th><th>Support</th><th>Amendment or dissent</th><th>Don't forget</th></tr></thead><tbody>${rat.map(([m,t])=>`<tr><td>${esc(m.title)}</td><td><span class="tag ${t.meta.vote==="dissent"?"flag":""}">${esc(t.meta.vote)}</span></td><td class="n">${esc(t.meta.final_score)}</td><td>${inl(t.meta.amendment||"",{facts})}</td><td>${inl(t.meta.one_line||"",{facts})}</td></tr>`).join("")}</tbody></table></div>`:""}</div>`;
+}
+function splitOpen(id){ const t=state.turns.find(x=>x.id==="opening__"+id); return t?.meta?.headline||""; }
+function synthHTML(s){
+  const t=state.turns.find(x=>x.id==="synthesis__counsel"), live=liveFor(s.id)["synthesis__counsel"];
+  if(live) return `<div class="sec">${turnHTML(live,s,{},true)}</div>`;
+  if(!t) return "";
+  const r=t.meta||{}, facts=factsMap(state.pack), o={facts}, nm=id=>esc(byId[id]?.title||id);
+  let uncited=0, mism=0; state.turns.forEach(x=>{ if(byId[x.speaker]?.nonVoting) return; const op={facts,flag:true}; md(x.text,op); uncited+=op.count||0; mism+=op.mismatch||0; });
+  return `<div class="sec"><div class="eyebrow">Record of decision · facilitated by the Strategy Counsel (non-voting)</div>
+  <h2 style="margin-top:6px">Resolution</h2>
+  <div class="resolution">${inl(r.resolution||"",o)}</div>
+  <p class="body">${inl(r.summary||"",o)}</p>
+  <div class="tf" style="margin-bottom:14px"><span class="tag ${uncited?"flag":""}">Citation discipline: ${uncited} uncited figure${uncited===1?"":"s"} in directors' remarks</span><span class="tag ${mism?"flag":""}">${mism} cited figure${mism===1?"":"s"} not found in the cited source</span></div>
+  ${(r.pillar_fixes||[]).length?`<div class="panel"><h4 style="margin-top:0">Fixes for weak pillars</h4><ul>${r.pillar_fixes.map(x=>`<li><b>${nm(x.director)}:</b> ${inl(x.fix,o)}</li>`).join("")}</ul></div>`:""}
+  ${(r.amendments||[]).length?`<div class="panel"><h4 style="margin-top:0">Amendments</h4><ul>${r.amendments.map(x=>`<li><b>${nm(x.director)}</b> ${x.adopted?"(adopted)":"(not adopted)"}: ${inl(x.amendment,o)} <span class="muted">${esc(x.reason||"")}</span></li>`).join("")}</ul></div>`:""}
+  <div class="cols"><div class="panel"><h4 style="margin-top:0">Points of agreement</h4><ul>${(r.agreements||[]).map(a=>`<li>${inl(a,o)}</li>`).join("")}</ul></div>
+  <div class="panel"><h4 style="margin-top:0">Dissent entered into the record</h4><ul>${(r.dissents||[]).map(d=>`<li><b>${nm(d.director)}:</b> ${inl(d.point,o)}</li>`).join("")}</ul></div></div>
+  <h4>Conflicting paths forward</h4><div class="paths">${(r.paths||[]).map(p=>`<div class="path"><b>${esc(p.name)}</b><div class="muted" style="font-size:12px;margin:3px 0 6px">Backed by ${(p.backers||[]).map(nm).join(", ")||"—"}</div>
+    <div class="body" style="font-size:14.5px">${inl(p.thesis||"",o)}</div><div class="eyebrow" style="margin-top:8px">First 90 days</div><ul style="margin:4px 0;padding-left:18px">${(p.first_moves||[]).map(x=>`<li>${inl(x,o)}</li>`).join("")}</ul>
+    <div style="font-size:12.5px"><span class="eyebrow">Kill criteria</span><br>${inl(p.kill_criteria||"",o)}</div></div>`).join("")}</div>
+  <h4>Key assumptions to test</h4><div class="scroll-x panel" style="padding:0"><table><thead><tr><th>Assumption</th><th>Held by</th><th>How to test</th></tr></thead><tbody>${(r.key_assumptions||[]).map(a=>`<tr><td>${inl(a.assumption,o)}</td><td style="font-size:12px">${(a.held_by||[]).map(nm).join(", ")}</td><td>${inl(a.test||"",o)}</td></tr>`).join("")}</tbody></table></div>
+  <h4>Major risks</h4><div class="scroll-x panel" style="padding:0"><table><thead><tr><th>Risk</th><th>Severity</th><th>Mitigation</th></tr></thead><tbody>${(r.risks||[]).map(x=>`<tr><td>${inl(x.risk,o)}</td><td><span class="sev ${esc(x.severity)}">${esc(x.severity)}</span></td><td>${inl(x.mitigation||"",o)}</td></tr>`).join("")}</tbody></table></div>
+  <div class="cols" style="margin-top:14px"><div class="panel"><h4 style="margin-top:0">Evidence gaps the decision rests on</h4><ul>${(r.evidence_gaps||[]).map(x=>`<li>${inl(x,o)}</li>`).join("")}</ul></div>
+  <div class="panel"><h4 style="margin-top:0">Open questions</h4><ul>${(r.open_questions||[]).map(x=>`<li>${inl(x,o)}</li>`).join("")}</ul></div></div></div>`;
+}
+
+/* ───────────────────────── Board roster & data ───────────────────────── */
+const PESTLE_NAMES=["Political","Economic","Social","Technological","Legal","Environmental"];
+function initials(t){ return (String(t||"").split(/[^A-Za-z]+/).filter(w=>w&&!/^(and|of|the|for)$/i.test(w)).map(w=>w[0].toUpperCase()).join("").slice(0,3))||"D"; }
+function nextColor(){ const used=new Set(rosterList().map(p=>p.color)); return COLORS.find(c=>!used.has(c))||COLORS[(rosterList().length)%COLORS.length]; }
+function rebuildAttIndex(){ state.attIndex={}; state.attText={}; Object.entries(state.atts).forEach(([dir,l])=>(l||[]).forEach(a=>{ if(a.tag){ state.attIndex[a.tag]={name:a.name,dir}; if(!a.parts) state.attText[a.tag]=String(a.text||"").replace(/,/g,""); } })); }
+async function saveDir(id, patch){
+  const base=state.dirs[id] || (DEFAULT_IDS.includes(id)?{builtIn:true}:{});
+  await Store.put("directors", id, {...base, ...patch, updatedAt:Date.now()});
+}
+function main_rerender_dir(force){ const m=document.getElementById("main"); if(force){ m.dataset.view=""; } render(); }
+function seatChips(name, selected){
+  const sel=new Set(selected);
+  return rosterList().map(p=>`<label class="seat-chip" style="--who:var(${p.color})"><input type="checkbox" name="${name}" value="${esc(p.id)}" ${sel.has(p.id)?"checked":""}>${esc(p.title)}${(state.atts[p.id]||[]).length?` <span class="muted mono" style="font-size:10.5px">· ${state.atts[p.id].length} data</span>`:""}</label>`).join("");
+}
+const LIBS={pdf:["https://cdnjs.cloudflare.com/ajax/libs/pdf.js/3.11.174/pdf.min.js","https://cdnjs.cloudflare.com/ajax/libs/pdf.js/3.11.174/pdf.worker.min.js"],
+  docx:["https://cdnjs.cloudflare.com/ajax/libs/mammoth/1.6.0/mammoth.browser.min.js"],
+  xlsx:["https://cdnjs.cloudflare.com/ajax/libs/xlsx/0.18.5/xlsx.full.min.js"]};
+function loadScript(src){ return new Promise((res,rej)=>{ if(document.querySelector(`script[data-src="${src}"]`)) return res(); const el=document.createElement("script"); el.src=src; el.dataset.src=src; el.onload=res; el.onerror=()=>rej(new Error("Couldn't load the file reader. Check your connection and try again.")); document.head.appendChild(el); }); }
+async function extractText(file){
+  const ext=(file.name.split(".").pop()||"").toLowerCase();
+  if(["txt","md","csv","tsv","json","html","htm","xml"].includes(ext) || (file.type||"").startsWith("text/")) return await file.text();
+  if(ext==="pdf"){
+    for(const u of LIBS.pdf) await loadScript(u);
+    const lib=window.pdfjsLib; lib.GlobalWorkerOptions.workerSrc=LIBS.pdf[1];
+    const doc=await lib.getDocument({data:new Uint8Array(await file.arrayBuffer()),isEvalSupported:false}).promise;
+    const out=[]; for(let i=1;i<=doc.numPages;i++){ const pg=await doc.getPage(i); const tc=await pg.getTextContent(); out.push(tc.items.map(x=>x.str).join(" ")); }
+    return out.join("\n\n");
+  }
+  if(ext==="docx"){ await loadScript(LIBS.docx[0]); const r=await window.mammoth.extractRawText({arrayBuffer:await file.arrayBuffer()}); return r.value; }
+  if(ext==="xlsx"||ext==="xls"){ await loadScript(LIBS.xlsx[0]); const wb=window.XLSX.read(await file.arrayBuffer(),{type:"array"});
+    return wb.SheetNames.map(n=>`## Sheet: ${n}\n`+window.XLSX.utils.sheet_to_csv(wb.Sheets[n])).join("\n\n"); }
+  throw new Error(`.${ext} files aren't supported. Use PDF, Word (.docx), Excel, CSV or text.`);
+}
+async function loadMaterials(dirId){
+  const list=(await Store.list(`directors/${dirId}/data`)).sort((a,b)=>(a.addedAt||0)-(b.addedAt||0));
+  for(const a of list){ if(a.parts>0){ const ps=(await Store.list(`directors/${dirId}/data/${a.id}/parts`)).sort((x,y)=>(x.n||0)-(y.n||0)); a.text=ps.map(x=>x.text||"").join(""); } }
+  return list;
+}
+async function deleteMaterial(dirId, a){
+  if(a.parts>0){ for(let i=0;i<a.parts;i++) await Store.del(`directors/${dirId}/data/${a.id}/parts`,"p"+i); }
+  await Store.del(`directors/${dirId}/data`,a.id);
+}
+async function addAttachments(dirId, items){
+  const p=persona(dirId); if(!p) return; const mono=p.mono; let n=0;
+  Object.keys(state.attIndex).forEach(t=>{ const m=t.match(/^([A-Z]{1,3})(\d+)$/); if(m&&m[1]===mono) n=Math.max(n,+m[2]); });
+  for(const it of items){ n++; let t=String(it.text).replace(/\u0000/g,""); const truncated=t.length>MAX_ATT; if(truncated) t=t.slice(0,MAX_ATT);
+    const aid=newId("a"), meta={name:it.name,kind:it.kind,tag:mono+n,chars:t.length,truncated,shared:false,addedAt:Date.now()};
+    if(t.length<=PART){ await Store.put(`directors/${dirId}/data`, aid, {...meta,text:t}); }
+    else { const k=Math.ceil(t.length/PART); for(let i=0;i<k;i++) await Store.put(`directors/${dirId}/data/${aid}/parts`,"p"+i,{n:i,text:t.slice(i*PART,(i+1)*PART)});
+      await Store.put(`directors/${dirId}/data`, aid, {...meta,text:t.slice(0,2000),parts:k}); } }
+}
+async function uploadFiles(){
+  const inp=document.getElementById("att-file"); const files=[...(inp?.files||[])];
+  if(!files.length){ state.attStatus="Choose one or more files first."; render(); return; }
+  const items=[], errs=[];
+  for(const f of files){ state.attStatus=`Reading ${f.name}…`; render();
+    try{ const t=await extractText(f); if(!t.trim()) throw new Error("no readable text (a scanned PDF needs OCR first)"); items.push({name:f.name,kind:"file",text:t}); }
+    catch(e){ errs.push(`${f.name}: ${e.message}`); } }
+  if(items.length) await addAttachments(state.dirId,items);
+  state.attStatus=[items.length?`Added ${items.length} file${items.length>1?"s":""}.`:"",...errs].filter(Boolean).join(" ");
+  if(inp) inp.value=""; render();
+}
+async function pasteAttachment(){
+  const name=document.getElementById("att-name")?.value.trim(), text=document.getElementById("att-text")?.value||"";
+  if(!text.trim()){ state.attStatus="Paste some text first."; render(); return; }
+  await addAttachments(state.dirId,[{name:name||"Pasted note",kind:"text",text}]);
+  document.getElementById("att-name").value=""; document.getElementById("att-text").value="";
+  state.attStatus="Note added."; render();
+}
+async function saveDirectorForm(){
+  const v=id=>document.getElementById(id)?.value.trim()||"";
+  const title=v("d-title"), mandate=v("d-mandate");
+  if(!title||!mandate){ showNotice("Give the director a title and a mandate."); return; }
+  const mono=v("d-mono").toUpperCase().replace(/[^A-Z]/g,"").slice(0,3)||initials(title);
+  const clash=rosterList(true).find(p=>p.mono===mono && p.id!==state.dirId) || (mono==="SC"?COUNSEL:null);
+  if(clash){ showNotice(`The monogram ${mono} is already used by the ${clash.title}. Choose another.`); return; }
+  const pestle=[...document.querySelectorAll('input[name=d-pestle]:checked')].map(x=>x.value).join(", ");
+  const data={title,mono,color:state.dirColor||nextColor(),lens:v("d-lens"),mandate,presses:v("d-presses"),redLine:v("d-red"),tone:v("d-tone"),pestle,active:document.getElementById("d-active").checked};
+  if(state.dirId==="new"){ const id=newId("d"); await Store.put("directors",id,{...data,custom:true,createdAt:Date.now(),updatedAt:Date.now()}); state.dirId=id; state.notice="Saved. You can now attach supporting data."; main_rerender_dir(true); }
+  else { await saveDir(state.dirId,data); state.notice="Saved."; render(); }
+}
+async function draftDirector(btn){
+  const box=document.getElementById("d-brief"); const brief=box?.value.trim(); if(!brief){ box?.focus(); return; }
+  if(!SAMPLE){ showNotice("Claude isn't available in this view."); return; }
+  btn.disabled=true; const old=btn.textContent; btn.textContent="Drafting…";
+  try{
+    const others=rosterList().map(p=>`- ${p.title}: ${p.lens}`).join("\n");
+    const r=await ask(`You design voting directors for a company's AI advisory board. Each director is a composite archetype, never a real or named person.
+The chair wants a new director described as: ${brief}
+Existing directors (the new one must hold a distinct view that will clash with at least one of them):
+${others}
+Reply with only JSON: {"title":"<role title, 2-5 words>","lens":"<one-sentence motto in the first person plural>","mandate":"<2 sentences: what this director pushes the company toward>","presses":"<the question they always ask>","redLine":"<what they will never accept>","tone":"<voice, a few adjectives>","pestle":["<1-2 of: Political, Economic, Social, Technological, Legal, Environmental>"]}`,{json:true,tier:"default"});
+    const set=(id,val)=>{ const el=document.getElementById(id); if(el&&val) el.value=String(val); };
+    set("d-title",r?.title); set("d-lens",r?.lens); set("d-mandate",r?.mandate); set("d-presses",r?.presses); set("d-red",r?.redLine); set("d-tone",r?.tone);
+    if(r?.title && !document.getElementById("d-mono").value) set("d-mono",initials(r.title));
+    const ps=(r?.pestle||[]).map(x=>String(x).toLowerCase()); if(ps.length) document.querySelectorAll('input[name=d-pestle]').forEach(x=>x.checked=ps.includes(x.value.toLowerCase()));
+    state.notice="Draft filled in. Edit anything, then save.";
+  }catch(e){ state.notice=errCopy(e); }
+  finally{ btn.disabled=false; btn.textContent=old; render(); }
+}
+function dirCard(p){
+  const n=(state.atts[p.id]||[]).length;
+  return `<div class="dcard" style="--who:var(${p.color})"><div class="row" style="flex-wrap:nowrap">${av(p.id)}<b>${esc(p.title)}</b></div>
+    <div class="ln">“${esc(p.lens||"")}”</div>
+    <div class="tf" style="margin:0"><span class="tag">${p.builtIn?"Built-in":"Custom"}</span><span class="tag">${p.active===false?"Not seated by default":"Seated by default"}</span><span class="tag">${n} data source${n===1?"":"s"}</span>${p.builtIn&&state.dirs[p.id]&&PFIELDS.some(k=>state.dirs[p.id][k]!=null)?`<span class="tag">customized</span>`:""}</div>
+    <div class="acts">${p.archived?`<button class="btn sm" data-act="dir-restore" data-id="${esc(p.id)}">Restore to board</button>`:`<button class="btn sm" data-act="dir-edit" data-id="${esc(p.id)}">Edit persona and data</button><button class="btn sm" data-act="consult" data-id="${esc(p.id)}">Ask this director</button><button class="btn sm" data-act="dir-active" data-id="${esc(p.id)}">${p.active===false?"Seat by default":"Don't seat by default"}</button>`}</div></div>`;
+}
+function drawBoard(main){
+  const all=rosterList(true), act=all.filter(p=>!p.archived), gone=all.filter(p=>p.archived);
+  setHTML(main,`<div class="eyebrow">Board members</div><h1>Your board</h1>
+  <p class="lede">Add directors, change how each one thinks, and attach the data each one brings to the table. When you start a session you choose which directors take a seat.</p>
+  ${state.notice?`<div class="notice">${esc(state.notice)}</div>`:""}
+  <div class="sec row"><button class="btn primary" data-act="dir-new" ${CAN_WRITE?"":"disabled"}>Add a director</button><span class="muted">${act.length} directors · ${act.filter(p=>p.active!==false).length} seated by default</span></div>
+  <div class="sec dgrid">${act.map(dirCard).join("")}
+    <div class="dcard" style="--who:var(--c-counsel);background:var(--sunk)"><div class="row" style="flex-wrap:nowrap">${av("counsel")}<b>Strategy Counsel</b></div>
+    <div class="ln">“${esc(COUNSEL.lens)}”</div><div class="muted" style="font-size:13px">Fixed and non-voting: scopes the analysis, briefs the board, challenges evidence and writes the synthesis. Kept neutral so it can't tilt the vote.</div></div></div>
+  ${gone.length?`<h4 class="sec">Removed from the board</h4><div class="dgrid">${gone.map(dirCard).join("")}</div>`:""}`);
+}
+function dirFormHTML(p,isNew){
+  const ps=String(p.pestle||"").toLowerCase();
+  const f=(id,label,val,ph,full,area)=>`<div class="field ${full?"full":""}"><label for="${id}">${label}</label>${area?`<textarea id="${id}" placeholder="${esc(ph)}">${esc(val||"")}</textarea>`:`<input type="text" id="${id}" value="${esc(val||"")}" placeholder="${esc(ph)}">`}</div>`;
+  return `${isNew?`<div class="sec panel form"><div class="field full"><label for="d-brief">Describe the seat you want to add</label>
+    <div class="row" style="flex-wrap:nowrap"><input type="text" id="d-brief" placeholder="e.g. A former hospital CFO who obsesses over reimbursement risk" style="flex:1;min-width:0"><button class="btn" data-act="dir-draft">Draft with Counsel</button></div>
+    <small>Optional. Counsel drafts a persona that will clash with your current board; edit it before saving.</small></div></div>`:""}
+  <form id="dir-form" class="sec panel form" autocomplete="off">
+    ${f("d-title","Title",p.title,"e.g. Chief Customer Officer",false)}
+    <div class="field"><label for="d-mono">Monogram</label><input type="text" id="d-mono" maxlength="3" value="${esc(p.mono||"")}" placeholder="1–3 letters"><small>Used for the avatar and to tag this director's data, e.g. [${esc(p.mono||"CC")}1].</small></div>
+    <div class="field full"><label>Color</label><div class="swatches">${COLORS.map(c=>`<button type="button" class="swatch" style="--who:var(${c})" data-act="swatch" data-c="${c}" aria-pressed="${String((state.dirColor||p.color)===c)}" aria-label="Color ${c.replace("--c-","")}"></button>`).join("")}</div></div>
+    ${f("d-lens","Lens: their one-line motto",p.lens,"e.g. If the customer won't renew it, it isn't revenue.",true)}
+    ${f("d-mandate","Mandate: what they push the company toward",p.mandate,"Two sentences on what this director is on the board to protect or pursue",true,true)}
+    ${f("d-presses","What they always press on",p.presses,"The question they ask every time",false)}
+    ${f("d-red","Red line",p.redLine,"What they will never accept",false)}
+    ${f("d-tone","Voice",p.tone,"e.g. Warm, relentless, data-first",false)}
+    <div class="field"><label>PESTLE factors they watch</label><div class="seats">${PESTLE_NAMES.map(n=>`<label class="seat-chip" style="--who:var(--accent)"><input type="checkbox" name="d-pestle" value="${n}" ${ps.includes(n.toLowerCase())?"checked":""}>${n}</label>`).join("")}</div></div>
+    <div class="field full"><label class="row" style="font-weight:600"><input type="checkbox" id="d-active" ${p.active===false?"":"checked"}> Seat this director by default in new sessions</label></div>
+  </form>`;
+}
+function dataHTML(id,isNew){
+  if(isNew) return `<div class="sec panel"><h2>Supporting data</h2><p class="muted" style="margin:0">Save this director first, then attach files or notes.</p></div>`;
+  const list=state.atts[id]||[]; const total=list.reduce((n,a)=>n+(a.chars||0),0), pct=Math.min(100,total/OWN_BUDGET*100);
+  return `<div class="sec panel"><h2>Supporting data</h2>
+   <p class="muted" style="margin-top:0">Files and notes this director brings to every session. Each item is private to this director unless you share it with the whole board. The director cites items by tag, and other directors can challenge what is cited.</p>
+   <div class="meter ${total>OWN_BUDGET?"over":""}"><div style="width:${pct}%"></div></div>
+   <div class="muted mono" style="font-size:11.5px">${total.toLocaleString()} of ${OWN_BUDGET.toLocaleString()} characters fit in each call${total>OWN_BUDGET?(state.toolsOK?" · too large to include in full, so this director searches it during the debate (a few extra Claude calls per turn)":" · longer items will be trimmed so every item fits"):""}</div>
+   ${list.length?list.map(a=>{ const k="att-del:"+a.id; return `<div class="att"><a class="aref">${esc(a.tag)}</a><div style="min-width:0"><div class="nm">${esc(a.name)}</div><div class="muted" style="font-size:12px">${a.kind==="file"?"File":"Note"} · ${(a.chars||0).toLocaleString()} characters${a.truncated?" · cut to the storage limit":""} · ${a.shared?"Shared with the board":"Private to this director"}</div></div>
+     <div class="row"><button class="btn sm" data-act="att-share" data-id="${esc(a.id)}">${a.shared?"Make private":"Share with board"}</button><button class="btn sm danger ${state.armed===k?"armed":""}" data-act="att-del" data-id="${esc(a.id)}">${state.armed===k?"Confirm remove":"Remove"}</button></div></div>`; }).join(""):`<div class="empty-note" style="margin-top:10px">No data yet. Add a file or paste notes below.</div>`}
+   <div class="form" style="margin-top:16px">
+     <div class="field full"><label for="att-file">Add files</label><div class="row"><input type="file" id="att-file" multiple accept=".pdf,.docx,.xlsx,.xls,.csv,.tsv,.txt,.md,.json,.html,.htm"><button class="btn sm" data-act="att-upload">Upload</button></div><small>PDF, Word (.docx), Excel, CSV or text, up to about 1,000 pages per file. Text is extracted in your browser; only the text is stored.</small></div>
+     <div class="field full"><label for="att-name">Or paste a note</label><input type="text" id="att-name" placeholder="Title, e.g. 2025 utilization by service line"></div>
+     <div class="field full"><textarea id="att-text" placeholder="Paste figures, a memo, a table…"></textarea><div class="row"><button class="btn sm" data-act="att-paste">Add note</button></div></div>
+   </div>${state.attStatus?`<div class="muted" style="margin-top:6px">${esc(state.attStatus)}</div>`:""}</div>`;
+}
+function drawConsult(main){
+  const p=persona(state.dirId); if(!p){ setHTML(main,`<div class="empty-note">This director no longer exists.</div>`); return; }
+  registerPeople([p]);
+  if(!main.querySelector("#consult-form")){
+    const ss=state.sessions.filter(x=>x.approvedPlan||x.plan);
+    main.innerHTML=`<div class="eyebrow">Consult · one director, one answer</div><h1>Ask the ${esc(p.title)}</h1>
+    <p class="lede">A quick read from a single director, using its persona and its data. Optionally ground it in a past session's dilemma and evidence. One Claude call, more if the director searches large data.</p>
+    <div id="consult-note"></div>
+    <div id="consult-form" class="sec panel form">
+      <div class="field full"><label for="cs-session">Ground it in a session (optional)</label><select id="cs-session" class="btn" style="font-weight:500;text-align:left"><option value="">No session: a general question</option>${ss.map(x=>`<option value="${esc(x.id)}">${esc(x.title)}</option>`).join("")}</select></div>
+      <div class="field full"><label for="cs-q">Your question</label><textarea id="cs-q" placeholder="e.g. What would make you change your vote on the environmental market?"></textarea></div>
+      <div class="row"><button class="btn primary" data-act="consult-ask" ${SAMPLE?"":"disabled"}>Ask</button><button class="btn" data-act="consult-stop">Stop</button><button class="btn" data-act="board">Back to board</button></div>
+    </div><div id="consult-out" class="sec"></div><div id="consult-hist" class="sec"></div>`;
+  }
+  setHTML(main.querySelector("#consult-note"), state.notice?`<div class="notice">${esc(state.notice)}</div>`:"");
+  const L=state.consultLive; const facts={};
+  setHTML(main.querySelector("#consult-out"), L&&L.dir===p.id ? `<article class="turn live" style="--who:var(${p.color})">${av(p.id)}<div style="min-width:0"><div class="th"><span class="who">${esc(p.title)}</span><span class="role">Consult</span></div>
+    ${L.text?`<div class="body cursor">${md(L.text,{facts,flag:true})}</div>`:`<div class="body muted cursor">${esc(L.note||"Thinking…")}</div>`}</div></article>` : "");
+  const hist=state.consults[p.id]||[];
+  setHTML(main.querySelector("#consult-hist"), hist.length?`<h2>Earlier answers</h2>`+hist.slice(0,10).map(c=>`<details class="panel"><summary>${esc(c.q.slice(0,120))} <span class="muted mono" style="font-size:11px">· ${esc(fmtDate(c.at))}${c.sessionTitle?" · "+esc(c.sessionTitle):""}</span></summary><div class="body" style="margin-top:8px">${md(c.a,{facts,flag:true})}</div></details>`).join(""):"");
+}
+async function runConsult(){
+  if(state.consultLive) return;
+  const p=persona(state.dirId), q=document.getElementById("cs-q")?.value.trim(), sid=document.getElementById("cs-session")?.value||"";
+  if(!q){ document.getElementById("cs-q")?.focus(); return; }
+  const sess = sid ? getS(sid) : null; let pack=null;
+  if(sid){ try{ pack=(await Store.list(`sessions/${sid}/evidence`)).find(x=>x.id==="pack")||null; }catch(_){} }
+  const s = sess ? {...sess, board:null, seats:[p.id]} : {seats:[p.id]};
+  const ctx={members:[p], att:{}, lookups:{}}; try{ ctx.att[p.id]=await loadMaterials(p.id); }catch(_){ ctx.att[p.id]=[]; } ctx.chunks=buildChunks(ctx);
+  state.consultLive={dir:p.id,text:"",note:""}; state.consultCtl=new AbortController(); state.notice=""; render();
+  ATT_CTX=ctx;
+  try{
+    const tools=toolsFor(ctx,p.id,"consult",msg=>{ if(state.consultLive){ state.consultLive.note=msg; render(); } });
+    const after=x=>{ const i=x.lastIndexOf("<<<REMARKS"); return i<0?(tools?"":x):x.slice(i+10); };
+    const prompt=[memberFrame(p,s), sess?[contextBlock(sess),dossier(sess,pack),evidenceText(pack)].join("\n\n"):"",
+      `QUESTION FROM THE CHAIR:\n${q}`,
+      `TASK: SINGLE-DIRECTOR CONSULT. Answer in your own voice, first person, under 400 words: your call, your reasoning from your mandate (cite evidence and materials by ID or tag), what you would do this week, and the one question you would ask back. Do not narrate yourself in the third person.`].filter(Boolean).join("\n\n")+(tools?TOOL_NOTE:"");
+    const r=await ask(prompt,{tier:"default",signal:state.consultCtl.signal,tools,onText:t=>{ if(state.consultLive){ state.consultLive.text=after(t); render(); } }});
+    const a=tools&&r.text.includes("<<<REMARKS")?after(r.text):r.text;
+    await Store.put(`directors/${p.id}/consults`, newId("c"), {q,a:a.trim(),at:Date.now(),sessionId:sid||null,sessionTitle:sess?.title||""});
+    const box=document.getElementById("cs-q"); if(box) box.value="";
+  }catch(e){ if(e?.code!=="cancelled") state.notice=errCopy(e); }
+  finally{ ATT_CTX=null; state.consultLive=null; render(); }
+}
+function drawDirector(main){
+  const id=state.dirId, isNew=id==="new", p=isNew?{active:true}:persona(id);
+  if(!p){ setHTML(main,`<div class="empty-note">This director no longer exists.</div>`); return; }
+  if(!main.querySelector("#dir-form")){
+    main.innerHTML=`<div class="eyebrow">Board members · ${isNew?"New director":p.builtIn?"Built-in director":"Custom director"}</div>
+    <h1>${isNew?"Add a director":esc(p.title)}</h1><div id="dir-note"></div>${dirFormHTML(p,isNew)}<div id="dir-actions" class="sec"></div><div id="dir-data"></div>`;
+  }
+  setHTML(main.querySelector("#dir-note"), state.notice?`<div class="notice">${esc(state.notice)}</div>`:"");
+  const b=[`<button class="btn primary" data-act="dir-save" ${CAN_WRITE?"":"disabled"}>Save director</button>`,`<button class="btn" data-act="dir-cancel">Back to board</button>`];
+  if(!isNew) b.push(`<button class="btn" data-act="consult" data-id="${esc(id)}">Ask this director</button>`);
+  if(!isNew && p.builtIn){ b.push(`<button class="btn ${state.armed==="dir-reset"?"danger armed":""}" data-act="dir-reset">${state.armed==="dir-reset"?"Confirm: restore original persona":"Reset to original persona"}</button>`,`<button class="btn danger" data-act="dir-remove">Remove from board</button>`); }
+  if(!isNew && p.custom){ b.push(`<button class="btn danger ${state.armed==="dir-delete"?"armed":""}" data-act="dir-delete">${state.armed==="dir-delete"?"Confirm: delete director and data":"Delete director"}</button>`); }
+  setHTML(main.querySelector("#dir-actions"),`<div class="row">${b.join("")}</div>`);
+  setHTML(main.querySelector("#dir-data"), dataHTML(id,isNew));
+}
+
+const GUIDE_STEPS = [
+  {lane:0,t:"Describe the company and decision",d:"Company, sector, geography, question"},
+  {lane:1,t:"Counsel proposes the analysis",d:"3–5 markets, data to pull, board calibration",in:"submit"},
+  {lane:0,t:"Edit and approve the plan",d:"Drop, rename or add markets",in:"review",loop:{to:1,label:"regenerate"}},
+  {lane:0,t:"Copy the research request",d:"One line with the session ID"},
+  {lane:2,t:"Sourced web research",d:"Cited facts, PESTLE, scorecard, gaps",in:"paste into a Claude chat"},
+  {lane:1,t:"Evidence pack appears",d:"Register, PESTLE, scorecard, gaps",in:"writes evidence"},
+  {lane:0,t:"Convene the board",d:"Run to the end, or one stage at a time",in:"review evidence"},
+  {lane:1,t:"Debate",d:"Brief, sealed openings, cross-exam, rebuttals",in:"convene"},
+  {lane:1,t:"Sealed vote and synthesis",d:"7 votes, then Counsel's record of decision"},
+  {lane:0,t:"Review the decision",d:"Dissent, assumptions, risks, paths forward",in:"record of decision",loop:{to:7,label:"add a round or regenerate"}},
+  {lane:0,t:"Compare sessions",d:"Choices and votes side by side"}
+];
+function guideSVG(){
+  const W=960, laneW=300, gap=15, x0=15, top=70, rowH=92, bw=250, bh=60;
+  const cx=l=>x0+l*(laneW+gap)+laneW/2;
+  const H=top+GUIDE_STEPS.length*rowH+10;
+  const lanes=["You","Board app","Claude chat (web research)"];
+  let o=`<svg viewBox="0 0 ${W} ${H}" role="img" aria-label="Flowchart: you describe the decision, the app's Counsel proposes an analysis plan you approve, research runs in a Claude chat and writes an evidence pack back to the app, you convene the board, the app runs the debate, vote and synthesis, and you review, add rounds, or compare sessions." style="width:100%;min-width:760px;height:auto;display:block;font-family:var(--f-display)">
+  <defs><marker id="ga" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="7" markerHeight="7" orient="auto-start-reverse"><path d="M0,0 L10,5 L0,10 z" style="fill:var(--muted)"/></marker>
+  <marker id="gl" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="7" markerHeight="7" orient="auto-start-reverse"><path d="M0,0 L10,5 L0,10 z" style="fill:var(--accent)"/></marker></defs>`;
+  lanes.forEach((l,i)=>{ const x=x0+i*(laneW+gap);
+    o+=`<rect x="${x}" y="10" width="${laneW}" height="${H-20}" rx="8" style="fill:${i===1?"var(--accent-soft)":"var(--sunk)"};opacity:${i===1?.55:.7}"/>
+    <text x="${x+laneW/2}" y="40" text-anchor="middle" style="fill:var(--ink);font-size:13px;font-weight:700;letter-spacing:.06em">${esc(l.toUpperCase())}</text>`; });
+  const pos=GUIDE_STEPS.map((s,i)=>({x:cx(s.lane)-bw/2,y:top+i*rowH,cx:cx(s.lane)}));
+  // connectors
+  GUIDE_STEPS.forEach((s,i)=>{ if(i===0) return; const a=pos[i-1], b=pos[i];
+    const y1=a.y+bh, y2=b.y, ym=y1+(y2-y1)/2;
+    const d = a.cx===b.cx ? `M${a.cx},${y1} L${b.cx},${y2-2}` : `M${a.cx},${y1} L${a.cx},${ym} L${b.cx},${ym} L${b.cx},${y2-2}`;
+    o+=`<path d="${d}" style="fill:none;stroke:var(--muted);stroke-width:1.4" marker-end="url(#ga)"/>`;
+    if(s.in){ const lx = a.cx===b.cx ? a.cx+8 : (a.cx+b.cx)/2; const ly = a.cx===b.cx ? ym+4 : ym-6;
+      o+=`<text x="${lx}" y="${ly}" text-anchor="${a.cx===b.cx?"start":"middle"}" style="fill:var(--muted);font-size:11.5px;font-family:var(--f-mono)">${esc(s.in)}</text>`; }
+  });
+  // loops
+  GUIDE_STEPS.forEach((s,i)=>{ if(!s.loop) return; const a=pos[i], b=pos[s.loop.to];
+    const sx=a.x+bw, sy=a.y+bh/2, tx=b.x+bw, ty=b.y+bh/2;
+    const rx = a.cx===b.cx ? Math.max(sx,tx)+28 : cx(GUIDE_STEPS[s.loop.to].lane)+laneW/2+gap/2;
+    const d = `M${sx},${sy} L${rx},${sy} L${rx},${ty} L${tx+2},${ty}`;
+    o+=`<path d="${d}" style="fill:none;stroke:var(--accent);stroke-width:1.4;stroke-dasharray:5 4" marker-end="url(#gl)"/>`;
+    const lx = rx+5, ly = (sy+ty)/2;
+    o+=`<text x="${lx}" y="${ly}" text-anchor="start" style="fill:var(--accent);font-size:11.5px;font-family:var(--f-mono)">${esc(s.loop.label)}</text>`;
+  });
+  // boxes
+  GUIDE_STEPS.forEach((s,i)=>{ const p=pos[i];
+    o+=`<rect x="${p.x}" y="${p.y}" width="${bw}" height="${bh}" rx="6" style="fill:var(--surface);stroke:${s.lane===1?"var(--accent)":"var(--line)"};stroke-width:1.2"/>
+    <circle cx="${p.x+18}" cy="${p.y+20}" r="10" style="fill:${s.lane===0?"var(--ink)":s.lane===1?"var(--accent)":"var(--c-counsel)"}"/>
+    <text x="${p.x+18}" y="${p.y+24}" text-anchor="middle" style="fill:var(--surface);font-size:11px;font-weight:700;font-family:var(--f-mono)">${i+1}</text>
+    <text x="${p.x+36}" y="${p.y+25}" style="fill:var(--ink);font-size:13.5px;font-weight:650">${esc(s.t)}</text>
+    <text x="${p.x+14}" y="${p.y+46}" style="fill:var(--muted);font-size:11.5px">${esc(s.d)}</text>`; });
+  return o+"</svg>";
+}
+function drawGuide(main){
+  setHTML(main,`<div class="eyebrow">How it works</div><h1>Stepping through a board session</h1>
+  <p class="lede">A session moves between three places: what you do, what the board app does, and one research step that runs in a Claude chat with web search. The board never debates until sourced evidence is in.</p>
+  <figure class="sec panel" style="margin-inline:0;padding:12px"><div class="scroll-x">${guideSVG()}</div>
+  <figcaption class="muted" style="font-size:13px;margin-top:8px">Solid arrows are the normal path. Dashed arrows are optional loops: regenerate the plan before approving it, or add a debate round or regenerate a stage after the decision.</figcaption></figure>
+  <div class="sec cols">
+    <div class="panel"><h4 style="margin-top:0">What you provide</h4><ul class="body" style="font-size:15px;padding-left:18px;margin:0">
+      <li><b>Company profile:</b> size, offering, customers, locations, licenses, finances. The board argues against it.</li>
+      <li><b>Sector and geography:</b> they decide how the Counsel calibrates each director and where research looks.</li>
+      <li><b>Assumptions:</b> write down what you believe but haven't proven. The board tests these first.</li></ul></div>
+    <div class="panel"><h4 style="margin-top:0">What to expect</h4><ul class="body" style="font-size:15px;padding-left:18px;margin:0">
+      <li><b>Research step:</b> paste one line into a Claude chat. It takes several minutes and returns facts with source links.</li>
+      <li><b>Debate:</b> about 29 Claude calls for a standard session (45 for deep), drawn from your own Claude usage. You can stop at any time; finished turns are kept.</li>
+      <li><b>Citation discipline:</b> figures a director states without an evidence citation are highlighted.</li></ul></div>
+  </div>
+  <div class="sec row"><button class="btn primary" data-act="new">Start a new dilemma</button></div>`);
+}
+function drawCompare(main){
+  const sel=state.sessions.filter(s=>state.cmpSel.has(s.id)&&s.outcome);
+  const decided=state.sessions.filter(s=>s.outcome).length;
+  let html=`<div class="eyebrow">Comparison</div><h1>Compare board decisions</h1>
+  <p class="lede">Tick decided sessions in the list to set their votes and recommendations side by side.</p>`;
+  if(!decided) html+=`<div class="empty-note sec">No decided sessions yet. Once a session reaches its vote it can be compared here.</div>`;
+  else if(sel.length<1) html+=`<div class="empty-note sec">Select at least one decided session on the left (${decided} available).</div>`;
+  else {
+    const mems=[], seenM=new Set(); sel.forEach(x=>members(x).forEach(m=>{ if(!seenM.has(m.id)){ seenM.add(m.id); mems.push(m); } })); registerPeople(mems);
+    const row=(label,fn)=>`<tr><td>${label}</td>${sel.map(s=>`<td>${fn(s)}</td>`).join("")}</tr>`;
+    html+=`<div class="sec scroll-x panel" style="padding:0"><table class="cmp"><thead><tr><th></th>${sel.map(s=>`<th style="text-transform:none;letter-spacing:0;font-size:13px;color:var(--ink)">${esc(s.title)}<div class="muted" style="font-weight:400">${esc(fmtDate(s.createdAt))}</div></th>`).join("")}</tr></thead><tbody>
+    ${row("Company",s=>esc([s.company,s.sector,s.geography].filter(Boolean).join(" · ")||"—"))}
+    ${row("Growth area",s=>esc(s.growthArea))}
+    ${row("Board choice",s=>`<b>${esc(s.outcome.leader)}</b>${s.outcome.tie?' <span class="tag flag">tie</span>':""}<div class="muted mono" style="font-size:11px">${s.outcome.lead}/${s.outcome.cast} · ${s.outcome.strong} strong · conf ${s.outcome.avgConf}</div>`)}
+    ${row("Split",s=>Object.entries(s.outcome.counts).map(([k,v])=>`${esc(k)} <b>${v}</b>`).join("<br>"))}
+    ${row("Verdict",s=>s.outcome?.scoring?`<span class="tag">${esc(s.outcome.scoring.label)}</span> ${esc(s.outcome.scoring.rec)} <span class="mono muted">${s.outcome.scoring.score}/10 · spread ${s.outcome.scoring.spread}</span>`:"—")}
+    ${row("Resolution",s=>`<span style="font-family:var(--f-read)">${esc(s.synthesis?.resolution||"—")}</span>`)}
+    ${mems.map(m=>row(`<span style="color:var(${m.color})">${esc(m.title)}</span>`,s=>{ const v=s.outcome.byMember?.[m.id]; return v?`${esc(v.choice)} <span class="sup ${esc(v.support)}">${esc(v.support)}</span>`:"—"; })).join("")}
+    ${row("Paths forward",s=>(s.synthesis?.paths||[]).map(esc).join("<br>")||"—")}
+    ${row("Top risks",s=>(s.synthesis?.risks||[]).map(r=>`<span class="sev ${esc(r.severity)}">${esc(r.severity)}</span> ${esc(r.risk)}`).join("<br>")||"—")}
+    </tbody></table></div>`;
+    const agg={}; sel.forEach(s=>Object.entries(s.outcome.counts).forEach(([k,v])=>agg[k]=(agg[k]||0)+v));
+    const tot=Object.values(agg).reduce((a,b)=>a+b,0);
+    html+=`<div class="sec"><h2>Market scoreboard across selected sessions</h2><div class="panel">${Object.entries(agg).sort((a,b)=>b[1]-a[1]).map(([k,v])=>`<div style="display:grid;grid-template-columns:minmax(0,1fr) 3fr auto;gap:10px;align-items:center;margin:6px 0"><span style="overflow-wrap:anywhere">${esc(k)}</span><div style="height:12px;background:var(--sunk);border-radius:3px"><div style="height:100%;width:${(v/tot*100).toFixed(1)}%;background:var(--accent);border-radius:3px"></div></div><span class="mono">${v}</span></div>`).join("")}</div></div>`;
+  }
+  setHTML(main,html);
+}
+
+/* ───────────────────────── Events ───────────────────────── */
+document.addEventListener("change",async e=>{
+  if(e.target.name==="sseat"){ const s=curS(); if(!s||s.plan) return; const box=e.target.closest(".seats");
+    const ids=[...box.querySelectorAll('input[name=sseat]:checked')].map(x=>x.value);
+    if(ids.length<MIN_SEATS||ids.length>MAX_SEATS){ e.target.checked=!e.target.checked; showNotice(`Seat between ${MIN_SEATS} and ${MAX_SEATS} directors.`); return; }
+    const n=clone(s); n.seats=ids; n.updatedAt=Date.now(); state.notice=""; await Store.putSession(s.id,n); return; }
+  if(e.target.id==="f-copy" && e.target.value){ const src=getS(e.target.value); if(src) fillIntake({company:src.company,sector:src.sector,geography:src.geography,context:src.context,constraints:src.constraints}); }
+});
+function fillIntake(o){
+  const map={company:"f-company",sector:"f-sector",geography:"f-geo",growthArea:"f-growth",question:"f-question",markets:"f-markets",context:"f-context",constraints:"f-constraints",assumptions:"f-assumptions",title:"f-title"};
+  Object.entries(map).forEach(([k,id])=>{ if(o[k]!=null){ const el=document.getElementById(id); if(el) el.value=Array.isArray(o[k])?o[k].join("\n"):o[k]; } });
+}
+document.addEventListener("submit",e=>{ e.preventDefault(); if(e.target.id==="intake") createSession(true); });
+document.addEventListener("click",async e=>{
+  const el=e.target.closest("[data-act]"); if(!el) return;
+  const act=el.dataset.act, s=curS();
+  if(!["regen","delete","dir-delete","dir-reset","att-del"].includes(act)) state.armed=null;
+  switch(act){
+    case "new": state.view="intake"; state.sid=null; try{history.replaceState(null,"","#new");}catch(_){} render(); break;
+    case "compare": state.view="compare"; state.sid=null; render(); break;
+    case "guide": e.preventDefault(); state.view="guide"; state.sid=null; try{history.replaceState(null,"","#guide");}catch(_){} render(); break;
+    case "example": fillIntake({...EXAMPLE}); break;
+    case "board": e.preventDefault(); state.view="board"; state.sid=null; state.dirId=null; state.notice=""; render(); break;
+    case "dir-new": state.view="director"; state.sid=null; state.dirId="new"; state.dirColor=nextColor(); state.notice=""; render(); break;
+    case "dir-edit": state.view="director"; state.sid=null; state.dirId=el.dataset.id; state.dirColor=persona(el.dataset.id)?.color; state.notice=""; render(); break;
+    case "consult": { const id=el.dataset.id; state.view="consult"; state.sid=null; state.dirId=id; state.notice="";
+      if(!state.consultSubs[id]) state.consultSubs[id]=Store.watchCol(`directors/${id}/consults`, l=>{ state.consults[id]=l.sort((a,b)=>(b.at||0)-(a.at||0)); render(); }); render(); break; }
+    case "consult-ask": await runConsult(); break;
+    case "consult-stop": state.consultCtl?.abort(); break;
+    case "dir-cancel": state.view="board"; state.dirId=null; render(); break;
+    case "dir-active": { const p=persona(el.dataset.id); if(p) await saveDir(p.id,{active:p.active===false}); break; }
+    case "dir-restore": await saveDir(el.dataset.id,{archived:false}); break;
+    case "dir-remove": await saveDir(state.dirId,{archived:true}); state.view="board"; state.dirId=null; render(); break;
+    case "swatch": state.dirColor=el.dataset.c; document.querySelectorAll(".swatch").forEach(x=>x.setAttribute("aria-pressed",String(x.dataset.c===state.dirColor))); break;
+    case "dir-save": await saveDirectorForm(); break;
+    case "dir-draft": await draftDirector(el); break;
+    case "dir-delete": { if(state.armed!=="dir-delete"){ state.armed="dir-delete"; main_rerender_dir(); break; } state.armed=null; const id=state.dirId;
+      for(const a of (state.atts[id]||[])) await deleteMaterial(id,a); await Store.del("directors",id); state.view="board"; state.dirId=null; render(); break; }
+    case "dir-reset": { if(state.armed!=="dir-reset"){ state.armed="dir-reset"; main_rerender_dir(); break; } state.armed=null; const id=state.dirId; const o=state.dirs[id];
+      if(o){ const keep={}; ["archived","active"].forEach(k=>{ if(o[k]!=null) keep[k]=o[k]; }); await Store.put("directors",id,{builtIn:true,...keep}); } state.dirColor=null; main_rerender_dir(true); break; }
+    case "att-upload": await uploadFiles(); break;
+    case "att-paste": await pasteAttachment(); break;
+    case "att-share": { const a=(state.atts[state.dirId]||[]).find(x=>x.id===el.dataset.id); if(a) await Store.put(`directors/${state.dirId}/data`,a.id,{...a,shared:!a.shared}); break; }
+    case "att-del": { const k="att-del:"+el.dataset.id; if(state.armed!==k){ state.armed=k; render(); break; } state.armed=null; const a=(state.atts[state.dirId]||[]).find(x=>x.id===el.dataset.id); if(a) await deleteMaterial(state.dirId,a); break; }
+    case "open": openSession(el.dataset.id); break;
+    case "cmptoggle": { const s2=getS(el.dataset.id); if(!s2?.outcome) break; state.cmpSel.has(s2.id)?state.cmpSel.delete(s2.id):state.cmpSel.add(s2.id); render(); break; }
+    case "savedraft": createSession(false); break;
+    case "edit": if(s){ state.draft={...s,markets:(s.markets||[]).join("\n")}; await Store.delSession(s.id,[]); state.view="intake"; state.sid=null; render(); } break;
+    case "plan": if(s) runPlan(s.id); break;
+    case "approve": if(s) approvePlan(s); break;
+    case "copy": { const txt=document.getElementById("cmd")?.textContent||""; try{ await navigator.clipboard.writeText(txt); el.textContent="Copied"; }catch(_){ const r=document.createRange(); r.selectNodeContents(document.getElementById("cmd")); const w=getSelection(); w.removeAllRanges(); w.addRange(r); el.textContent="Selected — press Ctrl+C"; } break; }
+    case "evm": state.evMarket=+el.dataset.i; render(); break;
+    case "run": if(s) runDebate(s.id,"auto"); break;
+    case "step": if(s) runDebate(s.id,"step"); break;
+    case "stop": stopRun(); break;
+    case "regen": if(!s) break; if(state.armed!=="regen"){ state.armed="regen"; render(); break; } state.armed=null; await rewindTo(s.id, document.getElementById("regen").value); render(); break;
+    case "addround": if(s){ await rewindTo(s.id,null,{addRound:true}); render(); } break;
+    case "delete": if(!s) break; if(state.armed!=="del"){ state.armed="del"; render(); break; } state.armed=null; await Store.delSession(s.id,state.turns.map(t=>t.id)); state.view="intake"; state.sid=null; render(); break;
+  }
+});
+async function approvePlan(s){
+  const p=s.analysisPlan; const markets=[];
+  (p.markets||[]).forEach((m,i)=>{ if(document.getElementById("pm-on-"+i)?.checked){ markets.push({...m,name:document.getElementById("pm-name-"+i)?.value.trim()||m.name}); } });
+  const add=document.getElementById("pm-add")?.value.trim(); if(add) markets.push({name:add,definition:"Added by the chair",questions:[],data:[],pestle:[]});
+  if(!markets.length){ showNotice("Keep at least one market in the plan."); return; }
+  const n=clone(s); n.approvedPlan={markets,instructions:document.getElementById("pm-instr")?.value.trim()||"",approvedAt:Date.now()};
+  n.status="research_requested"; n.updatedAt=Date.now(); state.notice="";
+  await Store.putSession(s.id,n); render();
+}
+
+/* ───────────────────────── Boot ───────────────────────── */
+(async function boot(){
+  render();
+  const [smp, usr] = await Promise.all([use("sample"), use("user"), Store.init()]);
+  SAMPLE=smp; USER=usr;
+  if(SAMPLE){ try{ const lim=await SAMPLE.limits(); state.toolsOK=!!lim?.tools; }catch(_){ state.toolsOK=false; } }
+  if(USER){ try{ const c=await USER.can("data.write"); CAN_WRITE = c!==false; }catch(_){} }
+  Store.watchCol("directors", list=>{
+    state.dirs={}; list.forEach(d=>state.dirs[d.id]=d);
+    const all=rosterList(true); registerPeople(all);
+    all.forEach(p=>{ if(!state.attSubs[p.id]) state.attSubs[p.id]=Store.watchCol(`directors/${p.id}/data`, l=>{ state.atts[p.id]=l.sort((a,b)=>(a.addedAt||0)-(b.addedAt||0)); rebuildAttIndex(); render(); }); });
+    render();
+  });
+  Store.watchSessions(list=>{
+    state.sessions=list; state.booted=true;
+    if(!state.sid && state.view==="intake" && !state._hashTried){ state._hashTried=true; const h=(location.hash||"").slice(1); if(h==="guide"){ state.view="guide"; } else if(h && list.some(s=>s.id===h)) { openSession(h); return; } }
+    if(state.sid && RUN && RUN.sid===state.sid){ /* runner holds the freshest copy */ }
+    render();
+  });
+  const main=document.getElementById("main"); main.dataset.view=""; render();
+})();
+</script>
+
+</body></html>
