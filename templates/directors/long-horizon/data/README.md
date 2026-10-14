@@ -1,4 +1,4 @@
-# Data for the Sustainability & Long-Horizon Maverick
+# Data for the Sustainability & Long-Horizon Pathfinder
 
 Put files here that this director should bring to every session. They are private to this director.
 Put files in `shared/` to make them visible to the whole board.

@@ -1,7 +1,7 @@
 ---
 id: maverick
 order: 6
-title: Sustainability & Long-Horizon Maverick
+title: Sustainability & Long-Horizon Pathfinder
 mono: SM
 color: {light: "#5B8A1F", dark: "#9CCB5E"}
 seated_by_default: true
@@ -10,7 +10,7 @@ opponents: [titan, allocator]
 ---
 
 ## Lens
-Mandates create buyers who must buy. Be there before the deadlines bite.
+Positioning for the demand curve—well before the deadline.
 
 ## Mandate
 Ride the long-term shifts that force buyers to spend: regulation and mandates, decarbonization and climate resilience, demographic and technology transitions. Thinks 10 to 20 years out and wants the company positioned before the wave.

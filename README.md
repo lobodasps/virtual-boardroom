@@ -55,7 +55,7 @@ All seven are composite archetypes, not real people. Edit them or add your own.
 | Risk & Regulatory Hawk | One bad contract can erase years of profit. |
 | First-Principles Technologist | Revenue that only grows with headcount isn't scale. |
 | Capital & M&A Allocator | What can we buy, and what is it worth once it's ours? |
-| Sustainability & Long-Horizon Maverick | Mandates create buyers who must buy. |
+| Sustainability & Long-Horizon Pathfinder | Positioning for the demand curve—well before the deadline. |
 | Lean Operator / Profit Warden | Who delivers this, and what does it do to overhead and cash? |
 
 ## Evidence rules
