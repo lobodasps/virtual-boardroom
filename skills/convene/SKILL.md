@@ -154,6 +154,7 @@ From here on, every director prompt includes the cruxes.
 - stance divergence: `pursue`=2, `test`=1, `avoid`=0 (missing = 1), summed as absolute differences across options
 - `counsel_fault_line` (+2) if the Counsel listed the pair as a fault line
 - `default_fault_line` (+1) if either director lists the other under `opponents` in the default personas at `${CLAUDE_PLUGIN_ROOT}/templates/directors/*/persona.md`
+- `opponent` (+2) if either seated director lists the other under `opponents` in its own `persona.md` (on top of the default fault line)
 - `opposite_crux_sides` (+2) if the pair sit on opposite sides of a crux
 - `repeat_pair` (−4) if the pair was already used in an earlier round
 

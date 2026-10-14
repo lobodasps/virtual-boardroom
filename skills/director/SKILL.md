@@ -24,17 +24,18 @@ Show a table of every director: title, monogram, seated by default, number of pr
 <!-- SPEC:draft-director quote -->
 > You design voting directors for a company's AI advisory board. Each director is a composite archetype, never a real or named person.
 > The chair wants a new director described as: <the user's description>
-> Existing directors (the new one must hold a distinct view that will clash with at least one of them):
-> <each existing director's title and lens, one per line>
-> Reply with only JSON: {"title":"<role title, 2-5 words>","lens":"<one-sentence motto in the first person plural>","mandate":"<2 sentences: what this director pushes the company toward>","presses":"<the question they always ask>","redLine":"<what they will never accept>","tone":"<voice, a few adjectives>","pestle":["<1-2 of: Political, Economic, Social, Technological, Legal, Environmental>"]}
+> Existing directors, by id (the new one must hold a distinct view that will clash with at least one of them):
+> <each existing director as "- <id>: <title>: <lens>", one per line>
+> Reply with only JSON: {"title":"<role title, 2-5 words>","lens":"<one-sentence motto in the first person plural>","mandate":"<2 sentences: what this director pushes the company toward>","presses":"<the question they always ask>","redLine":"<what they will never accept>","thresholds":"<1-2 concrete numbers or tests that move them from yes to no>","blindSpots":"<where this lens tends to misjudge, one sentence>","tone":"<voice, a few adjectives>","pestle":["<1-2 of: Political, Economic, Social, Technological, Legal, Environmental>"],"opponents":["<ids of the 1-2 existing directors they will clash with most>"]}
 <!-- /SPEC:draft-director -->
 
    The director must be a composite archetype, never a real or named person, and must clash with at least one existing director.
 2. Choose a monogram of 1 to 3 capital letters that no other director uses (SC is reserved for the Strategy Counsel). Choose a short lowercase `id` that no other director uses, and a kebab-case folder name.
-3. Show the draft and ask the user to confirm or edit it. Then write `persona.md`, and create `data/` and `data/shared/`.
+3. Turn the JSON into `persona.md`: `presses` becomes the bulleted `## Always presses on`, `thresholds` goes under `## Thresholds`, `blindSpots` under `## Blind spots`, and `opponents` (ids of existing directors only) into the frontmatter. Pick an unused color from `spec/rules.json` → `custom_palette`.
+4. Show the draft and ask the user to confirm or edit it. Then write `persona.md`, and create `data/`, `data/shared/` and an empty `data/index.json` (`[]`).
 
 ## edit
-Show the current persona, apply the user's changes, and keep the frontmatter valid. Never change `id`. If the monogram changes, existing items keep their tags (so past citations still resolve) and new items use the new monogram.
+Show the current persona, apply the user's changes, and keep the frontmatter valid. Never change `id`. Offer to fill in `## Thresholds` (the numbers that move this director from yes to no), `## Blind spots` (where the lens misjudges) and `opponents` (ids of the directors it should clash with) if they are empty or still hold the placeholder comment. If the monogram changes, existing items keep their tags (so past citations still resolve) and new items use the new monogram.
 
 ## seat
 Show the roster with `seated_by_default`, and update the flags the user changes. At least 3 directors should be seated by default.

@@ -322,13 +322,16 @@ const PROMPTS = {
   "counsel-frame":"You are the Strategy Counsel to this board: a non-voting adviser in the style of an engagement partner at a top-tier strategy consultancy. You structure problems so the parts don't overlap and nothing is missed, lead with what the board needs to know, challenge weak evidence, and stay scrupulously neutral between directors. You never vote and never recommend before the vote.\n- Planning and calibration are framing, not findings: never state facts or figures in them.\n- In the brief, the draft and the synthesis, cite the evidence register by ID ([F7]) and director materials by tag ([PW2]) for every fact. If the register is thin, single-sourced, stale or silent on something decisive, say so plainly. That is part of your job.\n- After the vote, reflect it exactly as cast, including its strength and any tie, and record every dissent fairly.",
   "cruxes":"TASK: NAME THE CRUXES. From the sealed opening positions, in 150 words or fewer, name the one to three underlying disagreements that explain why the directors split. Classify each as factual (resolvable with evidence), numbers (turns on an estimate) or values (a trade-off such as speed versus safety), and say which directors sit on each side. {{alarm_note}} Neutral: no recommendation.\n{{meta_note}}\n{\"cruxes\":[{\"question\":\"<the disagreement as a question>\",\"type\":\"factual|numbers|values\",\"side_a\":{\"position\":\"<short>\",\"directors\":[\"<id>\"]},\"side_b\":{\"position\":\"<short>\",\"directors\":[\"<id>\"]}}],\"unanimity\":{{unanimity}},\"unargued_alternative\":\"<option, or empty>\"}\nDirector ids: {{director_ids}}.",
   "cruxes.alarm":"The openings converged on \"{{lead_option}}\" ({{lead_count}} of {{seat_count}} directors). Treat that as a warning, not a win: make the strongest unargued alternative a crux and name the directors who must argue it at full strength.",
-  "director-frame":"You are the {{title}}, {{seat_phrase}} on this company's advisory board. You are a composite archetype, not any real person; never claim to be or quote a real executive.\n\nMANDATE: {{mandate}}\nYOUR LENS: \"{{lens}}\"\nWHAT YOU ALWAYS PRESS ON: {{presses}}\nYOUR RED LINE: {{red_line}}\nPESTLE FACTORS YOU WATCH MOST: {{pestle}}\nIN THIS COMPANY'S SECTOR AND GEOGRAPHY: {{local_lens}}\nVOICE: {{tone}}\n\nOther directors: {{others}}. The non-voting Strategy Counsel briefs and facilitates.\n\n{{materials}}\n\n{{conduct}}\n\n{{fact_rules}}",
+  "director-frame":"You are the {{title}}, {{seat_phrase}} on this company's advisory board. You are a composite archetype, not any real person; never claim to be or quote a real executive.\n\nMANDATE: {{mandate}}\nYOUR LENS: \"{{lens}}\"\nWHAT YOU ALWAYS PRESS ON: {{presses}}\nYOUR RED LINE: {{red_line}}{{thresholds_line}}{{blind_spots_line}}\nPESTLE FACTORS YOU WATCH MOST: {{pestle}}\nIN THIS COMPANY'S SECTOR AND GEOGRAPHY: {{local_lens}}\nVOICE: {{tone}}\n\nOther directors: {{others}}. The non-voting Strategy Counsel briefs and facilitates.{{opponents_line}}\n\n{{materials}}\n\n{{conduct}}\n\n{{fact_rules}}",
+  "director-frame.blind_spots":"YOUR BLIND SPOTS: {{blind_spots}}\nWhen the decision falls in one of your blind spots, say so and adjust instead of vetoing.",
   "director-frame.conduct":"DEBATE CONDUCT:\n- Argue from your mandate. You are on this board because you see what the others miss; do not drift toward consensus.\n- Agreement must add something: name what the other director missed or when they would be wrong.\n- Refer to colleagues by role title (e.g. \"the Risk & Regulatory Hawk\"). Sharp and professional, never insulting.\n- Ground every point in how this sector and geography actually work, the PESTLE findings, and this company's actual size and capabilities.\n- Plain prose, no headings, no sign-off. Respect the word limit in the task.",
   "director-frame.local_default":"Apply your mandate to this company's specific sector, geography and size.",
+  "director-frame.opponents":"Your natural opponents are {{opponent_titles}}. Push back on them hardest, but concede when the evidence forces it.",
   "director-frame.seat_many":"one of {{count}} voting directors",
   "director-frame.seat_one":"a voting director",
+  "director-frame.thresholds":"YOUR THRESHOLDS (the numbers that move you from yes to no): {{thresholds}}",
   "draft":"TASK: DRAFT RESOLUTION for the board to ratify. Recommend the option with the highest weighted score ({{rec}}) and state the verdict label ({{label}}). In 200 words or fewer: the recommendation; the conditions directors asked for (merge duplicates, make each checkable with a number, a date or a test result; where directors differ, pick one and say whose); next steps with dates; the cheapest test; kill criteria; a mitigation for every ruin flag; and a mitigation for every red-line flag (\"at_risk\" or \"breached\") on the recommendation, answering that director's red line in their own terms. Weigh arguments, not headcount: one director with a decisive fact beats three with opinions.\n{{fact_rules}}\n{{meta_note}}\n{\"recommendation\":\"<option>\",\"label\":\"<verdict label>\",\"conditions\":[\"...\"],\"next_steps\":[\"...\"],\"cheapest_test\":\"...\",\"kill_criteria\":\"...\",\"mitigations\":[{\"for\":\"<director id>\",\"flag\":\"ruin|red_line\",\"mitigation\":\"...\"}]}",
-  "draft-director":"You design voting directors for a company's AI advisory board. Each director is a composite archetype, never a real or named person.\nThe chair wants a new director described as: {{brief}}\nExisting directors (the new one must hold a distinct view that will clash with at least one of them):\n{{others}}\nReply with only JSON: {\"title\":\"<role title, 2-5 words>\",\"lens\":\"<one-sentence motto in the first person plural>\",\"mandate\":\"<2 sentences: what this director pushes the company toward>\",\"presses\":\"<the question they always ask>\",\"redLine\":\"<what they will never accept>\",\"tone\":\"<voice, a few adjectives>\",\"pestle\":[\"<1-2 of: Political, Economic, Social, Technological, Legal, Environmental>\"]}",
+  "draft-director":"You design voting directors for a company's AI advisory board. Each director is a composite archetype, never a real or named person.\nThe chair wants a new director described as: {{brief}}\nExisting directors, by id (the new one must hold a distinct view that will clash with at least one of them):\n{{others}}\nReply with only JSON: {\"title\":\"<role title, 2-5 words>\",\"lens\":\"<one-sentence motto in the first person plural>\",\"mandate\":\"<2 sentences: what this director pushes the company toward>\",\"presses\":\"<the question they always ask>\",\"redLine\":\"<what they will never accept>\",\"thresholds\":\"<1-2 concrete numbers or tests that move them from yes to no>\",\"blindSpots\":\"<where this lens tends to misjudge, one sentence>\",\"tone\":\"<voice, a few adjectives>\",\"pestle\":[\"<1-2 of: Political, Economic, Social, Technological, Legal, Environmental>\"],\"opponents\":[\"<ids of the 1-2 existing directors they will clash with most>\"]}",
   "fact-rules":"EVIDENCE DISCIPLINE (strict):\n- Every factual statement about markets, buyers, agencies, budgets, programs, regulations, deadlines, competitors, prices, fees or wages must cite the evidence register by ID, e.g. [F7], or a briefing material by its tag, e.g. [PW2].\n- Never introduce a number, date, dollar amount or program detail that is not in the register, the briefing materials or the company context. If you need a fact the register lacks, say it is unknown and that it should be researched.\n- When a material is private to you, quote the figure or sentence you rely on so other directors can challenge it.\n- You may reason and give judgment freely; make clear when something is your judgment.",
   "materials":"YOUR BRIEFING MATERIALS (supplied by the chair to support your seat{{private_note}}; cite by tag, e.g. [{{example_tag}}])",
   "materials.index_note":"{{count}} more item(s) are too large to include in full. Search them with the search_materials tool and read passages with read_material before you write. Each index entry shows only the item's name and its first 180 characters:\n{{index}}",
@@ -355,7 +358,7 @@ const byId = {}; BOARD.forEach(b=>byId[b.id]=b);
 const DEFAULT_IDS = BOARD.filter(b=>!b.nonVoting).map(b=>b.id);
 const COUNSEL = BOARD.find(b=>b.nonVoting);
 const COLORS = [...BOARD.filter(b=>!b.nonVoting).map(b=>b.color), ...(RULES.custom_palette||[]).map(p=>"--c-"+p.name)];
-const PFIELDS = ["title","mono","color","lens","mandate","presses","redLine","tone","pestle"];
+const PFIELDS = ["title","mono","color","lens","mandate","presses","redLine","thresholds","blindSpots","tone","pestle","opponents"];
 const {MIN_SEATS, MAX_SEATS, OWN_BUDGET, SHARED_BUDGET, MAX_ATT, PART, CHUNK} = RULES;
 /* Prompt text lives in PROMPTS (generated from spec/prompts); fill() injects {{placeholders}} in one pass. */
 const P = k => PROMPTS[k] ?? "";
@@ -573,6 +576,9 @@ function memberFrame(m, s){
   const materials = materialsText(own, OWN_BUDGET, "materials.own_full", head);
   return T("director-frame",{title:m.title, seat_phrase:all.length>1?T("director-frame.seat_many",{count:all.length}):P("director-frame.seat_one"),
     mandate:m.mandate, lens:m.lens, presses:lines(m.presses).join(" / "), red_line:m.redLine, pestle:m.pestle,
+    thresholds_line:String(m.thresholds||"").trim()?"\n"+T("director-frame.thresholds",{thresholds:String(m.thresholds).trim()}):"",
+    blind_spots_line:String(m.blindSpots||"").trim()?"\n"+T("director-frame.blind_spots",{blind_spots:String(m.blindSpots).trim()}):"",
+    opponents_line:(()=>{ const t=(m.opponents||[]).filter(id=>id!==m.id&&all.some(x=>x.id===id)).map(id=>"the "+(all.find(x=>x.id===id).title)); return t.length?"\n"+T("director-frame.opponents",{opponent_titles:t.join(" and ")}):""; })(),
     local_lens:s?.calibration?.lenses?.[m.id]||P("director-frame.local_default"), tone:m.tone, others, materials,
     conduct:P("director-frame.conduct"), fact_rules:FACT_RULES});
 }
@@ -732,9 +738,11 @@ function computePairings(ctx, round){
   const opts=options(ctx.s,ctx.pack).map(o=>o.toLowerCase());
   const counselFaults=(ctx.turns.get("brief__counsel")?.meta?.fault_lines)||[];
   const prev = new Set(); for(let r=1;r<round;r++){ const p=ctx.s.pairings?.["challenge"+r]||{}; Object.entries(p).forEach(([a,b])=>prev.add(a+">"+b)); }
+  const opp=id=>ctx.members.find(x=>x.id===id)?.opponents||[];
   const has=(list,a,b)=>list.some(x=>Array.isArray(x)?((x[0]===a&&x[1]===b)||(x[0]===b&&x[1]===a)):((x.a===a&&x.b===b)||(x.a===b&&x.b===a)));
   const score=(a,b)=>{ const sa=stanceMap(ctx,a), sb=stanceMap(ctx,b); let d=0; opts.forEach(o=>d+=Math.abs((sa[o]??PR.default_stance)-(sb[o]??PR.default_stance)));
     if(has(counselFaults,a,b)) d+=PR.counsel_fault_line; if(has(DEFAULT_FAULTS,a,b)) d+=PR.default_fault_line; if(prev.has(a+">"+b)) d+=PR.repeat_pair;
+    if(opp(a).includes(b)||opp(b).includes(a)) d+=PR.opponent;
     (ctx.turns.get("cruxes__counsel")?.meta?.cruxes||[]).forEach(c=>{ const A=c.side_a?.directors||[], B=c.side_b?.directors||[]; if((A.includes(a)&&B.includes(b))||(B.includes(a)&&A.includes(b))) d+=PR.opposite_crux_sides; });
     return d; };
   const load={}, out={};
@@ -1443,7 +1451,8 @@ async function saveDirectorForm(){
   const clash=rosterList(true).find(p=>p.mono===mono && p.id!==state.dirId) || (mono==="SC"?COUNSEL:null);
   if(clash){ showNotice(`The monogram ${mono} is already used by the ${clash.title}. Choose another.`); return; }
   const pestle=[...document.querySelectorAll('input[name=d-pestle]:checked')].map(x=>x.value).join(", ");
-  const data={title,mono,color:state.dirColor||nextColor(),lens:v("d-lens"),mandate,presses:v("d-presses"),redLine:v("d-red"),tone:v("d-tone"),pestle,active:document.getElementById("d-active").checked};
+  const opponents=[...document.querySelectorAll('input[name=d-opp]:checked')].map(x=>x.value);
+  const data={title,mono,color:state.dirColor||nextColor(),lens:v("d-lens"),mandate,presses:lines(v("d-presses")).join("\n"),redLine:v("d-red"),thresholds:v("d-thresholds"),blindSpots:v("d-blind"),tone:v("d-tone"),pestle,opponents,active:document.getElementById("d-active").checked};
   if(state.dirId==="new"){ const id=newId("d"); await Store.put("directors",id,{...data,custom:true,createdAt:Date.now(),updatedAt:Date.now()}); state.dirId=id; state.notice="Saved. You can now attach supporting data."; main_rerender_dir(true); }
   else { await saveDir(state.dirId,data); state.notice="Saved."; render(); }
 }
@@ -1452,10 +1461,11 @@ async function draftDirector(btn){
   if(!SAMPLE){ showNotice("Claude isn't available in this view."); return; }
   btn.disabled=true; const old=btn.textContent; btn.textContent="Drafting…";
   try{
-    const others=rosterList().map(p=>`- ${p.title}: ${p.lens}`).join("\n");
+    const others=rosterList().map(p=>`- ${p.id}: ${p.title}: ${p.lens}`).join("\n");
     const r=await ask(T("draft-director",{brief, others}),{json:true,tier:"default"});
     const set=(id,val)=>{ const el=document.getElementById(id); if(el&&val) el.value=String(val); };
-    set("d-title",r?.title); set("d-lens",r?.lens); set("d-mandate",r?.mandate); set("d-presses",r?.presses); set("d-red",r?.redLine); set("d-tone",r?.tone);
+    set("d-title",r?.title); set("d-lens",r?.lens); set("d-mandate",r?.mandate); set("d-presses",r?.presses); set("d-red",r?.redLine); set("d-thresholds",r?.thresholds); set("d-blind",r?.blindSpots); set("d-tone",r?.tone);
+    const opp=(Array.isArray(r?.opponents)?r.opponents:[]).map(String); if(opp.length) document.querySelectorAll('input[name=d-opp]').forEach(x=>x.checked=opp.includes(x.value));
     if(r?.title && !document.getElementById("d-mono").value) set("d-mono",initials(r.title));
     const ps=(r?.pestle||[]).map(x=>String(x).toLowerCase()); if(ps.length) document.querySelectorAll('input[name=d-pestle]').forEach(x=>x.checked=ps.includes(x.value.toLowerCase()));
     state.notice="Draft filled in. Edit anything, then save.";
@@ -1492,9 +1502,12 @@ function dirFormHTML(p,isNew){
     <div class="field full"><label>Color</label><div class="swatches">${COLORS.map(c=>`<button type="button" class="swatch" style="--who:var(${c})" data-act="swatch" data-c="${c}" aria-pressed="${String((state.dirColor||p.color)===c)}" aria-label="Color ${c.replace("--c-","")}"></button>`).join("")}</div></div>
     ${f("d-lens","Lens: their one-line motto",p.lens,"e.g. If the customer won't renew it, it isn't revenue.",true)}
     ${f("d-mandate","Mandate: what they push the company toward",p.mandate,"Two sentences on what this director is on the board to protect or pursue",true,true)}
-    ${f("d-presses","What they always press on",p.presses,"The question they ask every time",false)}
-    ${f("d-red","Red line",p.redLine,"What they will never accept",false)}
+    ${f("d-presses","What they always press on (one per line)",lines(p.presses).join("\n"),"The question they ask every time",false,true)}
+    ${f("d-red","Red line",p.redLine,"What they will never accept",false,true)}
+    ${f("d-thresholds","Thresholds (optional)",p.thresholds,"The numbers that move them from yes to no, e.g. payback under 36 months",false,true)}
+    ${f("d-blind","Blind spots (optional)",p.blindSpots,"Where this lens tends to misjudge",false,true)}
     ${f("d-tone","Voice",p.tone,"e.g. Warm, relentless, data-first",false)}
+    <div class="field full"><label>Natural opponents (optional)</label><div class="seats">${rosterList().filter(o=>o.id!==state.dirId).map(o=>`<label class="seat-chip" style="--who:var(${o.color})"><input type="checkbox" name="d-opp" value="${esc(o.id)}" ${(p.opponents||[]).includes(o.id)?"checked":""}>${esc(o.title)}</label>`).join("")}</div><small>Cross-examination pairs a director with its opponents more often. They push back on these directors hardest.</small></div>
     <div class="field"><label>PESTLE factors they watch</label><div class="seats">${PESTLE_NAMES.map(n=>`<label class="seat-chip" style="--who:var(--accent)"><input type="checkbox" name="d-pestle" value="${n}" ${ps.includes(n.toLowerCase())?"checked":""}>${n}</label>`).join("")}</div></div>
     <div class="field full"><label class="row" style="font-weight:600"><input type="checkbox" id="d-active" ${p.active===false?"":"checked"}> Seat this director by default in new sessions</label></div>
   </form>`;
