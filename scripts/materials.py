@@ -3,8 +3,11 @@
 
 Usage:
   materials.py index <director-folder>                  create or update data/index.json from the files present
-  materials.py add <director-folder> <file-in-data> [--name N] [--as-of YYYY-MM] [--pin]
-                                                        register a file already copied into data/ or data/shared/
+  materials.py add <director-folder> <file-in-data> [--name N] [--as-of YYYY-MM] [--pin] [--card-for TAG]
+                                                        register a file already copied into data/ or data/shared/;
+                                                        --card-for marks it as the (pinned) summary card of item TAG
+  materials.py card-source <director-folder> <TAG>      print the text to summarize (first cards.source_chars + headings)
+  materials.py check-card <card-file>                   validate a summary card (length, sections); exit 1 if not ok
   materials.py pin <director-folder> <TAG> [--off]      pin or unpin an item
   materials.py plan <director-folder> [--shared-only] [--budget N] [--no-tools]
                                                         print the reading plan for a director task (Markdown)
@@ -57,11 +60,12 @@ def next_tag(mono, items):
     return f"{mono}{n + 1}"
 
 
-def entry(folder, mono, items, rel, name=None, as_of="", pinned=False):
+def entry(folder, mono, items, rel, name=None, as_of="", pinned=False, card_for=None):
     p = os.path.join(folder, "data", rel)
     added = datetime.datetime.fromtimestamp(os.path.getmtime(p), datetime.timezone.utc).strftime("%Y-%m-%dT%H:%M:%SZ")
     return {"tag": next_tag(mono, items), "file": rel.replace(os.sep, "/"), "name": name or os.path.basename(rel), "chars": chars(p),
-            "shared": rel.replace(os.sep, "/").startswith("shared/"), "pinned": bool(pinned), "as_of": as_of, "added_at": added}
+            "shared": rel.replace(os.sep, "/").startswith("shared/"), "pinned": bool(pinned), "as_of": as_of, "added_at": added,
+            **({"card_for": card_for} if card_for else {})}
 
 
 def data_files(folder):
@@ -121,7 +125,8 @@ def plan_markdown(folder, shared_only=False, budget=None, tools=True):
     items = [it for it in (load_manifest(folder) or index(folder)) if not it.get("missing") and (it.get("shared") or not shared_only)]
     budget = budget or (R["SHARED_BUDGET"] if shared_only else R["OWN_BUDGET"])
     pl = plan(items, budget, tools); base = os.path.join(folder, "data")
-    line = lambda a: f"- `[{a['tag']}]` {a.get('name')} — `{os.path.join(base, a['file'])}` ({a.get('chars', 0):,} characters{', shared' if a.get('shared') else ''})"
+    line = lambda a: (f"- `[{a['tag']}]` {a.get('name')} — `{os.path.join(base, a['file'])}` ({a.get('chars', 0):,} characters{', shared' if a.get('shared') else ''}"
+                      + (f", summary card of [{a['card_for']}]" if a.get("card_for") else "") + ")")
     out = [f"Materials of the {p['title']} (cite by tag, e.g. [{items[0]['tag'] if items else p['mono'] + '1'}]):"]
     pin_full = [a for a in pl["full"] if a.get("pinned")]; other_full = [a for a in pl["full"] if not a.get("pinned")]
     if pin_full: out += ["Read these in full first (pinned):"] + [line(a) for a in pin_full]
@@ -131,6 +136,52 @@ def plan_markdown(folder, shared_only=False, budget=None, tools=True):
     if pl["over_pinned"]: out.append(f"(Pinned items alone exceed {budget:,} characters; the newest pinned items were cut.)")
     if not items: out.append("(No materials.)")
     return "\n".join(out)
+
+
+# ───────── summary cards (mirrors cardSource/validateCard/parseSynonyms in the app's SPEC:CARDS block) ─────────
+CARD_HEADING = re.compile(r"^(#{1,6}\s+\S.*|--- page \d+ ---|## Sheet: .*|[A-Z][A-Z0-9 &,'()/-]{3,79})$")
+
+
+def u16len(t): return len(t.encode("utf-16-le")) // 2  # the app counts UTF-16 units
+
+
+def card_source(text, R, marker):
+    t = str(text or "").replace("\r", ""); mx = R["cards"]["source_chars"]
+    if len(t) <= mx: return {"text": t, "truncated": False, "headings": 0}
+    seen, hs = set(), []
+    for line in t[mx:].split("\n"):
+        l = line.strip()
+        if l and CARD_HEADING.match(l) and l not in seen:
+            seen.add(l); hs.append(l)
+            if len(hs) >= R["cards"]["max_headings"]: break
+    return {"text": t[:mx] + "\n\n" + marker + "\n" + "\n".join(hs), "truncated": True, "headings": len(hs)}
+
+
+def validate_card(card, R):
+    t = str(card or "").strip(); n = u16len(t); c = R["cards"]; issues = []
+    if n < c["min_chars"]: issues.append(f"too short: {n} characters, at least {c['min_chars']}")
+    if n > c["max_chars"]: issues.append(f"too long: {n} characters, at most {c['max_chars']}")
+    for sec in c["sections"]:
+        if not re.search(r"^[ \t]*" + re.escape(sec) + r"[ \t]*:", t, re.I | re.M): issues.append(f"missing section: {sec}")
+    return {"ok": not issues, "length": n, "issues": issues}
+
+
+def parse_synonyms(card):
+    m = re.search(r"^[ \t]*SYNONYMS[ \t]*:[ \t]*(.*)$", str(card or ""), re.I | re.M)
+    if not m: return []
+    groups = [[x.strip() for x in g.split(",") if x.strip()] for g in m.group(1).split(";")]
+    return [g for g in groups if len(g) >= 2]
+
+
+def card_synonyms(folder):
+    """Synonym groups from every summary card in a director's manifest."""
+    out = []
+    for it in load_manifest(folder):
+        if it.get("card_for"):
+            try:
+                with open(os.path.join(folder, "data", it["file"]), encoding="utf-8") as f: out += parse_synonyms(f.read())
+            except OSError: pass
+    return out
 
 
 def all_tags(boardroom):
@@ -155,7 +206,9 @@ def main(a):
     elif cmd == "add":
         rel = a[2]; items = load_manifest(folder); mono = persona(folder)["mono"]
         if any(it.get("file") == rel for it in items): raise SystemExit(f"{rel} is already listed")
-        it = entry(folder, mono, items, rel, opt("--name"), opt("--as-of") or "", "--pin" in a); items.append(it); save_manifest(folder, items)
+        cf = opt("--card-for")
+        if cf and not any(x.get("tag") == cf for x in items): raise SystemExit(f"No item tagged {cf} to summarize")
+        it = entry(folder, mono, items, rel, opt("--name"), opt("--as-of") or "", "--pin" in a or bool(cf), cf); items.append(it); save_manifest(folder, items)
         print(json.dumps(it))
     elif cmd == "pin":
         items = load_manifest(folder); hit = [it for it in items if it.get("tag") == a[2]]
@@ -163,6 +216,16 @@ def main(a):
         hit[0]["pinned"] = "--off" not in a; save_manifest(folder, items); print(json.dumps(hit[0]))
     elif cmd == "plan":
         b = opt("--budget"); print(plan_markdown(folder, "--shared-only" in a, int(b) if b else None, "--no-tools" not in a))
+    elif cmd == "card-source":
+        items = load_manifest(folder); hit = next((it for it in items if it.get("tag") == a[2]), None)
+        if not hit: raise SystemExit(f"No item tagged {a[2]}")
+        prompts, _ = spec.load_prompts(); R = spec.load_rules()
+        with open(os.path.join(folder, "data", hit["file"]), encoding="utf-8", errors="ignore") as f: src = card_source(f.read(), R, prompts["summary-card.rest_marker"])
+        print(src["text"])
+        if src["truncated"]: print(f"\n(Shortened: first {R['cards']['source_chars']:,} characters plus {src['headings']} headings.)", file=sys.stderr)
+    elif cmd == "check-card":
+        with open(folder, encoding="utf-8") as f: res = validate_card(f.read(), spec.load_rules())
+        print(json.dumps(res)); sys.exit(0 if res["ok"] else 1)
     elif cmd == "tags":
         print(json.dumps(all_tags(folder), indent=2))
     else: print(__doc__); sys.exit(1)

@@ -42,7 +42,8 @@ def export(boardroom, out=None):
             path = os.path.join(folder, "data", it.get("file", ""))
             if not os.path.isfile(path) or not path.lower().endswith(TEXT_EXT): continue
             with open(path, encoding="utf-8", errors="ignore") as f: text = f.read()
-            mats.append({"director_id": did, "tag": it.get("tag"), "name": it.get("name") or os.path.basename(path), "kind": "file",
+            mats.append({"director_id": did, "tag": it.get("tag"), "name": it.get("name") or os.path.basename(path), "kind": "card" if it.get("card_for") else "file",
+                         **({"card_for": it["card_for"]} if it.get("card_for") else {}),
                          "shared": bool(it.get("shared")), "pinned": bool(it.get("pinned")), "as_of": it.get("as_of", ""), "added_at": it.get("added_at", ""), "text": text})
     company = ""
     cp = os.path.join(boardroom, "company.md")
@@ -109,7 +110,8 @@ def import_board(boardroom, path, mode=None):
         dest = os.path.join(folder, "data", rel); os.makedirs(os.path.dirname(dest), exist_ok=True)
         with open(dest, "w", encoding="utf-8") as f: f.write(str(m.get("text", "")))
         entry = {"tag": m["tag"], "file": rel, "name": m.get("name") or os.path.basename(rel), "chars": len(str(m.get("text", ""))),
-                 "shared": rel.startswith("shared/"), "pinned": bool(m.get("pinned")), "as_of": m.get("as_of", ""), "added_at": m.get("added_at", "")}
+                 "shared": rel.startswith("shared/"), "pinned": bool(m.get("pinned")), "as_of": m.get("as_of", ""), "added_at": m.get("added_at", ""),
+                 **({"card_for": m["card_for"]} if m.get("card_for") else {})}
         items = [it for it in items if it.get("tag") != m["tag"]] + [entry]; materials.save_manifest(folder, items)
     cp = os.path.join(boardroom, "company.md")
     if data.get("company_profile") and (not os.path.exists(cp) or overwrite):

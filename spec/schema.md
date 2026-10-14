@@ -77,8 +77,11 @@ A JSON list with one entry per material, private or shared:
 | `pinned` | `false` | always given in full, up to `OWN_BUDGET` (`SHARED_BUDGET` for shared items) |
 | `as_of` | `""` | the date the material describes |
 | `added_at` | `""` | ISO time attached |
+| `card_for` | absent | this item is the summary card of the item with that tag. Cards are pinned; the original stays searchable |
 
-The app stores the same fields on each material document (`tag, name, kind, chars, shared, pinned, asOf, addedAt`).
+The app stores the same fields on each material document (`tag, name, kind, chars, shared, pinned, asOf, addedAt, cardFor`; `kind` is `file`, `text` or `card`).
+
+**Summary cards** (`rules.json` → `cards`, `spec/prompts/summary-card.md`). A card is offered for every material longer than `cards.max_chars`, or on request. It is drafted from the first `cards.source_chars` characters plus the headings found in the rest, then shown for editing. A card is saved only when it is `min_chars`–`max_chars` long and has every section in `cards.sections`. Its SYNONYMS line (groups split by `;`, terms by `,`) feeds query expansion. `cardSource`/`validateCard`/`parseSynonyms` in the app's `SPEC:CARDS` block and `card_source`/`validate_card`/`parse_synonyms` in `scripts/materials.py` must agree (`tests/test_cards.*`).
 
 **Citations** are `[MONO#]`, e.g. `[PW2]`, plus `[F#]` for the evidence register. A token counts as a citation only if it is `F<digits>` or a tag in the manifest (the app's `attIndex`). `[CO2]`, `[I95]` and `[NJ1]` are not citations. Legacy plugin citations `[MONO:filename]` resolve through the manifest's `file` field.
 

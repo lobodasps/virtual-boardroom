@@ -320,6 +320,7 @@ const RULES = {
   "ratify":{"default":false,"stages":["draft","ratify"],"insert_before":"synthesis"},
   "pairing":{"stance_values":{"pursue":2,"test":1,"avoid":0},"default_stance":1,"counsel_fault_line":2,"default_fault_line":1,"opponent":2,"opposite_crux_sides":2,"repeat_pair":-4,"max_times_challenged":2},
   "words":{"brief":650,"opening":220,"cruxes":150,"challenge":150,"response":220,"redteam":230,"draft":200,"consult":400},
+  "cards":{"min_chars":1500,"max_chars":3000,"source_chars":100000,"max_headings":200,"sections":["KEY FIGURES","NAMED CLIENTS AND PEOPLE","CONCLUSIONS","SYNONYMS"]},
   "research":{"facts_per_researcher":{"min":10,"max":18},"max_turns":20,"max_pages_opened":15,"recency_months":24,"recency_exception":"laws, rules and standards still in force","swing_facts":{"min":3,"max":5},"swing_facts_need_two_sources":true,"max_register_facts":80},
   "custom_palette":[{"name":"x1","light":"#8A3B7A","dark":"#D58BC6"},{"name":"x2","light":"#B05A1A","dark":"#E89A5C"},{"name":"x3","light":"#1E7A8C","dark":"#6CC5D6"},{"name":"x4","light":"#6B6B2A","dark":"#C2C27A"},{"name":"x5","light":"#9C2F5E","dark":"#E07FA8"},{"name":"x6","light":"#3E4FA3","dark":"#8F9CE6"}],
   "legacy_ids":{"market-expansion":"titan","customer-deal":"developer","risk-hawk":"hawk","capital-allocator":"allocator","long-horizon":"maverick","profit-warden":"warden","strategy-counsel":"counsel"}
@@ -372,6 +373,9 @@ const PROMPTS = {
   "research.output":"Reply with only this JSON:\n\n{\"facts\":[{\"claim\":\"...\",\"quote\":\"short verbatim excerpt\",\"source\":\"Publisher — Page title\",\"url\":\"https://...\",\"published\":\"YYYY-MM-DD, YYYY-MM or n.d.\",\"pestle\":\"Political|Economic|Social|Technological|Legal|Environmental\"}],\n \"gaps\":[{\"question\":\"...\",\"note\":\"where you looked\"}]}",
   "research.pack":"{\"researchedAt\":\"YYYY-MM-DD\",\"researchedBy\":\"who ran the research and how\",\n \"summary\":\"3 to 5 sentences citing [F#]\",\n \"markets\":[{\"name\":\"<exact market name>\",\"definition\":\"...\"}],\n \"facts\":[{\"id\":\"F1\",\"market\":\"<exact market name or all>\",\"pestle\":\"Political|Economic|Social|Technological|Legal|Environmental\",\"claim\":\"...\",\"source\":\"Publisher — Page title\",\"url\":\"https://...\",\"published\":\"YYYY-MM-DD, YYYY-MM or n.d.\"}],\n \"pestle\":[{\"market\":\"<exact market name>\",\"political\":[{\"point\":\"...\",\"facts\":[\"F1\"]}],\"economic\":[],\"social\":[],\"technological\":[],\"legal\":[],\"environmental\":[]}],\n \"scorecard\":[{\"market\":\"<exact market name>\",\"demand\":1,\"access\":1,\"right_to_win\":1,\"margin\":1,\"capital_light\":1,\"risk_low\":1,\"speed\":1,\"synergy\":1,\"basis\":\"... [F#]\"}],\n \"gaps\":[{\"market\":\"<exact market name or all>\",\"question\":\"...\",\"note\":\"where you looked\"}],\n \"dropped\":[{\"claim\":\"...\",\"source\":\"...\",\"reason\":\"why it was left out of the register\"}]}",
   "response":"TASK: REBUTTAL, round {{round}}. You were challenged:\n{{questions}}\nAnswer each question directly. Concede only what the evidence forces you to concede, and say exactly which fact or material changed your mind. Hold everything else and say why. Then answer each crux the Counsel named in one line. 220 words max.\n{{meta_note}}\n{\"headline\":\"<your position now, one sentence>\",\"conceded\":\"<what you concede, or 'nothing'>\",\"position_changed\":true|false,\"confidence\":<0-100>}",
+  "summary-card":"You write a summary card for one briefing material. A board director reads this card in full every session; the original stays available for searching, so the card must carry what the director needs most often.\n\nMATERIAL: {{name}} ({{chars}} characters{{truncated_note}})\nDIRECTOR: the {{director_title}}, whose lens is \"{{director_lens}}\"\n\nWrite 1500 to 3000 characters of plain text in exactly these four sections, each starting on its own line with its label:\nKEY FIGURES: every figure that matters, written exactly as in the material, each with its as-of date or period (\"date not stated\" if the material gives none).\nNAMED CLIENTS AND PEOPLE: every client, company, agency and person named, with their role.\nCONCLUSIONS: what the material concludes or shows, in its own terms. Mark anything you infer with \"(inference)\".\nSYNONYMS: one line of alternative terms for the material's key concepts, so searches find them. Separate groups with semicolons and terms within a group with commas, e.g. \"margin, gross margin, GP%, gross profit; utilization, billable hours, billable %\".\n\nNever add a figure, name or date that is not in the material. Reply with the card text only.\n\nMATERIAL TEXT:\n{{text}}",
+  "summary-card.rest_marker":"[…the rest of the material is not shown. Headings from the rest:]",
+  "summary-card.truncated_note":"; you see the first 100000 characters and the headings from the rest",
   "synthesis":"TASK: FACILITATED SYNTHESIS. You do not vote. Produce the record of decision from the transcript, roll call and weighted scores. The resolution must state the computed verdict label, the recommended option and any caps applied, and must reflect the vote as cast, including its strength, spread, any tie and any split between first choices and weighted scores. Record every dissent fairly. List every red-line flag on the recommended option and say how the resolution answers it, or that it does not. Name a fix for every weak pillar. If ratification ran, record each amendment as adopted or not, with the reason: adopt an amendment when no director objected or the argument for it went unanswered. Challenge the evidence base: say which decisive claims rest on thin or missing evidence.\n{{fact_rules}}\nReply with only JSON:\n{\"resolution\":\"<one-sentence board resolution reflecting the actual vote>\",\"summary\":\"<3-4 sentences: what was decided and why>\",\"agreements\":[\"<points nearly all directors accepted>\"],\"dissents\":[{\"director\":\"<id>\",\"point\":\"<their dissent, one sentence>\"}],\"key_assumptions\":[{\"assumption\":\"...\",\"held_by\":[\"<ids>\"],\"test\":\"<how to verify, and by when>\"}],\"risks\":[{\"risk\":\"...\",\"severity\":\"high|medium|low\",\"mitigation\":\"...\"}],\"evidence_gaps\":[\"<decisive questions the evidence did not answer>\"],\"paths\":[{\"name\":\"<short name>\",\"backers\":[\"<ids>\"],\"thesis\":\"<one sentence>\",\"first_moves\":[\"<first 90-day moves, max 3>\"],\"kill_criteria\":\"<what would make the company stop>\"}],\"red_lines\":[{\"director\":\"<id>\",\"status\":\"at_risk|breached\",\"response\":\"<how the resolution answers it, or 'unanswered'>\"}],\"pillar_fixes\":[{\"director\":\"<id>\",\"fix\":\"<named fix for a pillar scored 4 or below>\"}],\"amendments\":[{\"director\":\"<id>\",\"amendment\":\"...\",\"adopted\":true,\"reason\":\"...\"}],\"open_questions\":[\"...\"]}\nGive 2-3 paths that represent the genuinely conflicting directions, not variations of one.",
   "vote":"TASK: SEALED ROLL-CALL VOTE. You cannot see anyone else's vote. Choose exactly one option for the company to pursue as its priority, or \"Hold\" (pursue none now). Options: {{options_list}}.\nAlso score EVERY option, including Hold:\n- scores: 0-10, how strongly you back it.\n- pillar_scores: 0-10, the option judged only on your own mandate.\n- ruin_risk: \"none\", \"possible\" or \"likely\". This means an irreversible downside that could sink the company if it pursued that option.\n- door: \"one-way\" (hard to reverse) or \"two-way\" (easy to reverse).\n- red_line: \"clear\", \"at_risk\" or \"breached\", judged strictly against your own red line and thresholds, not the board's mood. \"breached\" means pursuing that option as proposed crosses your red line; \"at_risk\" means it will unless a specific condition holds.\nReply with only JSON:\n{\"choice\":\"<exact option name or Hold>\",\"scores\":{{{scores_schema}}},\"pillar_scores\":{{{scores_schema}}},\"ruin_risk\":{{{ruin_schema}}},\"door\":{{{door_schema}}},\"red_line\":{{{red_schema}}},\"support\":\"strong|conditional\",\"ranking\":[\"<options best to worst>\"],\"conditions\":[\"<what your vote depends on, max 3>\"],\"flip_if\":\"<the one finding that would flip your vote>\",\"confidence\":<0-100>,\"rationale\":\"<2-3 sentences in your voice, citing [F#] or material tags for facts>\",\"changed_from_opening\":true|false,\"change_reason\":\"<why, or empty>\"}"
 };
@@ -620,6 +624,29 @@ function planMaterials(items, budget, tools){
   return {full, cut, indexed, pinnedChars, searchableChars:sum(indexed), overPinned:pinnedChars>budget};
 }
 /* SPEC:DATA:END */
+/* SPEC:CARDS:BEGIN */
+/* Summary cards, mirrored by scripts/materials.py (card_source, validate_card, parse_synonyms);
+   tests/test_cards.mjs and tests/test_cards.py run the same fixtures. R: RULES. */
+const CARD_HEADING = /^(#{1,6}\s+\S.*|--- page \d+ ---|## Sheet: .*|[A-Z][A-Z0-9 &,'()\/-]{3,79})$/;
+function cardSource(text, R, marker){
+  const t=String(text||"").replace(/\r/g,""), max=R.cards.source_chars;
+  if(t.length<=max) return {text:t, truncated:false, headings:0};
+  const seen=new Set(), hs=[];
+  for(const line of t.slice(max).split("\n")){ const l=line.trim(); if(l && CARD_HEADING.test(l) && !seen.has(l)){ seen.add(l); hs.push(l); if(hs.length>=R.cards.max_headings) break; } }
+  return {text:t.slice(0,max)+"\n\n"+marker+"\n"+hs.join("\n"), truncated:true, headings:hs.length};
+}
+function validateCard(card, R){
+  const t=String(card||"").trim(), n=t.length, issues=[];
+  if(n<R.cards.min_chars) issues.push(`too short: ${n} characters, at least ${R.cards.min_chars}`);
+  if(n>R.cards.max_chars) issues.push(`too long: ${n} characters, at most ${R.cards.max_chars}`);
+  R.cards.sections.forEach(sec=>{ if(!new RegExp("^[ \\t]*"+sec.replace(/[.*+?^${}()|[\]\\]/g,"\\$&")+"[ \\t]*:","im").test(t)) issues.push(`missing section: ${sec}`); });
+  return {ok:!issues.length, length:n, issues};
+}
+function parseSynonyms(card){
+  const m=String(card||"").match(/^[ \t]*SYNONYMS[ \t]*:[ \t]*(.*)$/im); if(!m) return [];
+  return m[1].split(";").map(g=>g.split(",").map(x=>x.trim()).filter(Boolean)).filter(g=>g.length>=2);
+}
+/* SPEC:CARDS:END */
 function packText(plan, order){
   const keep=new Map(plan.cut.map(c=>[c.item,c.keep])), inFull=new Set(plan.full);
   return order.filter(a=>inFull.has(a)||keep.has(a)).map(a=>{ let t=String(a.text||""); if(keep.has(a)) t=t.slice(0,keep.get(a))+"\n[…truncated]";
@@ -1473,13 +1500,15 @@ async function deleteMaterial(dirId, a){
   await Store.del(`directors/${dirId}/data`,a.id);
 }
 async function addAttachments(dirId, items, monoHint){
-  const mono=persona(dirId)?.mono||monoHint; if(!mono) return; let n=0;
+  const mono=persona(dirId)?.mono||monoHint; if(!mono) return []; let n=0; const made=[];
   Object.keys(state.attIndex).forEach(t=>{ const m=t.match(/^([A-Z]{1,3})(\d+)$/); if(m&&m[1]===mono) n=Math.max(n,+m[2]); });
   for(const it of items){ n++; let t=String(it.text).replace(/\u0000/g,""); const truncated=t.length>MAX_ATT; if(truncated) t=t.slice(0,MAX_ATT);
-    const aid=newId("a"), meta={name:it.name,kind:it.kind,tag:it.tag||mono+n,chars:t.length,truncated,shared:!!it.shared,pinned:!!it.pinned,asOf:it.asOf||"",addedAt:it.addedAt||Date.now()};
+    const aid=newId("a"), meta={name:it.name,kind:it.kind,tag:it.tag||mono+n,chars:t.length,truncated,shared:!!it.shared,pinned:!!it.pinned,asOf:it.asOf||"",addedAt:it.addedAt||Date.now(),...(it.cardFor?{cardFor:it.cardFor}:{})};
+    made.push({id:aid,tag:meta.tag,name:meta.name,text:t,shared:meta.shared});
     if(t.length<=PART){ await Store.put(`directors/${dirId}/data`, aid, {...meta,text:t}); }
     else { const k=Math.ceil(t.length/PART); for(let i=0;i<k;i++) await Store.put(`directors/${dirId}/data/${aid}/parts`,"p"+i,{n:i,text:t.slice(i*PART,(i+1)*PART)});
       await Store.put(`directors/${dirId}/data`, aid, {...meta,text:t.slice(0,2000),parts:k}); } }
+  return made;
 }
 async function uploadFiles(){
   const inp=document.getElementById("att-file"); const files=[...(inp?.files||[])];
@@ -1488,17 +1517,55 @@ async function uploadFiles(){
   for(const f of files){ state.attStatus=`Reading ${f.name}…`; render();
     try{ const t=await extractText(f); if(!t.trim()) throw new Error("no readable text (a scanned PDF needs OCR first)"); items.push({name:f.name,kind:"file",text:t}); }
     catch(e){ errs.push(`${f.name}: ${e.message}`); } }
-  if(items.length) await addAttachments(state.dirId,items);
+  const made = items.length ? await addAttachments(state.dirId,items) : [];
   state.attStatus=[items.length?`Added ${items.length} file${items.length>1?"s":""}.`:"",...errs].filter(Boolean).join(" ");
-  if(inp) inp.value=""; render();
+  if(inp) inp.value=""; queueCards(state.dirId, made); render();
 }
 async function pasteAttachment(){
   const name=document.getElementById("att-name")?.value.trim(), text=document.getElementById("att-text")?.value||"";
   if(!text.trim()){ state.attStatus="Paste some text first."; render(); return; }
-  await addAttachments(state.dirId,[{name:name||"Pasted note",kind:"text",text}]);
+  const made=await addAttachments(state.dirId,[{name:name||"Pasted note",kind:"text",text}]);
   document.getElementById("att-name").value=""; document.getElementById("att-text").value="";
-  state.attStatus="Note added."; render();
+  state.attStatus="Note added."; queueCards(state.dirId, made); render();
 }
+/* Summary cards: drafted after an upload (sources longer than a card), shown for editing, saved as a pinned material. */
+function queueCards(dirId, made, force){
+  if(!SAMPLE) return;
+  (made||[]).filter(m=>force||String(m.text||"").length>RULES.cards.max_chars).forEach(m=>(state.cardQueue=state.cardQueue||[]).push({dirId,...m}));
+  startNextCard();
+}
+async function startNextCard(regen){
+  if(state.cardDraft && !regen) return;
+  const it = regen ? state.cardDraft : (state.cardQueue||[]).shift(); if(!it) return;
+  const p=persona(it.dirId); let full=it.text;
+  if(it.id){ try{ full=(await loadMaterials(it.dirId)).find(a=>a.id===it.id)?.text||full; }catch(_){} }
+  const src=cardSource(full, RULES, P("summary-card.rest_marker"));
+  state.cardDraft={...it, draft:"", status:"drafting", error:""}; render();
+  try{
+    const r=await ask(T("summary-card",{name:it.name, chars:String(full).length.toLocaleString(), truncated_note:src.truncated?P("summary-card.truncated_note"):"",
+      director_title:p?.title||"director", director_lens:p?.lens||"", text:src.text}),{tier:"default"});
+    if(state.cardDraft&&state.cardDraft.tag===it.tag){ state.cardDraft.draft=String(r?.text||"").trim(); state.cardDraft.status="ready"; }
+  }catch(e){ if(state.cardDraft) { state.cardDraft.status="error"; state.cardDraft.error=errCopy(e); } }
+  render();
+}
+async function saveCard(){
+  const d=state.cardDraft; if(!d) return;
+  const text=document.getElementById("card-text")?.value ?? d.draft, v=validateCard(text,RULES);
+  if(!v.ok){ d.draft=text; d.issuesShown=true; render(); return; }
+  await addAttachments(d.dirId,[{name:"Summary card: "+d.name, kind:"card", text:text.trim(), pinned:true, shared:!!d.shared, cardFor:d.tag}]);
+  state.cardDraft=null; state.attStatus=`Saved and pinned the summary card for ${d.tag}.`; render(); startNextCard();
+}
+function cardPanelHTML(dirId){
+  const d=state.cardDraft; if(!d||d.dirId!==dirId) return "";
+  const v=validateCard(d.draft,RULES), q=(state.cardQueue||[]).filter(x=>x.dirId===dirId).length;
+  return `<div class="panel" style="border-color:var(--accent);margin:12px 0"><h4 style="margin-top:0">Summary card for ${esc(d.tag)} · ${esc(d.name)}${q?` <span class="muted">(${q} more waiting)</span>`:""}</h4>
+    <div class="muted" style="font-size:12.5px">The card is pinned, so this director reads it in full every session; the original stays searchable. Edit it before saving: ${RULES.cards.min_chars.toLocaleString()}–${RULES.cards.max_chars.toLocaleString()} characters with ${RULES.cards.sections.join(", ")}.</div>
+    ${d.status==="drafting"?`<div class="body muted cursor" style="margin-top:8px">Drafting the card…</div>`:d.status==="error"?`<div class="notice bad">${esc(d.error)}</div>`:
+      `<textarea id="card-text" style="width:100%;min-height:260px;margin-top:8px;font-family:var(--f-read);font-size:14px;background:var(--bg);border:1px solid var(--line);border-radius:var(--r);padding:10px">${esc(d.draft)}</textarea>
+      <div id="card-check" class="muted mono" style="font-size:11.5px">${cardCheckText(v)}</div>`}
+    <div class="row" style="margin-top:8px"><button class="btn primary" data-act="card-save" ${d.status==="ready"?"":"disabled"}>Save and pin card</button><button class="btn" data-act="card-regen" ${d.status==="drafting"?"disabled":""}>Draft again</button><button class="btn" data-act="card-skip">Skip</button></div></div>`;
+}
+function cardCheckText(v){ return `${v.length.toLocaleString()} characters`+(v.ok?" · ready to save":" · "+v.issues.map(esc).join(" · ")); }
 async function saveDirectorForm(){
   const v=id=>document.getElementById(id)?.value.trim()||"";
   const title=v("d-title"), mandate=v("d-mandate");
@@ -1580,8 +1647,9 @@ function dataHTML(id,isNew){
    <div class="muted mono" style="font-size:11.5px">Pinned: ${n(plan.pinnedChars)} of ${n(OWN_BUDGET)} characters (always read in full) · ${state.toolsOK?`Searchable: ${n(plan.searchableChars)} characters`:`Cut to fit: ${plan.cut.length} item${plan.cut.length===1?"":"s"}`}</div>
    ${plan.overPinned?`<div class="notice bad">Pinned items alone exceed ${n(OWN_BUDGET)} characters, the most this director reads in full per call. The newest pinned items will be cut${state.toolsOK?" and left searchable":""}. Unpin something to fix this.</div>`:""}
    <div class="muted" style="font-size:12px;margin-top:4px">Pinned items are always given in full; unpinned items fill whatever room is left, smallest first. ${state.toolsOK?`Items that don't fit are searchable only: the director sees just their name and first ${RULES.PREVIEW_CHARS} characters until it searches them (a few extra Claude calls per turn).`:"Search isn't available in this view, so items that don't fit are cut short."}</div>
-   ${list.length?list.map(a=>{ const k="att-del:"+a.id; return `<div class="att"><a class="aref">${esc(a.tag)}</a><div style="min-width:0"><div class="nm">${esc(a.name)}</div><div class="muted" style="font-size:12px">${a.kind==="file"?"File":"Note"} · ${(a.chars||0).toLocaleString()} characters${a.truncated?" · cut to the storage limit":""} · ${a.shared?"Shared with the board":"Private to this director"}${a.pinned?" · Pinned":""} · ${idx.has(a.id)?"searchable only":cutIds.has(a.id)?"cut to fit":"read in full"}</div></div>
-     <div class="row"><button class="btn sm" data-act="att-pin" data-id="${esc(a.id)}" aria-pressed="${!!a.pinned}">${a.pinned?"Unpin":"Pin"}</button><button class="btn sm" data-act="att-share" data-id="${esc(a.id)}">${a.shared?"Make private":"Share with board"}</button><button class="btn sm danger ${state.armed===k?"armed":""}" data-act="att-del" data-id="${esc(a.id)}">${state.armed===k?"Confirm remove":"Remove"}</button></div></div>`; }).join(""):`<div class="empty-note" style="margin-top:10px">No data yet. Add a file or paste notes below.</div>`}
+   ${cardPanelHTML(id)}
+   ${list.length?list.map(a=>{ const k="att-del:"+a.id, card=list.find(c=>c.cardFor===a.tag); return `<div class="att"><a class="aref">${esc(a.tag)}</a><div style="min-width:0"><div class="nm">${esc(a.name)}</div><div class="muted" style="font-size:12px">${a.kind==="file"?"File":"Note"} · ${(a.chars||0).toLocaleString()} characters${a.truncated?" · cut to the storage limit":""} · ${a.shared?"Shared with the board":"Private to this director"}${a.pinned?" · Pinned":""} · ${idx.has(a.id)?"searchable only":cutIds.has(a.id)?"cut to fit":"read in full"}${a.cardFor?` · Summary card for ${esc(a.cardFor)}`:card?` · Card: ${esc(card.tag)}`:""}</div></div>
+     <div class="row">${!a.cardFor&&!card&&SAMPLE?`<button class="btn sm" data-act="att-card" data-id="${esc(a.id)}">Make card</button>`:""}<button class="btn sm" data-act="att-pin" data-id="${esc(a.id)}" aria-pressed="${!!a.pinned}">${a.pinned?"Unpin":"Pin"}</button><button class="btn sm" data-act="att-share" data-id="${esc(a.id)}">${a.shared?"Make private":"Share with board"}</button><button class="btn sm danger ${state.armed===k?"armed":""}" data-act="att-del" data-id="${esc(a.id)}">${state.armed===k?"Confirm remove":"Remove"}</button></div></div>`; }).join(""):`<div class="empty-note" style="margin-top:10px">No data yet. Add a file or paste notes below.</div>`}
    <div class="form" style="margin-top:16px">
      <div class="field full"><label for="att-file">Add files</label><div class="row"><input type="file" id="att-file" multiple accept=".pdf,.docx,.xlsx,.xls,.csv,.tsv,.txt,.md,.json,.html,.htm"><button class="btn sm" data-act="att-upload">Upload</button></div><small>PDF, Word (.docx), Excel, CSV or text, up to about 1,000 pages per file. Text is extracted in your browser; only the text is stored.</small></div>
      <div class="field full"><label for="att-name">Or paste a note</label><input type="text" id="att-name" placeholder="Title, e.g. 2025 utilization by service line"></div>
@@ -1755,7 +1823,7 @@ function exportPersona(p){
 async function exportBoard(){
   const all=rosterList(true), materials=[];
   for(const p of all){ let l=[]; try{ l=await loadMaterials(p.id); }catch(_){}
-    l.forEach(a=>materials.push({director_id:p.id, tag:a.tag, name:a.name, kind:a.kind||"text", shared:!!a.shared, pinned:!!a.pinned, as_of:a.asOf||"", added_at:isoOf(a.addedAt), text:String(a.text||"")})); }
+    l.forEach(a=>materials.push({director_id:p.id, tag:a.tag, name:a.name, kind:a.kind||"text", shared:!!a.shared, pinned:!!a.pinned, as_of:a.asOf||"", added_at:isoOf(a.addedAt), ...(a.cardFor?{card_for:a.cardFor}:{}), text:String(a.text||"")})); }
   const latest=state.sessions.find(s=>s.context);
   const text=JSON.stringify({version:1, exported_at:new Date().toISOString(), company_profile:latest?profileText(latest):"", directors:all.map(exportPersona), materials},null,2);
   const filename=`strategy-boardroom-${new Date().toISOString().slice(0,10)}.board.json`;
@@ -1814,7 +1882,7 @@ async function applyImport(overwrite){
     if(!persona(m.director_id) && !P.dirs.some(d=>d.id===m.director_id)) continue;
     const exists=(state.atts[m.director_id]||[]).find(a=>a.tag===m.tag);
     if(exists){ if(!overwrite) continue; await deleteMaterial(m.director_id, exists); om++; } else nm++;
-    (byDir[m.director_id]=byDir[m.director_id]||[]).push({name:m.name||m.tag, kind:m.kind==="file"?"file":"text", text:String(m.text||""), tag:m.tag, shared:!!m.shared, pinned:!!m.pinned, asOf:m.as_of||"", addedAt:timeOf(m.added_at)});
+    (byDir[m.director_id]=byDir[m.director_id]||[]).push({name:m.name||m.tag, kind:["file","card"].includes(m.kind)?m.kind:(m.card_for?"card":"text"), cardFor:m.card_for||undefined, text:String(m.text||""), tag:m.tag, shared:!!m.shared, pinned:!!m.pinned, asOf:m.as_of||"", addedAt:timeOf(m.added_at)});
   }
   for(const [id,items] of Object.entries(byDir)) await addAttachments(id, items, P.dirs.find(d=>d.id===id)?.mono);
   state.notice=`Imported: ${nd} new director(s), ${od} updated; ${nm} new material(s), ${om} replaced.`; render();
@@ -1874,6 +1942,9 @@ function fillIntake(o){
   const map={company:"f-company",sector:"f-sector",geography:"f-geo",growthArea:"f-growth",question:"f-question",markets:"f-markets",context:"f-context",constraints:"f-constraints",assumptions:"f-assumptions",title:"f-title"};
   Object.entries(map).forEach(([k,id])=>{ if(o[k]!=null){ const el=document.getElementById(id); if(el) el.value=Array.isArray(o[k])?o[k].join("\n"):o[k]; } });
 }
+document.addEventListener("input",e=>{
+  if(e.target.id==="card-text" && state.cardDraft){ state.cardDraft.draft=e.target.value; const c=document.getElementById("card-check"); if(c) c.innerHTML=cardCheckText(validateCard(e.target.value,RULES)); }
+});
 document.addEventListener("submit",e=>{ e.preventDefault(); if(e.target.id==="intake") createSession(true); });
 document.addEventListener("click",async e=>{
   const el=e.target.closest("[data-act]"); if(!el) return;
@@ -1912,6 +1983,10 @@ document.addEventListener("click",async e=>{
     case "import-new": await applyImport(false); break;
     case "import-cancel": state.importPlan=null; render(); break;
     case "att-paste": await pasteAttachment(); break;
+    case "att-card": { const a=(state.atts[state.dirId]||[]).find(x=>x.id===el.dataset.id); if(a) queueCards(state.dirId,[{id:a.id,tag:a.tag,name:a.name,text:a.text,shared:a.shared}],true); render(); break; }
+    case "card-save": await saveCard(); break;
+    case "card-regen": if(state.cardDraft){ const t=document.getElementById("card-text"); if(t) state.cardDraft.draft=t.value; await startNextCard(true); } break;
+    case "card-skip": state.cardDraft=null; render(); startNextCard(); break;
     case "att-pin": { const a=(state.atts[state.dirId]||[]).find(x=>x.id===el.dataset.id); if(a) await Store.put(`directors/${state.dirId}/data`,a.id,{...a,pinned:!a.pinned}); break; }
     case "att-share": { const a=(state.atts[state.dirId]||[]).find(x=>x.id===el.dataset.id); if(a) await Store.put(`directors/${state.dirId}/data`,a.id,{...a,shared:!a.shared}); break; }
     case "att-del": { const k="att-del:"+el.dataset.id; if(state.armed!==k){ state.armed=k; render(); break; } state.armed=null; const a=(state.atts[state.dirId]||[]).find(x=>x.id===el.dataset.id); if(a) await deleteMaterial(state.dirId,a); break; }

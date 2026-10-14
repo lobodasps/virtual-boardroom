@@ -67,6 +67,14 @@
     "consult": 400
   },
 
+  "cards": {
+    "min_chars": 1500,
+    "max_chars": 3000,
+    "source_chars": 100000,
+    "max_headings": 200,
+    "sections": ["KEY FIGURES", "NAMED CLIENTS AND PEOPLE", "CONCLUSIONS", "SYNONYMS"]
+  },
+
   "research": {
     "facts_per_researcher": {"min": 10, "max": 18},
     "max_turns": 20,

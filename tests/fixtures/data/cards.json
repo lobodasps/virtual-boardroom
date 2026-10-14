@@ -1,0 +1,115 @@
+{
+ "source": [
+  {
+   "name": "short text is passed whole",
+   "parts": [
+    {
+     "text": "Short memo.\r\nSecond line."
+    }
+   ],
+   "expected": {
+    "truncated": false,
+    "headings": 0,
+    "length": 24,
+    "ends_with": "Second line."
+   }
+  },
+  {
+   "name": "long text keeps the first source_chars and the headings from the rest, deduplicated",
+   "parts": [
+    {
+     "repeat": "a",
+     "times": 100000
+    },
+    {
+     "text": "\n# Heading One\nnot a heading\nRATES AND FEES\n--- page 3 ---\n## Sheet: Q1\n# Heading One\nAB\n"
+    }
+   ],
+   "expected": {
+    "truncated": true,
+    "headings": 4,
+    "heading_lines": [
+     "# Heading One",
+     "RATES AND FEES",
+     "--- page 3 ---",
+     "## Sheet: Q1"
+    ]
+   }
+  }
+ ],
+ "validate": [
+  {
+   "name": "good card",
+   "card": "KEY FIGURES: Utilization was 78% in FY2025 (as of 2025-12-31).\nDetail line about figures. Detail line about figures. Detail line about figures. Detail line about figures. Detail line about figures. Detail line about figures. Detail line about figures. Detail line about figures. Detail line about figures. Detail line about figures. Detail line about figures. Detail line about figures. Detail line about figures. Detail line about figures. Detail line about figures. Detail line about figures. Detail line about figures. Detail line about figures. Detail line about figures. Detail line about figures. Detail line about figures. Detail line about figures. Detail line about figures. Detail line about figures. Detail line about figures. Detail line about figures. Detail line about figures. Detail line about figures. Detail line about figures. Detail line about figures. Detail line about figures. Detail line about figures. Detail line about figures. Detail line about figures. Detail line about figures. Detail line about figures. Detail line about figures. Detail line about figures. Detail line about figures. Detail line about figures. \nNAMED CLIENTS AND PEOPLE: Acme Hospital (client); J. Rivera (facilities director).\nCONCLUSIONS: Margins hold if utilization stays above 75% (inference).\nMore conclusions. More conclusions. More conclusions. More conclusions. More conclusions. More conclusions. More conclusions. More conclusions. More conclusions. More conclusions. More conclusions. More conclusions. More conclusions. More conclusions. More conclusions. More conclusions. More conclusions. More conclusions. More conclusions. More conclusions. \nSYNONYMS: margin, gross margin, GP%, gross profit; utilization, billable hours, billable %; DSO\n",
+   "expected": {
+    "ok": true,
+    "issues": []
+   }
+  },
+  {
+   "name": "too short and missing a section",
+   "card": "KEY FIGURES: 1\nCONCLUSIONS: x\nSYNONYMS: a, b",
+   "expected": {
+    "ok": false,
+    "issues": [
+     "too short: 44 characters, at least 1500",
+     "missing section: NAMED CLIENTS AND PEOPLE"
+    ]
+   }
+  },
+  {
+   "name": "too long",
+   "card": "KEY FIGURES: Utilization was 78% in FY2025 (as of 2025-12-31).\nDetail line about figures. Detail line about figures. Detail line about figures. Detail line about figures. Detail line about figures. Detail line about figures. Detail line about figures. Detail line about figures. Detail line about figures. Detail line about figures. Detail line about figures. Detail line about figures. Detail line about figures. Detail line about figures. Detail line about figures. Detail line about figures. Detail line about figures. Detail line about figures. Detail line about figures. Detail line about figures. Detail line about figures. Detail line about figures. Detail line about figures. Detail line about figures. Detail line about figures. Detail line about figures. Detail line about figures. Detail line about figures. Detail line about figures. Detail line about figures. Detail line about figures. Detail line about figures. Detail line about figures. Detail line about figures. Detail line about figures. Detail line about figures. Detail line about figures. Detail line about figures. Detail line about figures. Detail line about figures. \nNAMED CLIENTS AND PEOPLE: Acme Hospital (client); J. Rivera (facilities director).\nCONCLUSIONS: Margins hold if utilization stays above 75% (inference).\nMore conclusions. More conclusions. More conclusions. More conclusions. More conclusions. More conclusions. More conclusions. More conclusions. More conclusions. More conclusions. More conclusions. More conclusions. More conclusions. More conclusions. More conclusions. More conclusions. More conclusions. More conclusions. More conclusions. More conclusions. \nSYNONYMS: margin, gross margin, GP%, gross profit; utilization, billable hours, billable %; DSO\nxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxx",
+   "expected": {
+    "ok": false,
+    "issues_start": "too long: "
+   }
+  },
+  {
+   "name": "labels are case-insensitive and may be indented",
+   "card": "  key figures : Utilization was 78% in FY2025 (as of 2025-12-31).\nDetail line about figures. Detail line about figures. Detail line about figures. Detail line about figures. Detail line about figures. Detail line about figures. Detail line about figures. Detail line about figures. Detail line about figures. Detail line about figures. Detail line about figures. Detail line about figures. Detail line about figures. Detail line about figures. Detail line about figures. Detail line about figures. Detail line about figures. Detail line about figures. Detail line about figures. Detail line about figures. Detail line about figures. Detail line about figures. Detail line about figures. Detail line about figures. Detail line about figures. Detail line about figures. Detail line about figures. Detail line about figures. Detail line about figures. Detail line about figures. Detail line about figures. Detail line about figures. Detail line about figures. Detail line about figures. Detail line about figures. Detail line about figures. Detail line about figures. Detail line about figures. Detail line about figures. Detail line about figures. \nNAMED CLIENTS AND PEOPLE: Acme Hospital (client); J. Rivera (facilities director).\nCONCLUSIONS: Margins hold if utilization stays above 75% (inference).\nMore conclusions. More conclusions. More conclusions. More conclusions. More conclusions. More conclusions. More conclusions. More conclusions. More conclusions. More conclusions. More conclusions. More conclusions. More conclusions. More conclusions. More conclusions. More conclusions. More conclusions. More conclusions. More conclusions. More conclusions. \nSYNONYMS: margin, gross margin, GP%, gross profit; utilization, billable hours, billable %; DSO\n",
+   "expected": {
+    "ok": true,
+    "issues": []
+   }
+  }
+ ],
+ "synonyms": [
+  {
+   "name": "groups split on semicolons, single terms dropped",
+   "card": "KEY FIGURES: Utilization was 78% in FY2025 (as of 2025-12-31).\nDetail line about figures. Detail line about figures. Detail line about figures. Detail line about figures. Detail line about figures. Detail line about figures. Detail line about figures. Detail line about figures. Detail line about figures. Detail line about figures. Detail line about figures. Detail line about figures. Detail line about figures. Detail line about figures. Detail line about figures. Detail line about figures. Detail line about figures. Detail line about figures. Detail line about figures. Detail line about figures. Detail line about figures. Detail line about figures. Detail line about figures. Detail line about figures. Detail line about figures. Detail line about figures. Detail line about figures. Detail line about figures. Detail line about figures. Detail line about figures. Detail line about figures. Detail line about figures. Detail line about figures. Detail line about figures. Detail line about figures. Detail line about figures. Detail line about figures. Detail line about figures. Detail line about figures. Detail line about figures. \nNAMED CLIENTS AND PEOPLE: Acme Hospital (client); J. Rivera (facilities director).\nCONCLUSIONS: Margins hold if utilization stays above 75% (inference).\nMore conclusions. More conclusions. More conclusions. More conclusions. More conclusions. More conclusions. More conclusions. More conclusions. More conclusions. More conclusions. More conclusions. More conclusions. More conclusions. More conclusions. More conclusions. More conclusions. More conclusions. More conclusions. More conclusions. More conclusions. \nSYNONYMS: margin, gross margin, GP%, gross profit; utilization, billable hours, billable %; DSO\n",
+   "expected": [
+    [
+     "margin",
+     "gross margin",
+     "GP%",
+     "gross profit"
+    ],
+    [
+     "utilization",
+     "billable hours",
+     "billable %"
+    ]
+   ]
+  },
+  {
+   "name": "no synonyms line",
+   "card": "KEY FIGURES: none",
+   "expected": []
+  },
+  {
+   "name": "lowercase label, extra spaces",
+   "card": "x\n synonyms :  DSO , days sales outstanding ;  backlog,order book ,",
+   "expected": [
+    [
+     "DSO",
+     "days sales outstanding"
+    ],
+    [
+     "backlog",
+     "order book"
+    ]
+   ]
+  }
+ ]
+}
