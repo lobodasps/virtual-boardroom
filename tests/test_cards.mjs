@@ -4,7 +4,7 @@ const root = path.dirname(path.dirname(fileURLToPath(import.meta.url)));
 const html = fs.readFileSync(path.join(root, "app", "strategy-boardroom.html"), "utf8");
 const block = name => html.match(new RegExp(`/\\* SPEC:${name}:BEGIN \\*/([\\s\\S]*?)/\\* SPEC:${name}:END \\*/`))[1];
 const ctx = {}; vm.createContext(ctx);
-vm.runInContext(block("RULES") + block("PROMPTS") + block("CARDS") + ";globalThis.__=({RULES,PROMPTS,cardSource,validateCard,parseSynonyms});", ctx);
+vm.runInContext(block("RULES") + block("PROMPTS") + block("CARDS") + ";globalThis.__=({RULES,PROMPTS,cardSource,validateCard,parseSynonyms,cardParts,cardCalls});", ctx);
 const { RULES: R, PROMPTS } = ctx.__, J = x => JSON.parse(JSON.stringify(x));
 const MARK = PROMPTS["summary-card.rest_marker"];
 const F = JSON.parse(fs.readFileSync(path.join(root, "tests", "fixtures", "data", "cards.json"), "utf8"));
@@ -21,5 +21,8 @@ for (const c of F.validate) {
   const r = J(ctx.__.validateCard(c.card, R)), e = c.expected;
   check("validate: " + c.name, r.ok === e.ok && ("issues" in e ? JSON.stringify(r.issues) === JSON.stringify(e.issues) : r.issues[0].startsWith(e.issues_start)));
 }
+for (const c of F.parts) { const txt = build(c.parts), e = c.expected, ps = [...ctx.__.cardParts(txt, R)];
+  check("parts: " + c.name, JSON.stringify(ps.map(x => x.length)) === JSON.stringify(e.lengths) && ps.join("") === txt.replace(/\r/g, "")
+    && ctx.__.cardCalls(txt, R, true) === e.calls_whole && ctx.__.cardCalls(txt, R, false) === e.calls_quick); }
 for (const c of F.synonyms) check("synonyms: " + c.name, JSON.stringify(J(ctx.__.parseSynonyms(c.card))) === JSON.stringify(c.expected));
 console.log(`app cards: ${n - fails}/${n} cases pass`); process.exit(fails ? 1 : 0);

@@ -244,6 +244,9 @@ def load_prompts(rules=None):
         defaults[name] = dflt
         for k, t in texts.items():
             prompts[name + ("." + k if k else "")] = fill_rules(t, rules)
+    inc = re.compile(r"\{\{@([A-Za-z0-9_.-]+)\}\}")
+    for k in prompts:  # {{@prompt.part}} includes another prompt's text at build time, one level deep
+        prompts[k] = inc.sub(lambda m: prompts[m.group(1)] if m.group(1) in prompts else m.group(0), prompts[k])
     return prompts, defaults
 
 

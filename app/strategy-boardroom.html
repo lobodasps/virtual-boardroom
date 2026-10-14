@@ -320,7 +320,7 @@ const RULES = {
   "ratify":{"default":false,"stages":["draft","ratify"],"insert_before":"synthesis"},
   "pairing":{"stance_values":{"pursue":2,"test":1,"avoid":0},"default_stance":1,"counsel_fault_line":2,"default_fault_line":1,"opponent":2,"opposite_crux_sides":2,"repeat_pair":-4,"max_times_challenged":2},
   "words":{"brief":650,"opening":220,"cruxes":150,"challenge":150,"response":220,"redteam":230,"draft":200,"consult":400},
-  "cards":{"min_chars":1500,"max_chars":3000,"source_chars":100000,"max_headings":200,"sections":["KEY FIGURES","NAMED CLIENTS AND PEOPLE","CONCLUSIONS","SYNONYMS"]},
+  "cards":{"min_chars":1500,"max_chars":3000,"source_chars":100000,"max_headings":200,"split_window":2000,"sections":["KEY FIGURES","NAMED CLIENTS AND PEOPLE","CONCLUSIONS","SYNONYMS"]},
   "search":{"max_added_terms":12},
   "usage":{"about":"Estimate of Claude usage per session (estimateUsage in the app, spec.estimate_usage in the plugin). Directors who search large data make a few extra calls on top.","chars_per_token":4,"frame_chars":4500,"context_chars":2500,"default_evidence_chars":15000,"chars_per_word":6,"output_tokens_per_word":1.4,"json_output_tokens":{"plan":2500,"vote":700,"ratify":200,"synthesis":2500},"counsel_stages":["brief","cruxes","draft","synthesis"],"no_transcript_stages":["vote","ratify","draft","synthesis"]},
   "research":{"facts_per_researcher":{"min":10,"max":18},"max_turns":20,"max_pages_opened":15,"recency_months":24,"recency_exception":"laws, rules and standards still in force","swing_facts":{"min":3,"max":5},"swing_facts_need_two_sources":true,"max_register_facts":80},
@@ -378,7 +378,9 @@ const PROMPTS = {
   "response":"TASK: REBUTTAL, round {{round}}. You were challenged:\n{{questions}}\nAnswer each question directly. Concede only what the evidence forces you to concede, and say exactly which fact or material changed your mind. Hold everything else and say why. Then answer each crux the Counsel named in one line. 220 words max.\n{{meta_note}}\n{\"headline\":\"<your position now, one sentence>\",\"conceded\":\"<what you concede, or 'nothing'>\",\"position_changed\":true|false,\"confidence\":<0-100>}",
   "search":"Expand every search with synonyms. Your reading plan ends with synonym groups, each written as a Grep pattern. When the term you are looking for belongs to a group, Grep case-insensitively (`-i`) for the whole pattern instead of the single word, so you also find passages that use another name, or the plural, for it. For example: `gross profit margins|gross profit margin|gross margins|gross profits|gross margin|gross profit|margins|margin|gp%`.",
   "summary-card":"You write a summary card for one briefing material. A board director reads this card in full every session; the original stays available for searching, so the card must carry what the director needs most often.\n\nMATERIAL: {{name}} ({{chars}} characters{{truncated_note}})\nDIRECTOR: the {{director_title}}, whose lens is \"{{director_lens}}\"\n\nWrite 1500 to 3000 characters of plain text in exactly these four sections, each starting on its own line with its label:\nKEY FIGURES: every figure that matters, written exactly as in the material, each with its as-of date or period (\"date not stated\" if the material gives none).\nNAMED CLIENTS AND PEOPLE: every client, company, agency and person named, with their role.\nCONCLUSIONS: what the material concludes or shows, in its own terms. Mark anything you infer with \"(inference)\".\nSYNONYMS: one line of alternative terms for the material's key concepts, so searches find them. Separate groups with semicolons and terms within a group with commas, e.g. \"margin, gross margin, GP%, gross profit; utilization, billable hours, billable %\".\n\nNever add a figure, name or date that is not in the material. Reply with the card text only.\n\nMATERIAL TEXT:\n{{text}}",
+  "summary-card-merge":"You merge partial summary cards into one summary card for a briefing material. Each partial card covers one consecutive part of the same material, in order. A board director reads the merged card in full every session; the original stays available for searching.\n\nMATERIAL: {{name}} ({{chars}} characters, summarized in {{parts}} parts)\nDIRECTOR: the {{director_title}}, whose lens is \"{{director_lens}}\"\n\nWrite 1500 to 3000 characters of plain text in exactly these four sections, each starting on its own line with its label:\nKEY FIGURES: every figure that matters, written exactly as in the material, each with its as-of date or period (\"date not stated\" if the material gives none).\nNAMED CLIENTS AND PEOPLE: every client, company, agency and person named, with their role.\nCONCLUSIONS: what the material concludes or shows, in its own terms. Mark anything you infer with \"(inference)\".\nSYNONYMS: one line of alternative terms for the material's key concepts, so searches find them. Separate groups with semicolons and terms within a group with commas, e.g. \"margin, gross margin, GP%, gross profit; utilization, billable hours, billable %\".\n\nKeep every figure exactly as written, with its as-of date. When parts disagree or update each other, keep the latest and say which part it came from. Merge the SYNONYMS lines into one. Never add a figure, name or date that is not in the partial cards. Reply with the card text only.\n\nPARTIAL CARDS:\n{{cards}}",
   "summary-card.rest_marker":"[…the rest of the material is not shown. Headings from the rest:]",
+  "summary-card.sections":"Write 1500 to 3000 characters of plain text in exactly these four sections, each starting on its own line with its label:\nKEY FIGURES: every figure that matters, written exactly as in the material, each with its as-of date or period (\"date not stated\" if the material gives none).\nNAMED CLIENTS AND PEOPLE: every client, company, agency and person named, with their role.\nCONCLUSIONS: what the material concludes or shows, in its own terms. Mark anything you infer with \"(inference)\".\nSYNONYMS: one line of alternative terms for the material's key concepts, so searches find them. Separate groups with semicolons and terms within a group with commas, e.g. \"margin, gross margin, GP%, gross profit; utilization, billable hours, billable %\".",
   "summary-card.truncated_note":"; you see the first 100000 characters and the headings from the rest",
   "synthesis":"TASK: FACILITATED SYNTHESIS. You do not vote. Produce the record of decision from the transcript, roll call and weighted scores. The resolution must state the computed verdict label, the recommended option and any caps applied, and must reflect the vote as cast, including its strength, spread, any tie and any split between first choices and weighted scores. Record every dissent fairly. List every red-line flag on the recommended option and say how the resolution answers it, or that it does not. Name a fix for every weak pillar. If ratification ran, record each amendment as adopted or not, with the reason: adopt an amendment when no director objected or the argument for it went unanswered. Challenge the evidence base: say which decisive claims rest on thin or missing evidence.\n{{fact_rules}}\nReply with only JSON:\n{\"resolution\":\"<one-sentence board resolution reflecting the actual vote>\",\"summary\":\"<3-4 sentences: what was decided and why>\",\"agreements\":[\"<points nearly all directors accepted>\"],\"dissents\":[{\"director\":\"<id>\",\"point\":\"<their dissent, one sentence>\"}],\"key_assumptions\":[{\"assumption\":\"...\",\"held_by\":[\"<ids>\"],\"test\":\"<how to verify, and by when>\"}],\"risks\":[{\"risk\":\"...\",\"severity\":\"high|medium|low\",\"mitigation\":\"...\"}],\"evidence_gaps\":[\"<decisive questions the evidence did not answer>\"],\"paths\":[{\"name\":\"<short name>\",\"backers\":[\"<ids>\"],\"thesis\":\"<one sentence>\",\"first_moves\":[\"<first 90-day moves, max 3>\"],\"kill_criteria\":\"<what would make the company stop>\"}],\"red_lines\":[{\"director\":\"<id>\",\"status\":\"at_risk|breached\",\"response\":\"<how the resolution answers it, or 'unanswered'>\"}],\"pillar_fixes\":[{\"director\":\"<id>\",\"fix\":\"<named fix for a pillar scored 4 or below>\"}],\"amendments\":[{\"director\":\"<id>\",\"amendment\":\"...\",\"adopted\":true,\"reason\":\"...\"}],\"open_questions\":[\"...\"]}\nGive 2-3 paths that represent the genuinely conflicting directions, not variations of one.",
   "vote":"TASK: SEALED ROLL-CALL VOTE. You cannot see anyone else's vote. Choose exactly one option for the company to pursue as its priority, or \"Hold\" (pursue none now). Options: {{options_list}}.\nAlso score EVERY option, including Hold:\n- scores: 0-10, how strongly you back it.\n- pillar_scores: 0-10, the option judged only on your own mandate.\n- ruin_risk: \"none\", \"possible\" or \"likely\". This means an irreversible downside that could sink the company if it pursued that option.\n- door: \"one-way\" (hard to reverse) or \"two-way\" (easy to reverse).\n- red_line: \"clear\", \"at_risk\" or \"breached\", judged strictly against your own red line and thresholds, not the board's mood. \"breached\" means pursuing that option as proposed crosses your red line; \"at_risk\" means it will unless a specific condition holds.\nReply with only JSON:\n{\"choice\":\"<exact option name or Hold>\",\"scores\":{{{scores_schema}}},\"pillar_scores\":{{{scores_schema}}},\"ruin_risk\":{{{ruin_schema}}},\"door\":{{{door_schema}}},\"red_line\":{{{red_schema}}},\"support\":\"strong|conditional\",\"ranking\":[\"<options best to worst>\"],\"conditions\":[\"<what your vote depends on, max 3>\"],\"flip_if\":\"<the one finding that would flip your vote>\",\"confidence\":<0-100>,\"rationale\":\"<2-3 sentences in your voice, citing [F#] or material tags for facts>\",\"changed_from_opening\":true|false,\"change_reason\":\"<why, or empty>\"}"
@@ -642,6 +644,16 @@ function cardSource(text, R, marker){
   for(const line of t.slice(max).split("\n")){ const l=line.trim(); if(l && CARD_HEADING.test(l) && !seen.has(l)){ seen.add(l); hs.push(l); if(hs.length>=R.cards.max_headings) break; } }
   return {text:t.slice(0,max)+"\n\n"+marker+"\n"+hs.join("\n"), truncated:true, headings:hs.length};
 }
+/* Whole-file mode: consecutive parts of at most cards.source_chars, ending at a line break within the last
+   cards.split_window characters when there is one. cardCalls: Claude calls a card takes (parts + 1 merge, or 1). */
+function cardParts(text, R){
+  const t=String(text||"").replace(/\r/g,""), size=R.cards.source_chars, win=R.cards.split_window, parts=[]; let start=0;
+  while(start<t.length){ let end=Math.min(start+size,t.length);
+    if(end<t.length){ const nl=t.lastIndexOf("\n",end-1); if(nl>start && nl>=end-win) end=nl+1; }
+    parts.push(t.slice(start,end)); start=end; }
+  return parts;
+}
+function cardCalls(text, R, whole){ const n=String(text||"").replace(/\r/g,"").length; return whole&&n>R.cards.source_chars ? cardParts(text,R).length+1 : 1; }
 function validateCard(card, R){
   const t=String(card||"").trim(), n=t.length, issues=[];
   if(n<R.cards.min_chars) issues.push(`too short: ${n} characters, at least ${R.cards.min_chars}`);
@@ -1576,7 +1588,7 @@ async function addAttachments(dirId, items, monoHint){
   const mono=persona(dirId)?.mono||monoHint; if(!mono) return []; let n=0; const made=[];
   Object.keys(state.attIndex).forEach(t=>{ const m=t.match(/^([A-Z]{1,3})(\d+)$/); if(m&&m[1]===mono) n=Math.max(n,+m[2]); });
   for(const it of items){ n++; let t=String(it.text).replace(/\u0000/g,""); const truncated=t.length>MAX_ATT; if(truncated) t=t.slice(0,MAX_ATT);
-    const aid=newId("a"), meta={name:it.name,kind:it.kind,tag:it.tag||mono+n,chars:t.length,truncated,shared:!!it.shared,pinned:!!it.pinned,asOf:it.asOf||"",addedAt:it.addedAt||Date.now(),...(it.cardFor?{cardFor:it.cardFor}:{})};
+    const aid=newId("a"), meta={name:it.name,kind:it.kind,tag:it.tag||mono+n,chars:t.length,truncated,shared:!!it.shared,pinned:!!it.pinned,asOf:it.asOf||"",addedAt:it.addedAt||Date.now(),...(it.cardFor?{cardFor:it.cardFor}:{}),...(it.cardWarnings?{cardWarnings:it.cardWarnings}:{})};
     made.push({id:aid,tag:meta.tag,name:meta.name,text:t,shared:meta.shared});
     if(t.length<=PART){ await Store.put(`directors/${dirId}/data`, aid, {...meta,text:t}); }
     else { const k=Math.ceil(t.length/PART); for(let i=0;i<k;i++) await Store.put(`directors/${dirId}/data/${aid}/parts`,"p"+i,{n:i,text:t.slice(i*PART,(i+1)*PART)});
@@ -1610,33 +1622,55 @@ function queueCards(dirId, made, force){
 async function startNextCard(regen){
   if(state.cardDraft && !regen) return;
   const it = regen ? state.cardDraft : (state.cardQueue||[]).shift(); if(!it) return;
-  const p=persona(it.dirId); let full=it.text;
-  if(it.id){ try{ full=(await loadMaterials(it.dirId)).find(a=>a.id===it.id)?.text||full; }catch(_){} }
-  const src=cardSource(full, RULES, P("summary-card.rest_marker"));
-  state.cardDraft={...it, draft:"", status:"drafting", error:""}; render();
+  let full=it.full??it.text;
+  if(it.full==null && it.id){ try{ full=(await loadMaterials(it.dirId)).find(a=>a.id===it.id)?.text||full; }catch(_){} }
+  state.cardDraft={...it, full, draft:"", status:"drafting", error:"", progress:"", issuesShown:false};
+  if(String(full).length>RULES.cards.source_chars && !it.mode){ state.cardDraft.status="choose"; render(); return; }
+  render(); await draftCard();
+}
+/* Quick card: one call on the first cards.source_chars plus headings. Whole file: one call per part, then a merge. */
+async function draftCard(){
+  const d=state.cardDraft; if(!d) return; const p=persona(d.dirId), who={director_title:p?.title||"director", director_lens:p?.lens||""}, n=String(d.full).length;
   try{
-    const r=await ask(T("summary-card",{name:it.name, chars:String(full).length.toLocaleString(), truncated_note:src.truncated?P("summary-card.truncated_note"):"",
-      director_title:p?.title||"director", director_lens:p?.lens||"", text:src.text}),{tier:"default"});
-    if(state.cardDraft&&state.cardDraft.tag===it.tag){ state.cardDraft.draft=String(r?.text||"").trim(); state.cardDraft.status="ready"; }
-  }catch(e){ if(state.cardDraft) { state.cardDraft.status="error"; state.cardDraft.error=errCopy(e); } }
+    let text;
+    if(d.mode==="whole" && n>RULES.cards.source_chars){
+      const parts=cardParts(d.full,RULES), partial=[];
+      for(let i=0;i<parts.length;i++){ d.progress=`Summarizing part ${i+1} of ${parts.length}…`; render();
+        const r=await ask(T("summary-card",{...who, name:`${d.name} (part ${i+1} of ${parts.length})`, chars:parts[i].length.toLocaleString(), truncated_note:"", text:parts[i]}),{tier:"default"});
+        if(state.cardDraft!==d) return; partial.push(`PART ${i+1} OF ${parts.length}\n${String(r?.text||"").trim()}`); }
+      d.progress="Merging the parts into one card…"; render();
+      text=(await ask(T("summary-card-merge",{...who, name:d.name, chars:n.toLocaleString(), parts:parts.length, cards:partial.join("\n\n")}),{tier:"default"}))?.text;
+    } else {
+      const src=cardSource(d.full,RULES,P("summary-card.rest_marker"));
+      text=(await ask(T("summary-card",{...who, name:d.name, chars:n.toLocaleString(), truncated_note:src.truncated?P("summary-card.truncated_note"):"", text:src.text}),{tier:"default"}))?.text;
+    }
+    if(state.cardDraft===d){ d.draft=String(text||"").trim(); d.status="ready"; d.progress=""; }
+  }catch(e){ if(state.cardDraft===d){ d.status="error"; d.error=errCopy(e); } }
   render();
 }
-async function saveCard(){
+async function saveCard(force){
   const d=state.cardDraft; if(!d) return;
   const text=document.getElementById("card-text")?.value ?? d.draft, v=validateCard(text,RULES);
-  if(!v.ok){ d.draft=text; d.issuesShown=true; render(); return; }
-  await addAttachments(d.dirId,[{name:"Summary card: "+d.name, kind:"card", text:text.trim(), pinned:true, shared:!!d.shared, cardFor:d.tag}]);
-  state.cardDraft=null; state.attStatus=`Saved and pinned the summary card for ${d.tag}.`; render(); startNextCard();
+  if(!v.ok && !force){ d.draft=text; d.issuesShown=true; render(); return; }
+  await addAttachments(d.dirId,[{name:"Summary card: "+d.name, kind:"card", text:text.trim(), pinned:true, shared:!!d.shared, cardFor:d.tag, cardWarnings:v.ok?undefined:v.issues}]);
+  state.cardDraft=null; state.attStatus=`Saved and pinned the summary card for ${d.tag}${v.ok?"":" (with warnings)"}.`; render(); startNextCard();
 }
 function cardPanelHTML(dirId){
   const d=state.cardDraft; if(!d||d.dirId!==dirId) return "";
-  const v=validateCard(d.draft,RULES), q=(state.cardQueue||[]).filter(x=>x.dirId===dirId).length;
+  const v=validateCard(d.draft,RULES), q=(state.cardQueue||[]).filter(x=>x.dirId===dirId).length, n=String(d.full||"").length, calls=cardCalls(d.full,RULES,true);
+  const body = d.status==="choose" ? `<div class="body" style="margin-top:8px;font-size:14.5px">This material has ${n.toLocaleString()} characters, more than one card call reads (${RULES.cards.source_chars.toLocaleString()}).</div>
+      <ul class="body" style="font-size:14px;margin:6px 0"><li><b>Quick card</b>: 1 Claude call, from the first ${RULES.cards.source_chars.toLocaleString()} characters plus the headings in the rest.</li>
+      <li><b>Card from the whole file</b>: ${calls} Claude calls (${calls-1} parts, then a merge). Slower, but nothing is left out.</li></ul>`
+    : d.status==="drafting" ? `<div class="body muted cursor" style="margin-top:8px">${esc(d.progress||"Drafting the card…")}</div>`
+    : d.status==="error" ? `<div class="notice bad">${esc(d.error)}</div>`
+    : `<textarea id="card-text" style="width:100%;min-height:260px;margin-top:8px;font-family:var(--f-read);font-size:14px;background:var(--bg);border:1px solid var(--line);border-radius:var(--r);padding:10px">${esc(d.draft)}</textarea>
+      <div id="card-check" class="muted mono" style="font-size:11.5px">${cardCheckText(v)}</div>
+      ${d.issuesShown&&!v.ok?`<div class="notice bad">This card doesn't meet the card rules: ${v.issues.map(esc).join("; ")}. Fix it, or save it anyway; it will be marked as saved with warnings.</div>`:""}`;
+  const btns = d.status==="choose" ? `<button class="btn primary" data-act="card-quick">Quick card (1 call)</button><button class="btn" data-act="card-whole">Card from the whole file (${calls} calls)</button><button class="btn" data-act="card-skip">Skip</button>`
+    : `<button class="btn primary" data-act="card-save" ${d.status==="ready"?"":"disabled"}>Save and pin card</button>${d.issuesShown&&!v.ok&&d.status==="ready"?`<button class="btn danger" data-act="card-force">Save anyway</button>`:""}<button class="btn" data-act="card-regen" ${d.status==="drafting"?"disabled":""}>Draft again${d.mode==="whole"?` (${calls} calls)`:""}</button><button class="btn" data-act="card-skip">Skip</button>`;
   return `<div class="panel" style="border-color:var(--accent);margin:12px 0"><h4 style="margin-top:0">Summary card for ${esc(d.tag)} · ${esc(d.name)}${q?` <span class="muted">(${q} more waiting)</span>`:""}</h4>
     <div class="muted" style="font-size:12.5px">The card is pinned, so this director reads it in full every session; the original stays searchable. Edit it before saving: ${RULES.cards.min_chars.toLocaleString()}–${RULES.cards.max_chars.toLocaleString()} characters with ${RULES.cards.sections.join(", ")}.</div>
-    ${d.status==="drafting"?`<div class="body muted cursor" style="margin-top:8px">Drafting the card…</div>`:d.status==="error"?`<div class="notice bad">${esc(d.error)}</div>`:
-      `<textarea id="card-text" style="width:100%;min-height:260px;margin-top:8px;font-family:var(--f-read);font-size:14px;background:var(--bg);border:1px solid var(--line);border-radius:var(--r);padding:10px">${esc(d.draft)}</textarea>
-      <div id="card-check" class="muted mono" style="font-size:11.5px">${cardCheckText(v)}</div>`}
-    <div class="row" style="margin-top:8px"><button class="btn primary" data-act="card-save" ${d.status==="ready"?"":"disabled"}>Save and pin card</button><button class="btn" data-act="card-regen" ${d.status==="drafting"?"disabled":""}>Draft again</button><button class="btn" data-act="card-skip">Skip</button></div></div>`;
+    ${body}<div class="row" style="margin-top:8px">${btns}</div></div>`;
 }
 function cardCheckText(v){ return `${v.length.toLocaleString()} characters`+(v.ok?" · ready to save":" · "+v.issues.map(esc).join(" · ")); }
 async function saveDirectorForm(){
@@ -1721,7 +1755,7 @@ function dataHTML(id,isNew){
    ${plan.overPinned?`<div class="notice bad">Pinned items alone exceed ${n(OWN_BUDGET)} characters, the most this director reads in full per call. The newest pinned items will be cut${state.toolsOK?" and left searchable":""}. Unpin something to fix this.</div>`:""}
    <div class="muted" style="font-size:12px;margin-top:4px">Pinned items are always given in full; unpinned items fill whatever room is left, smallest first. ${state.toolsOK?`Items that don't fit are searchable only: the director sees just their name and first ${RULES.PREVIEW_CHARS} characters until it searches them (a few extra Claude calls per turn).`:"Search isn't available in this view, so items that don't fit are cut short."}</div>
    ${cardPanelHTML(id)}
-   ${list.length?list.map(a=>{ const k="att-del:"+a.id, card=list.find(c=>c.cardFor===a.tag); return `<div class="att"><a class="aref">${esc(a.tag)}</a><div style="min-width:0"><div class="nm">${esc(a.name)}</div><div class="muted" style="font-size:12px">${a.kind==="file"?"File":"Note"} · ${(a.chars||0).toLocaleString()} characters${a.truncated?" · cut to the storage limit":""} · ${a.shared?"Shared with the board":"Private to this director"}${a.pinned?" · Pinned":""} · ${idx.has(a.id)?"searchable only":cutIds.has(a.id)?"cut to fit":"read in full"}${a.cardFor?` · Summary card for ${esc(a.cardFor)}`:card?` · Card: ${esc(card.tag)}`:""}</div></div>
+   ${list.length?list.map(a=>{ const k="att-del:"+a.id, card=list.find(c=>c.cardFor===a.tag); return `<div class="att"><a class="aref">${esc(a.tag)}</a><div style="min-width:0"><div class="nm">${esc(a.name)}</div><div class="muted" style="font-size:12px">${a.kind==="file"?"File":"Note"} · ${(a.chars||0).toLocaleString()} characters${a.truncated?" · cut to the storage limit":""} · ${a.shared?"Shared with the board":"Private to this director"}${a.pinned?" · Pinned":""} · ${idx.has(a.id)?"searchable only":cutIds.has(a.id)?"cut to fit":"read in full"}${a.cardFor?` · Summary card for ${esc(a.cardFor)}${(a.cardWarnings||[]).length?` <span class="tag flag" title="${esc(a.cardWarnings.join("; "))}">saved with warnings</span>`:""}`:card?` · Card: ${esc(card.tag)}`:""}</div></div>
      <div class="row">${!a.cardFor&&!card&&SAMPLE?`<button class="btn sm" data-act="att-card" data-id="${esc(a.id)}">Make card</button>`:""}<button class="btn sm" data-act="att-pin" data-id="${esc(a.id)}" aria-pressed="${!!a.pinned}">${a.pinned?"Unpin":"Pin"}</button><button class="btn sm" data-act="att-share" data-id="${esc(a.id)}">${a.shared?"Make private":"Share with board"}</button><button class="btn sm danger ${state.armed===k?"armed":""}" data-act="att-del" data-id="${esc(a.id)}">${state.armed===k?"Confirm remove":"Remove"}</button></div></div>`; }).join(""):`<div class="empty-note" style="margin-top:10px">No data yet. Add a file or paste notes below.</div>`}
    <div class="form" style="margin-top:16px">
      <div class="field full"><label for="att-file">Add files</label><div class="row"><input type="file" id="att-file" multiple accept=".pdf,.docx,.xlsx,.xls,.csv,.tsv,.txt,.md,.json,.html,.htm"><button class="btn sm" data-act="att-upload">Upload</button></div><small>PDF, Word (.docx), Excel, CSV or text, up to about 1,000 pages per file. Text is extracted in your browser; only the text is stored.</small></div>
@@ -2059,6 +2093,8 @@ document.addEventListener("click",async e=>{
     case "att-paste": await pasteAttachment(); break;
     case "att-card": { const a=(state.atts[state.dirId]||[]).find(x=>x.id===el.dataset.id); if(a) queueCards(state.dirId,[{id:a.id,tag:a.tag,name:a.name,text:a.text,shared:a.shared}],true); render(); break; }
     case "card-save": await saveCard(); break;
+    case "card-force": await saveCard(true); break;
+    case "card-quick": case "card-whole": if(state.cardDraft){ state.cardDraft.mode=act==="card-whole"?"whole":"quick"; state.cardDraft.status="drafting"; render(); await draftCard(); } break;
     case "card-regen": if(state.cardDraft){ const t=document.getElementById("card-text"); if(t) state.cardDraft.draft=t.value; await startNextCard(true); } break;
     case "card-skip": state.cardDraft=null; render(); startNextCard(); break;
     case "att-pin": { const a=(state.atts[state.dirId]||[]).find(x=>x.id===el.dataset.id); if(a) await Store.put(`directors/${state.dirId}/data`,a.id,{...a,pinned:!a.pinned}); break; }

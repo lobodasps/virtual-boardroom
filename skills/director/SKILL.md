@@ -66,6 +66,26 @@ python3 "${CLAUDE_PLUGIN_ROOT}/scripts/materials.py" add boardroom/directors/<fo
 **Summary card.** For every item longer than `cards.max_chars` characters (`spec/rules.json`), draft a summary card:
 
 1. Get the text to summarize: `python3 "${CLAUDE_PLUGIN_ROOT}/scripts/materials.py" card-source boardroom/directors/<folder> <TAG>`. For a long file this is the first `cards.source_chars` characters plus the headings from the rest.
+   - **Card from the whole file (optional, for items over `cards.source_chars`).** Run `materials.py card-parts boardroom/directors/<folder> <TAG>` and tell the user the cost before you start: a quick card is 1 summarizing step; the whole file is `calls_whole` steps (each part, then a merge). If they choose the whole file, write a card for each part with the prompt below, using `card-source … --part N` as the text and "<name> (part N of M)" as the name, then merge the part cards with this prompt (generated from `spec/prompts/summary-card-merge.md`):
+
+<!-- SPEC:summary-card-merge quote -->
+> You merge partial summary cards into one summary card for a briefing material. Each partial card covers one consecutive part of the same material, in order. A board director reads the merged card in full every session; the original stays available for searching.
+>
+> MATERIAL: <material name> (<length in characters> characters, summarized in <number of parts> parts)
+> DIRECTOR: the <director title>, whose lens is "<director lens>"
+>
+> Write 1500 to 3000 characters of plain text in exactly these four sections, each starting on its own line with its label:
+> KEY FIGURES: every figure that matters, written exactly as in the material, each with its as-of date or period ("date not stated" if the material gives none).
+> NAMED CLIENTS AND PEOPLE: every client, company, agency and person named, with their role.
+> CONCLUSIONS: what the material concludes or shows, in its own terms. Mark anything you infer with "(inference)".
+> SYNONYMS: one line of alternative terms for the material's key concepts, so searches find them. Separate groups with semicolons and terms within a group with commas, e.g. "margin, gross margin, GP%, gross profit; utilization, billable hours, billable %".
+>
+> Keep every figure exactly as written, with its as-of date. When parts disagree or update each other, keep the latest and say which part it came from. Merge the SYNONYMS lines into one. Never add a figure, name or date that is not in the partial cards. Reply with the card text only.
+>
+> PARTIAL CARDS:
+> <each part's card, headed "PART n OF N">
+<!-- /SPEC:summary-card-merge -->
+
 2. Write the card yourself with this prompt (generated from `spec/prompts/summary-card.md`):
 
 <!-- SPEC:summary-card quote -->
@@ -86,7 +106,7 @@ python3 "${CLAUDE_PLUGIN_ROOT}/scripts/materials.py" add boardroom/directors/<fo
 > <the output of materials.py card-source>
 <!-- /SPEC:summary-card -->
 
-3. Show the card to the user and let them edit it. Save it next to the original as `<name>.card.md` (in `shared/` if the original is shared), check it with `materials.py check-card <file>` and fix anything it reports, then register it: `materials.py add boardroom/directors/<folder> <path relative to data/> --card-for <TAG> --name "Summary card: <original name>"`. Cards are always pinned; the original stays searchable. The user may skip the card.
+3. Show the card to the user and let them edit it. Save it next to the original as `<name>.card.md` (in `shared/` if the original is shared), check it with `materials.py check-card <file>` and fix anything it reports. If the user wants to keep it as it is anyway, warn them which rules it breaks and save it on their say-so. Then register it: `materials.py add boardroom/directors/<folder> <path relative to data/> --card-for <TAG> --name "Summary card: <original name>"`. Cards are always pinned; the original stays searchable. The user may skip the card.
 
 Ask whether to pin the original: pinned items are always read in full, up to `OWN_BUDGET` characters (`SHARED_BUDGET` for shared items) from `spec/rules.json`; unpinned items fill the remaining budget and are otherwise searched. Then report each item's tag, name, size in characters, private or shared, and pinned or not, and show `materials.py plan boardroom/directors/<folder>` so the user sees what will be read in full. Warn if pinned items alone exceed the budget.
 

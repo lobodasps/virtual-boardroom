@@ -6,7 +6,10 @@ Usage:
   materials.py add <director-folder> <file-in-data> [--name N] [--as-of YYYY-MM] [--pin] [--card-for TAG]
                                                         register a file already copied into data/ or data/shared/;
                                                         --card-for marks it as the (pinned) summary card of item TAG
-  materials.py card-source <director-folder> <TAG>      print the text to summarize (first cards.source_chars + headings)
+  materials.py card-source <director-folder> <TAG> [--part N]
+                                                        print the text to summarize (first cards.source_chars + headings),
+                                                        or part N of the whole file (whole-file mode)
+  materials.py card-parts <director-folder> <TAG>       print {chars, parts, calls_quick, calls_whole} for a card
   materials.py check-card <card-file>                   validate a summary card (length, sections); exit 1 if not ok
   materials.py pin <director-folder> <TAG> [--off]      pin or unpin an item
   materials.py plan <director-folder> [--shared-only] [--budget N] [--no-tools]
@@ -161,6 +164,23 @@ def card_source(text, R, marker):
     return {"text": t[:mx] + "\n\n" + marker + "\n" + "\n".join(hs), "truncated": True, "headings": len(hs)}
 
 
+def card_parts(text, R):
+    """Mirror of cardParts(): consecutive parts of at most source_chars, ending at a line break within split_window."""
+    t = str(text or "").replace("\r", ""); size, win = R["cards"]["source_chars"], R["cards"]["split_window"]; parts, start = [], 0
+    while start < len(t):
+        end = min(start + size, len(t))
+        if end < len(t):
+            nl = t.rfind("\n", 0, end)
+            if nl > start and nl >= end - win: end = nl + 1
+        parts.append(t[start:end]); start = end
+    return parts
+
+
+def card_calls(text, R, whole):
+    n = len(str(text or "").replace("\r", ""))
+    return len(card_parts(text, R)) + 1 if whole and n > R["cards"]["source_chars"] else 1
+
+
 def validate_card(card, R):
     t = str(card or "").strip(); n = u16len(t); c = R["cards"]; issues = []
     if n < c["min_chars"]: issues.append(f"too short: {n} characters, at least {c['min_chars']}")
@@ -220,13 +240,21 @@ def main(a):
         hit[0]["pinned"] = "--off" not in a; save_manifest(folder, items); print(json.dumps(hit[0]))
     elif cmd == "plan":
         b = opt("--budget"); print(plan_markdown(folder, "--shared-only" in a, int(b) if b else None, "--no-tools" not in a))
-    elif cmd == "card-source":
+    elif cmd in ("card-source", "card-parts"):
         items = load_manifest(folder); hit = next((it for it in items if it.get("tag") == a[2]), None)
         if not hit: raise SystemExit(f"No item tagged {a[2]}")
         prompts, _ = spec.load_prompts(); R = spec.load_rules()
-        with open(os.path.join(folder, "data", hit["file"]), encoding="utf-8", errors="ignore") as f: src = card_source(f.read(), R, prompts["summary-card.rest_marker"])
-        print(src["text"])
-        if src["truncated"]: print(f"\n(Shortened: first {R['cards']['source_chars']:,} characters plus {src['headings']} headings.)", file=sys.stderr)
+        with open(os.path.join(folder, "data", hit["file"]), encoding="utf-8", errors="ignore") as f: text = f.read()
+        if cmd == "card-parts":
+            print(json.dumps({"tag": a[2], "chars": len(text.replace("\r", "")), "parts": len(card_parts(text, R)),
+                              "calls_quick": card_calls(text, R, False), "calls_whole": card_calls(text, R, True)}))
+        elif opt("--part"):
+            parts = card_parts(text, R); i = int(opt("--part"))
+            if not 1 <= i <= len(parts): raise SystemExit(f"Part must be 1 to {len(parts)}")
+            print(parts[i - 1])
+        else:
+            src = card_source(text, R, prompts["summary-card.rest_marker"]); print(src["text"])
+            if src["truncated"]: print(f"\n(Shortened: first {R['cards']['source_chars']:,} characters plus {src['headings']} headings.)", file=sys.stderr)
     elif cmd == "check-card":
         with open(folder, encoding="utf-8") as f: res = validate_card(f.read(), spec.load_rules())
         print(json.dumps(res)); sys.exit(0 if res["ok"] else 1)

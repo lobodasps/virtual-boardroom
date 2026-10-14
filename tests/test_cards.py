@@ -22,6 +22,10 @@ for c in F["validate"]:
     r = materials.validate_card(c["card"], R); e = c["expected"]
     ok = r["ok"] == e["ok"] and (r["issues"] == e["issues"] if "issues" in e else r["issues"][0].startswith(e["issues_start"]))
     check("validate: " + c["name"], ok)
+for c in F["parts"]:
+    txt = build(c["parts"]); e = c["expected"]
+    check("parts: " + c["name"], [len(x) for x in materials.card_parts(txt, R)] == e["lengths"] and "".join(materials.card_parts(txt, R)) == txt.replace("\r", "")
+          and materials.card_calls(txt, R, True) == e["calls_whole"] and materials.card_calls(txt, R, False) == e["calls_quick"])
 for c in F["synonyms"]:
     check("synonyms: " + c["name"], materials.parse_synonyms(c["card"]) == c["expected"])
 print(f"materials.py cards: {n - fails}/{n} cases pass"); sys.exit(1 if fails else 0)

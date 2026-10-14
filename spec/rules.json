@@ -72,6 +72,7 @@
     "max_chars": 3000,
     "source_chars": 100000,
     "max_headings": 200,
+    "split_window": 2000,
     "sections": ["KEY FIGURES", "NAMED CLIENTS AND PEOPLE", "CONCLUSIONS", "SYNONYMS"]
   },
 
