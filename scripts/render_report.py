@@ -2,7 +2,7 @@
 """Render Virtual Boardroom session records to self-contained HTML.
 
 Usage:
-  render_report.py <session-folder>              -> <session-folder>/report.html
+  render_report.py <session-folder>              -> <session-folder>/report.html (prints cleanly: open it and use Print or Save as PDF)
   render_report.py --compare <session-folder>... -> boardroom/comparison.html (+ Markdown summary on stdout)
 
 Standard library only.
@@ -37,6 +37,9 @@ th{font-size:11px;text-transform:uppercase;letter-spacing:.05em;color:var(--mute
 .bar{display:flex;height:24px;border-radius:5px;overflow:hidden;margin:8px 0}.bar div{display:grid;place-items:center;color:#fff;font:11px ui-monospace,monospace;background:var(--accent);overflow:hidden;white-space:nowrap}
 .bar div:nth-child(2){background:#5A8F87}.bar div:nth-child(n+3){background:var(--muted)}
 .cols{display:grid;grid-template-columns:repeat(auto-fit,minmax(280px,1fr));gap:12px}
+@media print{:root{--bg:#fff;--surface:#fff;--ink:#15191C;--muted:#5A646C;--line:#D3D8D5;--accent:#1F6F64;--soft:#D9ECE8;--flag:#FFF1C2;--flagink:#6B4B00;--bad:#B23A32;color-scheme:light}
+  body{font-size:12px}main{max-width:none;padding:0}.scroll{overflow:visible}a{color:inherit;text-decoration:none}
+  .panel,.turn,tr{break-inside:avoid}h1,h2,h3{break-after:avoid}}
 """
 
 def esc(s): return html.escape(str(s if s is not None else ""))

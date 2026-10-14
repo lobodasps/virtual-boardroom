@@ -254,7 +254,7 @@ Write `decision.json` and a readable `decision.md`. `decision.md` must show the 
    - cited figures it couldn't find in the cited source
 
    If it finds a mismatch in a sentence the record of decision relies on, say so in `decision.md` rather than repeating the figure.
-2. Run `python3 "${CLAUDE_PLUGIN_ROOT}/scripts/render_report.py" boardroom/sessions/<session>`. It writes `report.html`, including the verdict and the citation check.
+2. Run `python3 "${CLAUDE_PLUGIN_ROOT}/scripts/render_report.py" boardroom/sessions/<session>`. It writes `report.html`, including the verdict and the citation check. It has print styles, so the user can open it in a browser and print or save it as PDF.
 3. Give the user a short verdict, under 200 words:
 - the verdict label and recommended option, with the option scores on one line, the spread and any caps
 - the first-choice vote split

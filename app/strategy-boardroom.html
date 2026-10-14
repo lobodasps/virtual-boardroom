@@ -251,6 +251,18 @@ a.aref{font-family:var(--f-mono);font-size:.78em;text-decoration:none;padding:0 
 .intro-steps div{border:1px solid var(--line);border-radius:var(--r);padding:12px;background:var(--surface);font-size:13px}
 .intro-steps div::before{counter-increment:st;content:"Step " counter(st);display:block;font-family:var(--f-mono);font-size:10.5px;color:var(--accent);margin-bottom:4px;letter-spacing:.05em;text-transform:uppercase}
 .copybox{display:flex;gap:8px;align-items:stretch;margin-top:10px;flex-wrap:wrap}
+/* Print: the session page only, light colors, nothing interactive; beforeprint opens every <details>. */
+@media print{
+  .rail,#banner,#sv-ctrl,#sv-pipe,#sv-seats,#sv-research,.btn,.mkt-chips,.copybox{display:none!important}
+  .app{display:block}
+  .main{max-width:none;padding:0}
+  body{background:#fff;font-size:12px}
+  .panel,.turn,.vote,.path,.dcard,.pc{break-inside:avoid}
+  h1,h2,h4,.stage-div{break-after:avoid}
+  a{color:inherit;text-decoration:none}
+  .seat.speaking::after,.cursor::after{display:none}
+}
+.copybox pre{flex:1;min-width:0;margin:0;font-family:var(--f-mono);font-size:12px;background:var(--bg);border:1px solid var(--line);border-radius:var(--r);padding:9px 10px;white-space:pre-wrap;overflow:auto;max-height:260px}
 .copybox code{flex:1;min-width:0;font-family:var(--f-mono);font-size:12.5px;background:var(--bg);border:1px solid var(--line);border-radius:var(--r);padding:9px 10px;overflow-wrap:anywhere;user-select:all}
 </style>
 
@@ -1205,6 +1217,7 @@ function controlsHTML(s,st,running){
         <button class="btn sm ${state.armed==="regen"?"danger armed":""}" data-act="regen" ${can?"":"disabled"}>${state.armed==="regen"?"Confirm: replaces later turns":"Regenerate"}</button></span>`);
       btns.push(`<button class="btn sm" data-act="addround" ${can?"":"disabled"} title="Adds a cross-examination and rebuttal round, then re-votes">Add a debate round</button>`);
     }
+    if(state.turns.length||state.pack) btns.push(`<button class="btn sm" data-act="print" title="Opens your browser's print dialog; choose Save as PDF there">Print or save as PDF</button><button class="btn sm" data-act="report" title="A standalone page with the whole record, ready to print">Download report</button>`);
     btns.push(`<button class="btn sm danger ${state.armed==="del"?"armed":""}" data-act="delete" ${CAN_WRITE&&!RUN?"":"disabled"}>${state.armed==="del"?"Confirm delete":"Delete session"}</button>`);
   }
   return `<div class="row">${btns.join("")}</div>`;
@@ -1253,22 +1266,34 @@ function researchHTML(s,st){
   <div class="copybox"><code id="cmd">${esc(cmd)}</code><button class="btn" data-act="copy">Copy</button></div></div>`;
 }
 const CRIT=[["demand","Demand"],["access","Access"],["right_to_win","Right to win"],["margin","Margin"],["capital_light","Capital-light"],["risk_low","Low risk"],["speed","Speed"],["synergy","Synergy"]];
-function evidenceHTML(s){
+function evidenceTail(p, opt){
+  const facts=opt.facts;
+  return `${(p.scorecard||[]).length?`<h4>Screening scorecard (Counsel judgment from the register, 1–5)</h4><div class="scroll-x panel" style="padding:0"><table><thead><tr><th>Market</th>${CRIT.map(c=>`<th style="text-align:center">${c[1]}</th>`).join("")}<th>Basis</th></tr></thead><tbody>
+    ${p.scorecard.map(r=>`<tr><td><b>${esc(r.market)}</b></td>${CRIT.map(c=>`<td class="n"><span class="sc" style="--v:${+r[c[0]]||0}">${esc(r[c[0]]??"–")}</span></td>`).join("")}<td style="min-width:240px;font-size:12.5px">${inl(r.basis||"",opt)}</td></tr>`).join("")}</tbody></table></div>`:""}
+  ${(p.gaps||[]).length?`<h4>Gaps: no reliable public data found</h4>${p.gaps.map(g=>`<div class="gap"><b>${esc(g.market||"All")}:</b> ${esc(g.question)} <span class="muted">${esc(g.note||"")}</span></div>`).join("")}`:""}
+  <details style="margin-top:12px"><summary>Evidence register (${(p.facts||[]).length})</summary><div class="scroll-x panel" style="padding:0"><table class="reg"><thead><tr><th>ID</th><th>Fact</th><th>Market · PESTLE</th><th>Source</th></tr></thead><tbody>
+    ${(p.facts||[]).map(f=>`<tr id="fact-${esc(f.id)}"><td>${esc(f.id)}</td><td style="font-family:var(--f-read);font-size:14px">${esc(f.claim)}</td><td style="font-size:12px">${esc(f.market||"all")}<br><span class="muted">${esc(f.pestle||"")}</span></td><td class="src"><a href="${esc(f.url)}" target="_blank" rel="noopener">${esc(f.source||f.url)}</a><br>${esc(f.published||"")}</td></tr>`).join("")}</tbody></table></div></details>`;
+}
+function pestleGrid(ps, opt, facts){
+  return ps?`<div class="pestle">${PESTLE.map(([k,l,lab])=>`<div class="pc"><div class="k"><b>${l}</b><span>${lab}</span></div>${(ps[k]||[]).length?`<ul>${ps[k].map(x=>`<li>${inl(x.point,opt)} ${(x.facts||[]).map(f=>factLink(f,facts)).join(" ")}</li>`).join("")}</ul>`:`<div class="muted" style="font-size:13px">No sourced finding.</div>`}</div>`).join("")}</div>`:"";
+}
+function evidenceHTML(s, all){
   const p=state.pack; if(!p) return "";
   const facts=factsMap(p), mk=(p.markets||[]), cur=Math.min(state.evMarket,Math.max(mk.length-1,0)), m=mk[cur];
   const ps=(p.pestle||[]).find(x=>x.market===m?.name);
   const opt={facts};
+  if(all) return `<div class="sec"><h2>Evidence pack</h2>
+  <div class="muted" style="margin-bottom:10px">${(p.facts||[]).length} sourced facts · researched ${esc(p.researchedAt||"")} · ${esc(p.researchedBy||"")}</div>
+  ${p.summary?`<div class="panel body" style="margin-bottom:12px">${md(p.summary,opt)}</div>`:""}
+  ${mk.map(x=>`<h4>${esc(x.name)}</h4><div class="muted" style="margin-bottom:8px">${esc(x.definition||"")}</div>${pestleGrid((p.pestle||[]).find(y=>y.market===x.name),opt,facts)}`).join("")}
+  ${evidenceTail(p,opt)}</div>`;
   return `<div class="sec"><h2>Evidence pack</h2>
   <div class="muted" style="margin-bottom:10px">${(p.facts||[]).length} sourced facts · researched ${esc(p.researchedAt||"")} · ${esc(p.researchedBy||"")}</div>
   ${p.summary?`<div class="panel body" style="margin-bottom:12px">${md(p.summary,opt)}</div>`:""}
   <div class="mkt-chips" role="tablist">${mk.map((x,i)=>`<button class="chip ${i===cur?"on":""}" data-act="evm" data-i="${i}" role="tab" aria-selected="${i===cur}">${esc(x.name)}</button>`).join("")}</div>
   ${m?`<div class="muted" style="margin-bottom:8px">${esc(m.definition||"")}</div>`:""}
-  ${ps?`<div class="pestle">${PESTLE.map(([k,l,lab])=>`<div class="pc"><div class="k"><b>${l}</b><span>${lab}</span></div>${(ps[k]||[]).length?`<ul>${ps[k].map(x=>`<li>${inl(x.point,opt)} ${(x.facts||[]).map(f=>factLink(f,facts)).join(" ")}</li>`).join("")}</ul>`:`<div class="muted" style="font-size:13px">No sourced finding.</div>`}</div>`).join("")}</div>`:""}
-  ${(p.scorecard||[]).length?`<h4>Screening scorecard (Counsel judgment from the register, 1–5)</h4><div class="scroll-x panel" style="padding:0"><table><thead><tr><th>Market</th>${CRIT.map(c=>`<th style="text-align:center">${c[1]}</th>`).join("")}<th>Basis</th></tr></thead><tbody>
-    ${p.scorecard.map(r=>`<tr><td><b>${esc(r.market)}</b></td>${CRIT.map(c=>`<td class="n"><span class="sc" style="--v:${+r[c[0]]||0}">${esc(r[c[0]]??"–")}</span></td>`).join("")}<td style="min-width:240px;font-size:12.5px">${inl(r.basis||"",opt)}</td></tr>`).join("")}</tbody></table></div>`:""}
-  ${(p.gaps||[]).length?`<h4>Gaps: no reliable public data found</h4>${p.gaps.map(g=>`<div class="gap"><b>${esc(g.market||"All")}:</b> ${esc(g.question)} <span class="muted">${esc(g.note||"")}</span></div>`).join("")}`:""}
-  <details style="margin-top:12px"><summary>Evidence register (${(p.facts||[]).length})</summary><div class="scroll-x panel" style="padding:0"><table class="reg"><thead><tr><th>ID</th><th>Fact</th><th>Market · PESTLE</th><th>Source</th></tr></thead><tbody>
-    ${(p.facts||[]).map(f=>`<tr id="fact-${esc(f.id)}"><td>${esc(f.id)}</td><td style="font-family:var(--f-read);font-size:14px">${esc(f.claim)}</td><td style="font-size:12px">${esc(f.market||"all")}<br><span class="muted">${esc(f.pestle||"")}</span></td><td class="src"><a href="${esc(f.url)}" target="_blank" rel="noopener">${esc(f.source||f.url)}</a><br>${esc(f.published||"")}</td></tr>`).join("")}</tbody></table></div></details>
+  ${pestleGrid(ps,opt,facts)}
+  ${evidenceTail(p,opt)}
   </div>`;
 }
 function turnHTML(t, s, facts, live){
@@ -1766,6 +1791,47 @@ async function applyImport(overwrite){
   state.notice=`Imported: ${nd} new director(s), ${od} updated; ${nm} new material(s), ${om} replaced.`; render();
 }
 
+/* ───────────────────────── Print and report ───────────────────────── */
+/* Printing renders every market's evidence, opens every <details> and forces the light theme, then restores the view. */
+let PRINT_RESTORE=null;
+function preparePrint(){
+  if(PRINT_RESTORE) return;
+  const root=document.documentElement, theme=root.getAttribute("data-theme"), s=curS();
+  const ev=document.getElementById("sv-evidence"); if(s&&ev&&state.pack){ ev.innerHTML=evidenceHTML(s,true); ev._h=null; }
+  const closed=[...document.querySelectorAll("#main details:not([open])")]; closed.forEach(d=>d.open=true);
+  root.setAttribute("data-theme","light");
+  PRINT_RESTORE=()=>{ closed.forEach(d=>d.open=false); theme==null?root.removeAttribute("data-theme"):root.setAttribute("data-theme",theme); PRINT_RESTORE=null; render(); };
+}
+window.addEventListener("beforeprint", preparePrint);
+window.addEventListener("afterprint", ()=>PRINT_RESTORE&&PRINT_RESTORE());
+function printSession(){
+  preparePrint();
+  try{ window.print(); }catch(_){ PRINT_RESTORE&&PRINT_RESTORE(); showNotice("Printing isn't available in this view. Use Download report, open the file, and print it."); }
+}
+function reportHTML(s){
+  const css=[...document.querySelectorAll("style")].map(x=>x.textContent).find(t=>t.includes("--f-display"))||"";
+  const body=[`<div class="eyebrow">Minutes of the board · ${esc(fmtDate(s.createdAt))} · ${esc(s.depth==="deep"?"Deep":s.depth==="quick"?"Quick":"Standard")} session</div><h1>${esc(s.title)}</h1><p class="lede">${esc(s.question)}</p>
+    <div class="muted">${[s.company,s.sector,s.geography].filter(Boolean).map(esc).join(" · ")}${s.growthArea?` · Growth area: <b>${esc(s.growthArea)}</b>`:""}</div>`,
+    `<div class="sec">${rosterHTML(s)}</div>`, votesHTML(s), synthHTML(s), transcriptHTML(s), evidenceHTML(s,true)].join("\n").replace(/<details(?![^>]*\bopen\b)/g,"<details open");
+  return `<!doctype html><html lang="en" data-theme="light"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1">
+<title>${esc(s.title)} · board report</title>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Archivo:wdth,wght@62..125,400..800&family=Newsreader:opsz,wght@6..72,400;6..72,500;6..72,600&family=JetBrains+Mono:wght@400;500&display=swap">
+<style>${css}
+body{margin:0} .main{margin:0 auto} .btn,.mkt-chips{display:none!important}</style></head>
+<body><main class="main">${body}
+<p class="muted" style="margin-top:32px;font-size:12px">Generated by the Strategy Boardroom on ${esc(new Date().toLocaleString())}. Print this page or save it as PDF from your browser.</p></main></body></html>`;
+}
+async function downloadReport(){
+  const s=curS(); if(!s) return;
+  const text=reportHTML(s), filename=(String(s.title||"session").toLowerCase().replace(/[^a-z0-9]+/g,"-").replace(/^-|-$/g,"")||"session")+"-board-report.html";
+  const dl=await use("downloads");
+  if(dl){ try{ await dl.save({filename,data:text}); state.notice="Report saved. Open it in your browser and print or save as PDF."; }
+    catch(e){ state.notice = e?.code==="declined" ? "Download cancelled." : `Couldn't save the report (${e?.code||"error"}).`; } }
+  else { try{ const a=document.createElement("a"); a.href=URL.createObjectURL(new Blob([text],{type:"text/html"})); a.download=filename; document.body.appendChild(a); a.click(); a.remove(); state.notice="Report downloaded. Open it and print or save as PDF."; }
+    catch(_){ state.notice="Downloads aren't available in this view."; } }
+  render();
+}
+
 /* ───────────────────────── Events ───────────────────────── */
 document.addEventListener("change",async e=>{
   if(e.target.name==="sseat"){ const s=curS(); if(!s||s.plan) return; const box=e.target.closest(".seats");
@@ -1808,6 +1874,8 @@ document.addEventListener("click",async e=>{
     case "dir-reset": { if(state.armed!=="dir-reset"){ state.armed="dir-reset"; main_rerender_dir(); break; } state.armed=null; const id=state.dirId; const o=state.dirs[id];
       if(o){ const keep={}; ["archived","active"].forEach(k=>{ if(o[k]!=null) keep[k]=o[k]; }); await Store.put("directors",id,{builtIn:true,...keep}); } state.dirColor=null; main_rerender_dir(true); break; }
     case "att-upload": await uploadFiles(); break;
+    case "print": printSession(); break;
+    case "report": await downloadReport(); break;
     case "board-export": state.notice="Preparing the export…"; render(); await exportBoard(); break;
     case "board-import": document.getElementById("board-file")?.click(); break;
     case "import-all": await applyImport(true); break;
