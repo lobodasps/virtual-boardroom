@@ -65,6 +65,8 @@ All seven are composite archetypes, not real people. Edit them or add your own.
 - `scripts/score.py` does all the verdict arithmetic, so the model never computes the scores itself.
 - Research sub-agents report only facts from pages they opened, and they log what they could not find as gaps instead of estimating. Their limits (facts per market, pages opened, turns, source age, two-source swing facts, register size) are in `spec/rules.json` → `research`, and the browser app's research request uses the same instructions.
 
+For how a session works end to end (roles, stages, evidence rules, the verdict arithmetic, data budgets, cards and search), see [doc/specifications.md](doc/specifications.md).
+
 ## Two front ends, one spec
 
 This repo ships the same board in two forms: the Claude Code plugin (`agents/`, `skills/`, `scripts/`, `templates/`) and a single-file browser app, `app/strategy-boardroom.html`, which runs as a Claude artifact. Both are built from `spec/`:

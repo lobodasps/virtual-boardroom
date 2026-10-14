@@ -1837,12 +1837,12 @@ const GUIDE_STEPS = [
   {lane:0,t:"Describe the company and decision",d:"Company, sector, geography, question"},
   {lane:1,t:"Counsel proposes the analysis",d:"3–5 markets, data to pull, board calibration",in:"submit"},
   {lane:0,t:"Edit and approve the plan",d:"Drop, rename or add markets",in:"review",loop:{to:1,label:"regenerate"}},
-  {lane:0,t:"Copy the research request",d:"One line with the session ID"},
+  {lane:0,t:"Copy the research request",d:"Markets, questions and research limits"},
   {lane:2,t:"Sourced web research",d:"Cited facts, PESTLE, scorecard, gaps",in:"paste into a Claude chat"},
   {lane:1,t:"Evidence pack appears",d:"Register, PESTLE, scorecard, gaps",in:"writes evidence"},
   {lane:0,t:"Convene the board",d:"Run to the end, or one stage at a time",in:"review evidence"},
   {lane:1,t:"Debate",d:"Brief, sealed openings, cross-exam, rebuttals",in:"convene"},
-  {lane:1,t:"Sealed vote and synthesis",d:"7 votes, then Counsel's record of decision"},
+  {lane:1,t:"Sealed vote and verdict",d:"Weighted verdict and record of decision"},
   {lane:0,t:"Review the decision",d:"Dissent, assumptions, risks, paths forward",in:"record of decision",loop:{to:7,label:"add a round or regenerate"}},
   {lane:0,t:"Compare sessions",d:"Choices and votes side by side"}
 ];
@@ -1895,8 +1895,9 @@ function drawGuide(main){
       <li><b>Sector and geography:</b> they decide how the Counsel calibrates each director and where research looks.</li>
       <li><b>Assumptions:</b> write down what you believe but haven't proven. The board tests these first.</li></ul></div>
     <div class="panel"><h4 style="margin-top:0">What to expect</h4><ul class="body" style="font-size:15px;padding-left:18px;margin:0">
-      <li><b>Research step:</b> paste one line into a Claude chat. It takes several minutes and returns facts with source links.</li>
-      <li><b>Debate:</b> about 29 Claude calls for a standard session (45 for deep), drawn from your own Claude usage. You can stop at any time; finished turns are kept.</li>
+      <li><b>Research step:</b> copy the full research request into a Claude chat with web search. It carries the approved markets and the research limits, takes several minutes, and returns facts with source links.</li>
+      <li><b>Debate:</b> the estimate under the seat picker shows the Claude calls and tokens before you convene, drawn from your own Claude usage. You can stop at any time; finished turns are kept.</li>
+      <li><b>Verdict:</b> set by the directors' weighted scores, not by a show of hands. A director who flags ruin, a broken red line or a hard-to-reverse bet can cap it.</li>
       <li><b>Citation discipline:</b> figures a director states without an evidence citation are highlighted.</li></ul></div>
   </div>
   <div class="sec row"><button class="btn primary" data-act="new">Start a new dilemma</button></div>`);
