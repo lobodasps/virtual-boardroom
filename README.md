@@ -27,7 +27,7 @@ Python 3 is needed for the HTML report. Optional converters, used when you attac
 | Command | What it does |
 |---|---|
 | `/virtual-boardroom:setup` | Creates `boardroom/` in your project with the seven default directors |
-| `/virtual-boardroom:director` | Lists, adds, edits, seats and removes directors, and attaches data to a director |
+| `/virtual-boardroom:director` | Lists, adds, edits, seats and removes directors, attaches and pins data, and exports or imports a `.board.json` to move the board to or from the browser app |
 | `/virtual-boardroom:convene` | Puts a decision to the board: intake, plan approval, research, debate, vote, report |
 | `/virtual-boardroom:ask` | Consults one director: a single answer from its persona and data, optionally grounded in a session |
 | `/virtual-boardroom:compare` | Compares decisions across sessions |

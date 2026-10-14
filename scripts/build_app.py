@@ -4,7 +4,7 @@
 Usage: build_app.py [--check]
 
 Blocks (the app's code reads board, rules and prompts only from these):
-  /* SPEC:BOARD:BEGIN */ ... /* SPEC:BOARD:END */            const BOARD = [...]
+  /* SPEC:BOARD:BEGIN */ ... /* SPEC:BOARD:END */            const BOARD = [...], const COLOR_HEX = {...}
   /* SPEC:RULES:BEGIN */ ... /* SPEC:RULES:END */            const RULES = {...}
   /* SPEC:PROMPTS:BEGIN */ ... /* SPEC:PROMPTS:END */        const PROMPTS = {...}
   /* SPEC:COLORS:BEGIN */ ... /* SPEC:COLORS:END */          light --c-* CSS variables
@@ -23,7 +23,7 @@ def js(v):
     return s.replace("</", "<\\/").replace("\u2028", "\\u2028").replace("\u2029", "\\u2029")
 
 
-def board_js(directors):
+def board_js(directors, rules):
     rows = []
     for d in directors:
         o = {"id": d["id"], "title": d["title"], "mono": d["mono"], "color": "--c-" + d["id"]}
@@ -34,7 +34,9 @@ def board_js(directors):
                      redLine=d["redLine"], thresholds=d["thresholds"], blindSpots=d["blindSpots"], tone=d["tone"],
                      opponents=d["opponents"], active=d["active"])
         rows.append("  " + js(o))
-    return "const BOARD = [\n" + ",\n".join(rows) + "\n];"
+    hexes = {"--c-" + d["id"]: d["color"] for d in directors}
+    hexes.update({"--c-" + c["name"]: {"light": c["light"], "dark": c["dark"]} for c in rules.get("custom_palette", [])})
+    return "const BOARD = [\n" + ",\n".join(rows) + "\n];\nconst COLOR_HEX = " + js(hexes) + ";"
 
 
 def obj_js(name, obj):
@@ -49,7 +51,7 @@ def colors_css(directors, rules, which):
 
 def blocks():
     rules = spec.load_rules(); directors = spec.load_directors(); prompts, _ = spec.load_prompts(rules)
-    return {"BOARD": board_js(directors), "RULES": obj_js("RULES", rules), "PROMPTS": obj_js("PROMPTS", dict(sorted(prompts.items()))),
+    return {"BOARD": board_js(directors, rules), "RULES": obj_js("RULES", rules), "PROMPTS": obj_js("PROMPTS", dict(sorted(prompts.items()))),
             "COLORS": colors_css(directors, rules, "light"), "COLORS-DARK": colors_css(directors, rules, "dark")}
 
 

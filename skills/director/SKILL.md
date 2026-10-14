@@ -1,7 +1,7 @@
 ---
 name: director
 description: Manage Virtual Boardroom directors. List the board, add a new director (optionally drafted from a one-line description), edit a persona, choose who is seated by default, remove a director, or attach supporting data files to a director. Use when the user wants to customize board members or give a director data.
-argument-hint: "[list | add <description> | edit <director> | attach <director> <files> | pin <director> <tag> | seat | remove <director>]"
+argument-hint: "[list | add <description> | edit <director> | attach <director> <files> | pin <director> <tag> | seat | remove <director> | export [file] | import <file>]"
 ---
 
 # Manage the board's directors
@@ -67,3 +67,21 @@ Ask whether to pin it: pinned items are always read in full, up to `OWN_BUDGET` 
 
 ## pin
 Pin or unpin an item by tag: `materials.py pin boardroom/directors/<folder> <TAG>` (add `--off` to unpin). Show the new plan afterwards.
+
+## export
+Write every director (including removed ones), its persona and its text materials to a `<name>.board.json` file that the browser app can import (Board members → Import board):
+
+```
+python3 "${CLAUDE_PLUGIN_ROOT}/scripts/board_io.py" export boardroom [exports/<name>.board.json]
+```
+
+The file contains the directors' private data and `company.md`. Tell the user where it is, and that `exports/` and `*.board.json` should stay out of git.
+
+## import
+Bring in a `<name>.board.json` exported from the app (Board members → Export board) or from another workspace. Run it without a flag first:
+
+```
+python3 "${CLAUDE_PLUGIN_ROOT}/scripts/board_io.py" import boardroom <file>
+```
+
+It matches directors by `id`, keeps every material's tag, and never deletes anything that isn't in the file. If it exits with status 2, some directors or tags already exist: show the user the list it printed and ask whether to overwrite them or add only the new items, then rerun with `--overwrite` or `--new-only`. Directors whose monogram is already taken are skipped; say so.

@@ -169,3 +169,23 @@ def plugin_text(prompts, defaults, key):
 def canon(did, rules=None):
     rules = rules or load_rules()
     return (rules.get("legacy_ids") or {}).get(did, did)
+
+
+def _yaml(v):
+    if isinstance(v, bool): return "true" if v else "false"
+    if isinstance(v, list): return "[" + ", ".join(_yaml(x) for x in v) + "]"
+    if isinstance(v, dict): return "{" + ", ".join(f"{k}: {json.dumps(x)}" for k, x in v.items()) + "}"
+    s = str(v)
+    return json.dumps(s) if (not s or re.search(r"[:#\[\]{},\"']", s) or s.strip() != s) else s
+
+
+def render_persona(p):
+    """Write a persona (app field names, as from parse_persona or a board export) back to persona.md text."""
+    fm = [("id", p["id"]), ("title", p.get("title", "")), ("mono", p.get("mono", ""))]
+    if p.get("color"): fm.append(("color", p["color"]))
+    fm += [("seated_by_default", p.get("active", True) is not False), ("pestle", list(p.get("pestle") or [])), ("opponents", list(p.get("opponents") or []))]
+    presses = p.get("presses") or []
+    if isinstance(presses, str): presses = [x for x in presses.splitlines() if x.strip()]
+    sec = [("Lens", p.get("lens", "")), ("Mandate", p.get("mandate", "")), ("Always presses on", "\n".join("- " + re.sub(r"^[-*•]\s*", "", x).strip() for x in presses)),
+           ("Red line", p.get("redLine", "")), ("Thresholds", p.get("thresholds", "")), ("Blind spots", p.get("blindSpots", "")), ("Voice", p.get("tone", ""))]
+    return "---\n" + "".join(f"{k}: {_yaml(v)}\n" for k, v in fm) + "---\n" + "".join(f"\n## {k}\n{(v or '').strip()}\n" for k, v in sec)

@@ -282,6 +282,7 @@ const BOARD = [
   {"id":"warden","title":"Lean Operator / Profit Warden","mono":"PW","color":"--c-warden","pestle":"Social, Economic","lens":"Who exactly is going to deliver this, and what does it do to our overhead and cash?","mandate":"Guard unit economics and delivery capacity: utilization, margins, overhead, cash conversion and days sales outstanding, bench depth, hiring and retaining scarce licensed or skilled people, management span of control.","presses":"Names, hours, and the month the cash actually arrives.","redLine":"Adding overhead before revenue, or growth that outruns the people who must deliver it.","thresholds":"","blindSpots":"","tone":"Grounded, systematic, realistic about people, allergic to slideware.","opponents":["allocator","technologist"],"active":true},
   {"id":"counsel","title":"Strategy Counsel","mono":"SC","color":"--c-counsel","nonVoting":true,"lens":"Facts first, then the fight. I don't vote."}
 ];
+const COLOR_HEX = {"--c-titan":{"light":"#2F5D9E","dark":"#7FA6E0"},"--c-developer":{"light":"#946311","dark":"#D9A84C"},"--c-hawk":{"light":"#A23B3B","dark":"#E07A7A"},"--c-technologist":{"light":"#6A4CA3","dark":"#A98EE0"},"--c-allocator":{"light":"#2E7D4F","dark":"#6CC08E"},"--c-maverick":{"light":"#5B8A1F","dark":"#9CCB5E"},"--c-warden":{"light":"#7A5A44","dark":"#C29F86"},"--c-counsel":{"light":"#36424D","dark":"#9AA8B5"},"--c-x1":{"light":"#8A3B7A","dark":"#D58BC6"},"--c-x2":{"light":"#B05A1A","dark":"#E89A5C"},"--c-x3":{"light":"#1E7A8C","dark":"#6CC5D6"},"--c-x4":{"light":"#6B6B2A","dark":"#C2C27A"},"--c-x5":{"light":"#9C2F5E","dark":"#E07FA8"},"--c-x6":{"light":"#3E4FA3","dark":"#8F9CE6"}};
 /* SPEC:BOARD:END */
 /* SPEC:RULES:BEGIN */
 const RULES = {
@@ -1416,11 +1417,11 @@ async function deleteMaterial(dirId, a){
   if(a.parts>0){ for(let i=0;i<a.parts;i++) await Store.del(`directors/${dirId}/data/${a.id}/parts`,"p"+i); }
   await Store.del(`directors/${dirId}/data`,a.id);
 }
-async function addAttachments(dirId, items){
-  const p=persona(dirId); if(!p) return; const mono=p.mono; let n=0;
+async function addAttachments(dirId, items, monoHint){
+  const mono=persona(dirId)?.mono||monoHint; if(!mono) return; let n=0;
   Object.keys(state.attIndex).forEach(t=>{ const m=t.match(/^([A-Z]{1,3})(\d+)$/); if(m&&m[1]===mono) n=Math.max(n,+m[2]); });
   for(const it of items){ n++; let t=String(it.text).replace(/\u0000/g,""); const truncated=t.length>MAX_ATT; if(truncated) t=t.slice(0,MAX_ATT);
-    const aid=newId("a"), meta={name:it.name,kind:it.kind,tag:mono+n,chars:t.length,truncated,shared:false,pinned:false,addedAt:Date.now()};
+    const aid=newId("a"), meta={name:it.name,kind:it.kind,tag:it.tag||mono+n,chars:t.length,truncated,shared:!!it.shared,pinned:!!it.pinned,asOf:it.asOf||"",addedAt:it.addedAt||Date.now()};
     if(t.length<=PART){ await Store.put(`directors/${dirId}/data`, aid, {...meta,text:t}); }
     else { const k=Math.ceil(t.length/PART); for(let i=0;i<k;i++) await Store.put(`directors/${dirId}/data/${aid}/parts`,"p"+i,{n:i,text:t.slice(i*PART,(i+1)*PART)});
       await Store.put(`directors/${dirId}/data`, aid, {...meta,text:t.slice(0,2000),parts:k}); } }
@@ -1484,7 +1485,8 @@ function drawBoard(main){
   setHTML(main,`<div class="eyebrow">Board members</div><h1>Your board</h1>
   <p class="lede">Add directors, change how each one thinks, and attach the data each one brings to the table. When you start a session you choose which directors take a seat.</p>
   ${state.notice?`<div class="notice">${esc(state.notice)}</div>`:""}
-  <div class="sec row"><button class="btn primary" data-act="dir-new" ${CAN_WRITE?"":"disabled"}>Add a director</button><span class="muted">${act.length} directors · ${act.filter(p=>p.active!==false).length} seated by default</span></div>
+  <div class="sec row"><button class="btn primary" data-act="dir-new" ${CAN_WRITE?"":"disabled"}>Add a director</button><button class="btn" data-act="board-export">Export board</button><button class="btn" data-act="board-import" ${CAN_WRITE?"":"disabled"}>Import board</button><input type="file" id="board-file" accept=".json,application/json" hidden><span class="muted">${act.length} directors · ${act.filter(p=>p.active!==false).length} seated by default</span></div>
+  ${importPanelHTML()}
   <div class="sec dgrid">${act.map(dirCard).join("")}
     <div class="dcard" style="--who:var(--c-counsel);background:var(--sunk)"><div class="row" style="flex-wrap:nowrap">${av("counsel")}<b>Strategy Counsel</b></div>
     <div class="ln">“${esc(COUNSEL.lens)}”</div><div class="muted" style="font-size:13px">Fixed and non-voting: scopes the analysis, briefs the board, challenges evidence and writes the synthesis. Kept neutral so it can't tilt the vote.</div></div></div>
@@ -1686,12 +1688,89 @@ function drawCompare(main){
   setHTML(main,html);
 }
 
+/* ───────────────────────── Board export / import (<name>.board.json, spec/schema.md) ───────────────────────── */
+const isoOf = t => t ? new Date(t).toISOString() : "";
+const timeOf = s => { const t=Date.parse(s||""); return Number.isFinite(t)?t:Date.now(); };
+function exportPersona(p){
+  return {id:p.id, title:p.title||"", mono:p.mono||"", color:COLOR_HEX[p.color]||null, lens:p.lens||"", mandate:p.mandate||"", presses:lines(p.presses),
+    redLine:p.redLine||"", thresholds:p.thresholds||"", blindSpots:p.blindSpots||"", tone:p.tone||"",
+    pestle:String(p.pestle||"").split(/\s*,\s*/).filter(Boolean), opponents:p.opponents||[], custom:!!p.custom, archived:!!p.archived, active:p.active!==false};
+}
+async function exportBoard(){
+  const all=rosterList(true), materials=[];
+  for(const p of all){ let l=[]; try{ l=await loadMaterials(p.id); }catch(_){}
+    l.forEach(a=>materials.push({director_id:p.id, tag:a.tag, name:a.name, kind:a.kind||"text", shared:!!a.shared, pinned:!!a.pinned, as_of:a.asOf||"", added_at:isoOf(a.addedAt), text:String(a.text||"")})); }
+  const latest=state.sessions.find(s=>s.context);
+  const text=JSON.stringify({version:1, exported_at:new Date().toISOString(), company_profile:latest?profileText(latest):"", directors:all.map(exportPersona), materials},null,2);
+  const filename=`strategy-boardroom-${new Date().toISOString().slice(0,10)}.board.json`;
+  const dl=await use("downloads");
+  if(dl){ try{ await dl.save({filename,data:text}); state.notice=`Exported ${all.length} directors and ${materials.length} materials.`; }
+    catch(e){ state.notice = e?.code==="declined" ? "Export cancelled." : `Couldn't save the export (${e?.code||"error"}).`; } }
+  else { try{ const a=document.createElement("a"); a.href=URL.createObjectURL(new Blob([text],{type:"application/json"})); a.download=filename; document.body.appendChild(a); a.click(); a.remove(); state.notice=`Exported ${all.length} directors and ${materials.length} materials.`; }
+    catch(_){ state.notice="Downloads aren't available in this view."; } }
+  render();
+}
+async function readImport(file){
+  let data; try{ data=JSON.parse(await file.text()); }catch(_){ showNotice("That file isn't valid JSON."); return; }
+  if(!data || !Array.isArray(data.directors)){ showNotice("That file isn't a board export (no directors list)."); return; }
+  const dirs=data.directors.filter(d=>d&&d.id&&d.title), mats=(data.materials||[]).filter(m=>m&&m.director_id&&m.tag);
+  const ids=new Set(dirs.map(d=>String(d.id))), known=id=>!!persona(id);
+  const clash=dirs.filter(d=>!known(d.id)).map(d=>({d,other:rosterList(true).find(p=>p.mono===d.mono&&p.id!==d.id)})).filter(x=>x.other||x.d.mono==="SC");
+  const matDirs=new Set(mats.map(m=>m.director_id));
+  for(const id of matDirs){ if(known(id)&&!state.atts[id]){ try{ state.atts[id]=await loadMaterials(id); }catch(_){ state.atts[id]=[]; } } }
+  const hasTag=(id,tag)=>(state.atts[id]||[]).some(a=>a.tag===tag);
+  state.importPlan={data, name:file.name, dirs, mats:mats.filter(m=>ids.has(m.director_id)||known(m.director_id)),
+    overDirs:dirs.filter(d=>known(d.id)), newDirs:dirs.filter(d=>!known(d.id)), skipDirs:clash.map(x=>x.d.id),
+    clashNote:clash.map(x=>`${x.d.title} (monogram ${x.d.mono} is taken${x.other?" by the "+x.other.title:""})`)};
+  const P=state.importPlan; P.mats=P.mats.filter(m=>!P.skipDirs.includes(m.director_id));
+  P.overMats=P.mats.filter(m=>known(m.director_id)&&hasTag(m.director_id,m.tag)); P.newMats=P.mats.filter(m=>!P.overMats.includes(m));
+  state.notice=""; render();
+}
+function importPanelHTML(){
+  const P=state.importPlan; if(!P) return "";
+  const t=l=>l.map(d=>esc(d.title)).join(", ");
+  return `<div class="sec panel"><h2>Import ${esc(P.name)}</h2>
+    <ul class="body" style="font-size:14.5px">
+      <li>${P.newDirs.filter(d=>!P.skipDirs.includes(d.id)).length} new director(s)${P.newDirs.length?": "+t(P.newDirs.filter(d=>!P.skipDirs.includes(d.id))):""}</li>
+      <li>${P.overDirs.length} director(s) already on your board${P.overDirs.length?": "+t(P.overDirs):""}. Their personas will be replaced only if you choose to overwrite.</li>
+      <li>${P.newMats.length} new material(s); ${P.overMats.length} material(s) whose tag already exists${P.overMats.length?" ("+P.overMats.map(m=>esc(m.tag)).join(", ")+")":""}.</li>
+      ${P.skipDirs.length?`<li class="muted">Skipped: ${P.clashNote.map(esc).join("; ")}.</li>`:""}
+    </ul>
+    <p class="muted" style="font-size:13px">Nothing on your board is deleted. Tags are kept as they are in the file.</p>
+    <div class="row">${P.overDirs.length||P.overMats.length?`<button class="btn primary" data-act="import-all">Import and overwrite</button><button class="btn" data-act="import-new">Import new items only</button>`:`<button class="btn primary" data-act="import-new">Import</button>`}<button class="btn" data-act="import-cancel">Cancel</button></div></div>`;
+}
+async function applyImport(overwrite){
+  const P=state.importPlan; if(!P) return; state.importPlan=null;
+  const colorFor=(d,cur)=>{ const hit=Object.entries(COLOR_HEX).find(([,h])=>d.color&&h.light&&String(h.light).toLowerCase()===String(d.color.light||"").toLowerCase()); return hit?hit[0]:(cur||nextColor()); };
+  let nd=0, od=0, nm=0, om=0;
+  for(const d of P.dirs){
+    if(P.skipDirs.includes(d.id)) continue;
+    const cur=persona(d.id); if(cur && !overwrite) continue;
+    const fields={title:d.title, mono:String(d.mono||initials(d.title)).toUpperCase().slice(0,3), color:colorFor(d,cur?.color), lens:d.lens||"", mandate:d.mandate||"",
+      presses:lines(d.presses).join("\n"), redLine:d.redLine||"", thresholds:d.thresholds||"", blindSpots:d.blindSpots||"", tone:d.tone||"",
+      pestle:(Array.isArray(d.pestle)?d.pestle:String(d.pestle||"").split(/\s*,\s*/)).filter(Boolean).join(", "), opponents:(d.opponents||[]).map(String), archived:!!d.archived, active:d.active!==false};
+    if(DEFAULT_IDS.includes(d.id)) await saveDir(d.id, fields);
+    else await Store.put("directors", d.id, {...(state.dirs[d.id]||{}), ...fields, custom:true, createdAt:state.dirs[d.id]?.createdAt||Date.now(), updatedAt:Date.now()});
+    cur?od++:nd++;
+  }
+  const byDir={};
+  for(const m of P.mats){
+    if(!persona(m.director_id) && !P.dirs.some(d=>d.id===m.director_id)) continue;
+    const exists=(state.atts[m.director_id]||[]).find(a=>a.tag===m.tag);
+    if(exists){ if(!overwrite) continue; await deleteMaterial(m.director_id, exists); om++; } else nm++;
+    (byDir[m.director_id]=byDir[m.director_id]||[]).push({name:m.name||m.tag, kind:m.kind==="file"?"file":"text", text:String(m.text||""), tag:m.tag, shared:!!m.shared, pinned:!!m.pinned, asOf:m.as_of||"", addedAt:timeOf(m.added_at)});
+  }
+  for(const [id,items] of Object.entries(byDir)) await addAttachments(id, items, P.dirs.find(d=>d.id===id)?.mono);
+  state.notice=`Imported: ${nd} new director(s), ${od} updated; ${nm} new material(s), ${om} replaced.`; render();
+}
+
 /* ───────────────────────── Events ───────────────────────── */
 document.addEventListener("change",async e=>{
   if(e.target.name==="sseat"){ const s=curS(); if(!s||s.plan) return; const box=e.target.closest(".seats");
     const ids=[...box.querySelectorAll('input[name=sseat]:checked')].map(x=>x.value);
     if(ids.length<MIN_SEATS||ids.length>MAX_SEATS){ e.target.checked=!e.target.checked; showNotice(`Seat between ${MIN_SEATS} and ${MAX_SEATS} directors.`); return; }
     const n=clone(s); n.seats=ids; n.updatedAt=Date.now(); state.notice=""; await Store.putSession(s.id,n); return; }
+  if(e.target.id==="board-file" && e.target.files?.[0]){ const f=e.target.files[0]; e.target.value=""; await readImport(f); return; }
   if(e.target.id==="f-copy" && e.target.value){ const src=getS(e.target.value); if(src) fillIntake({company:src.company,sector:src.sector,geography:src.geography,context:src.context,constraints:src.constraints}); }
 });
 function fillIntake(o){
@@ -1727,6 +1806,11 @@ document.addEventListener("click",async e=>{
     case "dir-reset": { if(state.armed!=="dir-reset"){ state.armed="dir-reset"; main_rerender_dir(); break; } state.armed=null; const id=state.dirId; const o=state.dirs[id];
       if(o){ const keep={}; ["archived","active"].forEach(k=>{ if(o[k]!=null) keep[k]=o[k]; }); await Store.put("directors",id,{builtIn:true,...keep}); } state.dirColor=null; main_rerender_dir(true); break; }
     case "att-upload": await uploadFiles(); break;
+    case "board-export": state.notice="Preparing the export…"; render(); await exportBoard(); break;
+    case "board-import": document.getElementById("board-file")?.click(); break;
+    case "import-all": await applyImport(true); break;
+    case "import-new": await applyImport(false); break;
+    case "import-cancel": state.importPlan=null; render(); break;
     case "att-paste": await pasteAttachment(); break;
     case "att-pin": { const a=(state.atts[state.dirId]||[]).find(x=>x.id===el.dataset.id); if(a) await Store.put(`directors/${state.dirId}/data`,a.id,{...a,pinned:!a.pinned}); break; }
     case "att-share": { const a=(state.atts[state.dirId]||[]).find(x=>x.id===el.dataset.id); if(a) await Store.put(`directors/${state.dirId}/data`,a.id,{...a,shared:!a.shared}); break; }
