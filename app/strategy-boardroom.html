@@ -1197,9 +1197,10 @@ function drawSession(main){
   if(st==="interrupted"&&!s.error) notes.push(`<div class="notice">This session stopped mid-stage when the page closed. Completed turns are saved; continue to finish it.</div>`);
   setHTML(main.querySelector("#sv-note"),notes.join(""));
   setHTML(main.querySelector("#sv-roster"),rosterHTML(s));
-  setHTML(main.querySelector("#sv-seats"), (!s.plan && !running && CAN_WRITE) ? `<details class="sec panel"><summary>Seated directors: ${members(s).length} · change before convening</summary>
-    <div class="seats" style="margin-top:8px">${seatChips("sseat", seatIds(s))}</div>
-    <small class="muted">${MIN_SEATS}–${MAX_SEATS} directors. Each adds about 4 Claude calls. <a href="#board" data-act="board">Manage board members</a></small></details>` : "");
+  setHTML(main.querySelector("#sv-seats"), (!s.plan && !running && CAN_WRITE) ? `<div class="sec panel"><h2 style="margin-bottom:4px">Who sits on the board: ${members(s).length} directors</h2>
+    <div class="muted" style="font-size:13px">Tick or untick to change the seats. Changes save at once and lock when the board convenes.</div>
+    <div class="seats" style="margin-top:10px">${seatChips("sseat", seatIds(s))}</div>
+    <small class="muted">${MIN_SEATS}–${MAX_SEATS} directors. Each adds about 4 Claude calls. <a href="#board" data-act="board">Manage board members</a> (you can come back here)</small></div>` : "");
   setHTML(main.querySelector("#sv-plan"),planHTML(s,st));
   setHTML(main.querySelector("#sv-research"),researchHTML(s,st));
   setHTML(main.querySelector("#sv-evidence"),evidenceHTML(s));
@@ -1534,9 +1535,10 @@ function dirCard(p){
     <div class="tf" style="margin:0"><span class="tag">${p.builtIn?"Built-in":"Custom"}</span><span class="tag">${p.active===false?"Not seated by default":"Seated by default"}</span><span class="tag">${n} data source${n===1?"":"s"}</span>${p.builtIn&&state.dirs[p.id]&&PFIELDS.some(k=>state.dirs[p.id][k]!=null)?`<span class="tag">customized</span>`:""}</div>
     <div class="acts">${p.archived?`<button class="btn sm" data-act="dir-restore" data-id="${esc(p.id)}">Restore to board</button>`:`<button class="btn sm" data-act="dir-edit" data-id="${esc(p.id)}">Edit persona and data</button><button class="btn sm" data-act="consult" data-id="${esc(p.id)}">Ask this director</button><button class="btn sm" data-act="dir-active" data-id="${esc(p.id)}">${p.active===false?"Seat by default":"Don't seat by default"}</button>`}</div></div>`;
 }
+function backLink(){ const b=state.backSid&&getS(state.backSid); return b?`<button class="btn sm" data-act="back-session" style="margin-bottom:10px">← Back to “${esc(b.title||"session")}”</button>`:""; }
 function drawBoard(main){
   const all=rosterList(true), act=all.filter(p=>!p.archived), gone=all.filter(p=>p.archived);
-  setHTML(main,`<div class="eyebrow">Board members</div><h1>Your board</h1>
+  setHTML(main,`${backLink()}<div class="eyebrow">Board members</div><h1>Your board</h1>
   <p class="lede">Add directors, change how each one thinks, and attach the data each one brings to the table. When you start a session you choose which directors take a seat.</p>
   ${state.notice?`<div class="notice">${esc(state.notice)}</div>`:""}
   <div class="sec row"><button class="btn primary" data-act="dir-new" ${CAN_WRITE?"":"disabled"}>Add a director</button><button class="btn" data-act="board-export">Export board</button><button class="btn" data-act="board-import" ${CAN_WRITE?"":"disabled"}>Import board</button><input type="file" id="board-file" accept=".json,application/json" hidden><span class="muted">${act.length} directors · ${act.filter(p=>p.active!==false).length} seated by default</span></div>
@@ -1591,7 +1593,7 @@ function drawConsult(main){
   registerPeople([p]);
   if(!main.querySelector("#consult-form")){
     const ss=state.sessions.filter(x=>x.approvedPlan||x.plan);
-    main.innerHTML=`<div class="eyebrow">Consult · one director, one answer</div><h1>Ask the ${esc(p.title)}</h1>
+    main.innerHTML=`${backLink()}<div class="eyebrow">Consult · one director, one answer</div><h1>Ask the ${esc(p.title)}</h1>
     <p class="lede">A quick read from a single director, using its persona and its data. Optionally ground it in a past session's dilemma and evidence. One Claude call, more if the director searches large data.</p>
     <div id="consult-note"></div>
     <div id="consult-form" class="sec panel form">
@@ -1634,7 +1636,7 @@ function drawDirector(main){
   const id=state.dirId, isNew=id==="new", p=isNew?{active:true}:persona(id);
   if(!p){ setHTML(main,`<div class="empty-note">This director no longer exists.</div>`); return; }
   if(!main.querySelector("#dir-form")){
-    main.innerHTML=`<div class="eyebrow">Board members · ${isNew?"New director":p.builtIn?"Built-in director":"Custom director"}</div>
+    main.innerHTML=`${backLink()}<div class="eyebrow">Board members · ${isNew?"New director":p.builtIn?"Built-in director":"Custom director"}</div>
     <h1>${isNew?"Add a director":esc(p.title)}</h1><div id="dir-note"></div>${dirFormHTML(p,isNew)}<div id="dir-actions" class="sec"></div><div id="dir-data"></div>`;
   }
   setHTML(main.querySelector("#dir-note"), state.notice?`<div class="notice">${esc(state.notice)}</div>`:"");
@@ -1878,11 +1880,12 @@ document.addEventListener("click",async e=>{
   const act=el.dataset.act, s=curS();
   if(!["regen","delete","dir-delete","dir-reset","att-del"].includes(act)) state.armed=null;
   switch(act){
-    case "new": state.view="intake"; state.sid=null; try{history.replaceState(null,"","#new");}catch(_){} render(); break;
+    case "new": state.backSid=null; state.view="intake"; state.sid=null; try{history.replaceState(null,"","#new");}catch(_){} render(); break;
     case "compare": state.view="compare"; state.sid=null; render(); break;
     case "guide": e.preventDefault(); state.view="guide"; state.sid=null; try{history.replaceState(null,"","#guide");}catch(_){} render(); break;
     case "example": fillIntake({...EXAMPLE}); break;
-    case "board": e.preventDefault(); state.view="board"; state.sid=null; state.dirId=null; state.notice=""; render(); break;
+    case "board": e.preventDefault(); if(state.view==="session"&&state.sid) state.backSid=state.sid; state.view="board"; state.sid=null; state.dirId=null; state.notice=""; render(); break;
+    case "back-session": { const id=state.backSid; state.backSid=null; if(id&&getS(id)) openSession(id); else { state.view="board"; render(); } break; }
     case "dir-new": state.view="director"; state.sid=null; state.dirId="new"; state.dirColor=nextColor(); state.notice=""; render(); break;
     case "dir-edit": state.view="director"; state.sid=null; state.dirId=el.dataset.id; state.dirColor=persona(el.dataset.id)?.color; state.notice=""; render(); break;
     case "consult": { const id=el.dataset.id; state.view="consult"; state.sid=null; state.dirId=id; state.notice="";
@@ -1912,7 +1915,7 @@ document.addEventListener("click",async e=>{
     case "att-pin": { const a=(state.atts[state.dirId]||[]).find(x=>x.id===el.dataset.id); if(a) await Store.put(`directors/${state.dirId}/data`,a.id,{...a,pinned:!a.pinned}); break; }
     case "att-share": { const a=(state.atts[state.dirId]||[]).find(x=>x.id===el.dataset.id); if(a) await Store.put(`directors/${state.dirId}/data`,a.id,{...a,shared:!a.shared}); break; }
     case "att-del": { const k="att-del:"+el.dataset.id; if(state.armed!==k){ state.armed=k; render(); break; } state.armed=null; const a=(state.atts[state.dirId]||[]).find(x=>x.id===el.dataset.id); if(a) await deleteMaterial(state.dirId,a); break; }
-    case "open": openSession(el.dataset.id); break;
+    case "open": state.backSid=null; openSession(el.dataset.id); break;
     case "cmptoggle": { const s2=getS(el.dataset.id); if(!s2?.outcome) break; state.cmpSel.has(s2.id)?state.cmpSel.delete(s2.id):state.cmpSel.add(s2.id); render(); break; }
     case "savedraft": createSession(false); break;
     case "edit": if(s){ state.draft={...s,markets:(s.markets||[]).join("\n")}; await Store.delSession(s.id,[]); state.view="intake"; state.sid=null; render(); } break;
