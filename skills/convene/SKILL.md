@@ -17,7 +17,7 @@ Sub-agents (launch with the Agent tool):
 
 If a namespaced `subagent_type` is rejected, use `general-purpose`, and paste the matching agent file's instructions from `${CLAUDE_PLUGIN_ROOT}/agents/` at the top of the prompt.
 
-Keep a task list with one item per stage so the user can follow progress. Tell the user up front what it costs: a standard session runs about 30 sub-agent turns with 7 directors (about 4 per director plus research and Counsel), and deep runs about 45.
+Keep a task list with one item per stage so the user can follow progress. Once seats and depth are chosen, tell the user what it costs: run `python3 "${CLAUDE_PLUGIN_ROOT}/scripts/estimate.py" --boardroom boardroom --seats <ids> --depth <depth> [--ratify]` and quote its line. It uses the same formula as the browser app (`rules.json` → `usage`). Research adds one researcher per market plus one.
 
 **Director ids.** A director's id is the `id` in its `persona.md` frontmatter (for the defaults: `titan`, `developer`, `hawk`, `technologist`, `allocator`, `maverick`, `warden`), not its folder name. Use that id in `session.json` seats, transcript headers, `votes.json`, `ratify.json` and calibration weights. Workspaces created before v1.2 may still say `id: risk-hawk` and so on; `rules.json` → `legacy_ids` maps those, and the scripts accept either.
 

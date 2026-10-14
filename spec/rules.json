@@ -3,7 +3,7 @@
   "MIN_SEATS": 3,
   "MAX_SEATS": 12,
   "QUICK_SEATS": 4,
-  "OWN_BUDGET": 30000,
+  "OWN_BUDGET": 60000,
   "SHARED_BUDGET": 40000,
   "MAX_ATT": 3000000,
   "PART": 120000,
@@ -76,6 +76,19 @@
   },
 
   "search": {"max_added_terms": 12},
+
+  "usage": {
+    "about": "Estimate of Claude usage per session (estimateUsage in the app, spec.estimate_usage in the plugin). Directors who search large data make a few extra calls on top.",
+    "chars_per_token": 4,
+    "frame_chars": 4500,
+    "context_chars": 2500,
+    "default_evidence_chars": 15000,
+    "chars_per_word": 6,
+    "output_tokens_per_word": 1.4,
+    "json_output_tokens": {"plan": 2500, "vote": 700, "ratify": 200, "synthesis": 2500},
+    "counsel_stages": ["brief", "cruxes", "draft", "synthesis"],
+    "no_transcript_stages": ["vote", "ratify", "draft", "synthesis"]
+  },
 
   "research": {
     "facts_per_researcher": {"min": 10, "max": 18},

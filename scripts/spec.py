@@ -51,6 +51,44 @@ def grep_pattern(terms):
     return "|".join(_META.sub(lambda m: "\\" + m.group(0), t) for t in sorted(dict.fromkeys(terms), key=lambda x: (-len(x), x)))
 
 
+def plan_for(depth, ratify, rounds=None, rules=None):
+    """The session's stage list; mirrors buildPlan()/roundsFor() in the app."""
+    R = rules or load_rules(); stages = R["stages"].get(depth) or R["stages"]["standard"]
+    rnd = lambda k: re.fullmatch(r"(challenge|response)\d+", k)
+    rounds = rounds if rounds is not None else len([k for k in stages if re.fullmatch(r"challenge\d+", k)])
+    base = [k for k in stages if not rnd(k)]; out = []
+    for k in base:
+        if k == "redteam" or (k == "vote" and "redteam" not in base):
+            for i in range(1, rounds + 1): out += [f"challenge{i}", f"response{i}"]
+        if ratify and k == R["ratify"]["insert_before"]: out += R["ratify"]["stages"]
+        out.append(k)
+    return out
+
+
+def estimate_usage(inp, R):
+    """Mirror of estimateUsage() in the app's SPEC:USAGE block."""
+    U, W = R["usage"], R["words"]; plan = inp.get("plan") or []; own = inp.get("own") or []; n = len(own)
+    shared = inp.get("shared") or 0; evidence = inp.get("evidence"); evidence = U["default_evidence_chars"] if evidence is None else evidence
+    base = U["frame_chars"] + U["context_chars"] + evidence + shared; own_sum = sum(own); own_avg = round0(own_sum / n) if n else 0
+    words_of = lambda k: W.get(re.sub(r"\d+$", "", k), 0)
+    calls_of = lambda k: 1 if (k in U["counsel_stages"] or k == "redteam") else n
+    stages = [{"stage": "plan", "calls": 1, "chars": U["frame_chars"] + U["context_chars"], "out": U["json_output_tokens"]["plan"]}]
+    tx = brief_tx = 0
+    for k in plan:
+        calls = calls_of(k); director = k not in U["counsel_stages"]
+        before = 0 if k == "brief" else brief_tx if k == "opening" else W["draft"] * U["chars_per_word"] if k == "ratify" else tx
+        own_chars = 0 if not director else own_avg if k == "redteam" else own_sum
+        out = calls * U["json_output_tokens"][k] if k in U["json_output_tokens"] else calls * words_of(k) * U["output_tokens_per_word"]
+        stages.append({"stage": k, "calls": calls, "chars": calls * (base + before) + own_chars, "out": out})
+        if k not in U["no_transcript_stages"]:
+            tx += calls * words_of(k) * U["chars_per_word"]
+            if k == "brief": brief_tx = tx
+    total = lambda f: sum(f(x) for x in stages)
+    return {"calls": total(lambda x: x["calls"]), "input_tokens": round0(total(lambda x: x["chars"]) / U["chars_per_token"]),
+            "output_tokens": round0(total(lambda x: x["out"])),
+            "stages": [{"stage": x["stage"], "calls": x["calls"], "input_tokens": round0(x["chars"] / U["chars_per_token"])} for x in stages]}
+
+
 def load_rules():
     with open(os.path.join(spec_dir(), "rules.json"), encoding="utf-8") as f:
         return json.load(f)

@@ -93,7 +93,7 @@ To have git refuse stale commits, install the hook: `cp scripts/hooks/pre-commit
 
 ## Cost
 
-A standard session with seven directors runs about 30 sub-agent turns, counting research and the Counsel. A deep session runs about 45. Each extra director adds about four turns. All of it counts against your Claude plan's usage.
+A standard session with seven directors runs about 30 sub-agent turns, counting research and the Counsel. A deep session runs about 45. Each extra director adds about four turns. All of it counts against your Claude plan's usage. Both front ends show an estimate of calls and tokens before you convene (`scripts/estimate.py` in the plugin; under the seat picker in the app), from the same formula in `spec/rules.json` → `usage`. Each director reads up to `OWN_BUDGET` (60,000) characters of its own data per call.
 
 ## Privacy
 

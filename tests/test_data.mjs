@@ -25,16 +25,18 @@ t("tools unavailable: pinned note in full, only the file is cut", () => {
   assert.equal(p.cut.length, 1); assert.equal(p.cut[0].item.tag, "PW2"); assert.equal(p.cut[0].keep, RULES.OWN_BUDGET - 5000);
 });
 t("unpinned items fill the room left, smallest first", () => {
-  const p = planMaterials([item("A1", 20000), item("A2", 4000), item("A3", 9000)], RULES.OWN_BUDGET, true);
+  const u = RULES.OWN_BUDGET / 30;  // sizes scale with the budget
+  const p = planMaterials([item("A1", 20 * u), item("A2", 4 * u), item("A3", 9 * u)], RULES.OWN_BUDGET, true);
   assert.deepEqual(tags(p.full), ["A2", "A3"]); assert.deepEqual(tags(p.indexed), ["A1"]);
 });
 t("pinned items over budget: oldest kept, newest cut and searchable, warning raised", () => {
-  const p = planMaterials([item("B1", 20000, { pinned: true, addedAt: 1 }), item("B2", 20000, { pinned: true, addedAt: 2 })], RULES.OWN_BUDGET, true);
-  assert.deepEqual(tags(p.full), ["B1"]); assert.equal(p.cut[0].item.tag, "B2"); assert.equal(p.cut[0].keep, 10000);
+  const big = Math.floor(RULES.OWN_BUDGET * 2 / 3);
+  const p = planMaterials([item("B1", big, { pinned: true, addedAt: 1 }), item("B2", big, { pinned: true, addedAt: 2 })], RULES.OWN_BUDGET, true);
+  assert.deepEqual(tags(p.full), ["B1"]); assert.equal(p.cut[0].item.tag, "B2"); assert.equal(p.cut[0].keep, RULES.OWN_BUDGET - big);
   assert.deepEqual(tags(p.indexed), ["B2"]); assert.equal(p.overPinned, true);
 });
 t("shared items use SHARED_BUDGET", () => {
-  const p = planMaterials([item("S1", 35000, { shared: true })], RULES.SHARED_BUDGET, true);
+  const p = planMaterials([item("S1", RULES.SHARED_BUDGET - 5000, { shared: true })], RULES.SHARED_BUDGET, true);
   assert.deepEqual(tags(p.full), ["S1"]);
 });
 console.log(`planMaterials: ${n}/${n} cases pass`);

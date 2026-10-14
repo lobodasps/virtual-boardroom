@@ -92,6 +92,16 @@ The app stores the same fields on each material document (`tag, name, kind, char
 3. Items that don't fit are searchable only when search tools are available. In the app that means `search_materials`/`read_material`; in the plugin, Grep/Read. They appear in the index with their name and first `PREVIEW_CHARS` characters.
 4. Without tools, unpinned items share the remaining space instead: smallest first, each cut to a fair share. A pinned item that doesn't fit is cut too, and only pinned items get the over-budget warning.
 
+## Usage estimate (`rules.json` → `usage`)
+
+`estimateUsage` (app, `SPEC:USAGE`) and `spec.estimate_usage` (plugin, `scripts/estimate.py`) take the stage list, each seated director's characters in the prompt, the shared characters and the evidence characters.
+
+- **Calls:** one plan call, then per stage one call for Counsel stages and the red team, and one per seated director for every other stage.
+- **Input:** frame + context + evidence + shared, plus each director's own materials on director stages, plus the transcript so far (word limits × `chars_per_word`). Openings see only the brief, and ratification only the draft.
+- **Output:** word limits × `output_tokens_per_word`, or `json_output_tokens` for JSON stages.
+
+Searches by directors with large data come on top. `buildPlan` (app, `SPEC:PLAN`) and `spec.plan_for` must give the same stage lists (`tests/test_usage.*`).
+
 ## Query expansion (`spec/synonyms.json`, `rules.json` → `search`)
 
 A search query gains the other terms of every synonym group it mentions. Matching is whole words and case-insensitive (`marginal` does not match `margin`; plurals are not matched), groups are taken in order, and at most `search.max_added_terms` terms are added. The groups are `spec/synonyms.json` plus the SYNONYMS line of every summary card the director can see.

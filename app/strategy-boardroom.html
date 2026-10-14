@@ -303,7 +303,7 @@ const RULES = {
   "MIN_SEATS":3,
   "MAX_SEATS":12,
   "QUICK_SEATS":4,
-  "OWN_BUDGET":30000,
+  "OWN_BUDGET":60000,
   "SHARED_BUDGET":40000,
   "MAX_ATT":3000000,
   "PART":120000,
@@ -322,6 +322,7 @@ const RULES = {
   "words":{"brief":650,"opening":220,"cruxes":150,"challenge":150,"response":220,"redteam":230,"draft":200,"consult":400},
   "cards":{"min_chars":1500,"max_chars":3000,"source_chars":100000,"max_headings":200,"sections":["KEY FIGURES","NAMED CLIENTS AND PEOPLE","CONCLUSIONS","SYNONYMS"]},
   "search":{"max_added_terms":12},
+  "usage":{"about":"Estimate of Claude usage per session (estimateUsage in the app, spec.estimate_usage in the plugin). Directors who search large data make a few extra calls on top.","chars_per_token":4,"frame_chars":4500,"context_chars":2500,"default_evidence_chars":15000,"chars_per_word":6,"output_tokens_per_word":1.4,"json_output_tokens":{"plan":2500,"vote":700,"ratify":200,"synthesis":2500},"counsel_stages":["brief","cruxes","draft","synthesis"],"no_transcript_stages":["vote","ratify","draft","synthesis"]},
   "research":{"facts_per_researcher":{"min":10,"max":18},"max_turns":20,"max_pages_opened":15,"recency_months":24,"recency_exception":"laws, rules and standards still in force","swing_facts":{"min":3,"max":5},"swing_facts_need_two_sources":true,"max_register_facts":80},
   "custom_palette":[{"name":"x1","light":"#8A3B7A","dark":"#D58BC6"},{"name":"x2","light":"#B05A1A","dark":"#E89A5C"},{"name":"x3","light":"#1E7A8C","dark":"#6CC5D6"},{"name":"x4","light":"#6B6B2A","dark":"#C2C27A"},{"name":"x5","light":"#9C2F5E","dark":"#E07FA8"},{"name":"x6","light":"#3E4FA3","dark":"#8F9CE6"}],
   "legacy_ids":{"market-expansion":"titan","customer-deal":"developer","risk-hawk":"hawk","capital-allocator":"allocator","long-horizon":"maverick","profit-warden":"warden","strategy-counsel":"counsel"}
@@ -560,6 +561,8 @@ function stageInfo(k){
   if(m) return m[1]==="challenge"?{label:`Cross-examination, round ${m[2]}`,short:`Cross-exam ${m[2]}`}:{label:`Rebuttals, round ${m[2]}`,short:`Rebuttals ${m[2]}`};
   return {label:k,short:k};
 }
+/* SPEC:PLAN:BEGIN */
+/* The stage list; mirrored by spec.plan_for(). */
 const isRound = k => /^(challenge|response)\d+$/.test(k);
 const roundsFor = depth => (RULES.stages[depth]||RULES.stages.standard).filter(k=>/^challenge\d+$/.test(k)).length;
 function buildPlan(rounds, ratify, depth){
@@ -568,6 +571,7 @@ function buildPlan(rounds, ratify, depth){
     if(ratify && k===RULES.ratify.insert_before) p.push(...RULES.ratify.stages); p.push(k); });
   return p;
 }
+/* SPEC:PLAN:END */
 const pIdx = (s,k) => (s.plan||[]).indexOf(k);
 const sortTurns = (s,turns) => turns.slice().sort((a,b)=>(pIdx(s,a.stage)-pIdx(s,b.stage))||((a.slot||0)-(b.slot||0)));
 
@@ -662,6 +666,29 @@ function expandQuery(q, groups, maxAdded){
   return {added, text:String(q??"")+(added.length?" "+added.join(" "):"")};
 }
 /* SPEC:SEARCH:END */
+/* SPEC:USAGE:BEGIN */
+/* Estimated Claude usage for a session, mirrored by spec.estimate_usage(); tests/test_usage.* run the same fixtures.
+   inp: {plan:[stage keys], own:[characters of each seated director's materials in the prompt], shared, evidence}; R: RULES. */
+function estimateUsage(inp, R){
+  const U=R.usage, W=R.words, plan=inp.plan||[], own=inp.own||[], n=own.length, shared=inp.shared||0, evidence=inp.evidence??U.default_evidence_chars;
+  const base=U.frame_chars+U.context_chars+evidence+shared, ownSum=own.reduce((a,b)=>a+b,0), ownAvg=n?Math.round(ownSum/n):0;
+  const wordsOf=k=>W[String(k).replace(/\d+$/,"")]||0;
+  const callsOf=k=>U.counsel_stages.includes(k)||k==="redteam"?1:n;
+  const stages=[{stage:"plan", calls:1, chars:U.frame_chars+U.context_chars, out:U.json_output_tokens.plan}];
+  let tx=0, briefTx=0;
+  for(const k of plan){
+    const calls=callsOf(k), director=!U.counsel_stages.includes(k);
+    const before = k==="brief" ? 0 : k==="opening" ? briefTx : k==="ratify" ? W.draft*U.chars_per_word : tx;
+    const ownChars = !director ? 0 : k==="redteam" ? ownAvg : ownSum;
+    const out = U.json_output_tokens[k]!=null ? calls*U.json_output_tokens[k] : calls*wordsOf(k)*U.output_tokens_per_word;
+    stages.push({stage:k, calls, chars:calls*(base+before)+ownChars, out});
+    if(!U.no_transcript_stages.includes(k)){ tx+=calls*wordsOf(k)*U.chars_per_word; if(k==="brief") briefTx=tx; }
+  }
+  const sum=f=>stages.reduce((a,x)=>a+f(x),0);
+  return {calls:sum(x=>x.calls), input_tokens:Math.round(sum(x=>x.chars)/U.chars_per_token), output_tokens:Math.round(sum(x=>x.out)),
+    stages:stages.map(x=>({stage:x.stage, calls:x.calls, input_tokens:Math.round(x.chars/U.chars_per_token)}))};
+}
+/* SPEC:USAGE:END */
 function packText(plan, order){
   const keep=new Map(plan.cut.map(c=>[c.item,c.keep])), inFull=new Set(plan.full);
   return order.filter(a=>inFull.has(a)||keep.has(a)).map(a=>{ let t=String(a.text||""); if(keep.has(a)) t=t.slice(0,keep.get(a))+"\n[…truncated]";
@@ -1136,6 +1163,8 @@ function drawIntake(main){
   if(main.querySelector("#intake")){
     const cur=[...main.querySelectorAll('input[name=seat]')]; const sel = cur.length ? cur.filter(x=>x.checked).map(x=>x.value) : (state.draft?.seats||defaultSeats());
     setHTML(main.querySelector("#seat-list"), seatChips("seat", sel));
+    const dep=main.querySelector('input[name=depth]:checked')?.value||state.draft?.depth||"standard", rat=!!main.querySelector("#f-ratify")?.checked;
+    setHTML(main.querySelector("#intake-est"), usageLine(usageFor(sel, dep, rat, null), "Estimate:"));
     setHTML(main.querySelector("#intake-note"), state.notice?`<div class="notice">${esc(state.notice)}</div>`:state.booted&&!SAMPLE?`<div class="notice">Claude isn't available in this view, so the board can't convene here. Open this page in Claude to run sessions.</div>`:(state.booted&&!CAN_WRITE?`<div class="notice">You have view access only, so you can't start sessions.</div>`:"")); return; }
   const d=state.draft||{};
   const prev=state.sessions.filter(x=>x.context);
@@ -1170,7 +1199,7 @@ function drawIntake(main){
         <label><input type="radio" name="depth" value="standard" ${(d.depth??"standard")==="standard"?"checked":""}><span>Standard</span></label>
         <label><input type="radio" name="depth" value="deep" ${d.depth==="deep"?"checked":""}><span>Deep</span></label>
         <label><input type="radio" name="depth" value="quick" ${d.depth==="quick"?"checked":""}><span>Quick</span></label>
-      </div><label class="row" style="font-weight:600;margin-top:6px"><input type="checkbox" id="f-ratify" ${d.ratify?"checked":""}> Ratify a draft resolution after the vote (about one more call per director)</label><small>Quick: the ${RULES.QUICK_SEATS} most relevant directors, 1 round. Standard: 1 cross-exam round, red team only if all but one director agree (~30 calls with 7 directors). Deep: 2 rounds plus a red team every time (~45 calls).</small></div>
+      </div><label class="row" style="font-weight:600;margin-top:6px"><input type="checkbox" id="f-ratify" ${d.ratify?"checked":""}> Ratify a draft resolution after the vote (about one more call per director)</label><div id="intake-est" class="muted" style="font-size:12.5px;margin-top:6px"></div><small>Quick: the ${RULES.QUICK_SEATS} most relevant directors, 1 round. Standard: 1 cross-exam round, red team only if all but one director agree (~30 calls with 7 directors). Deep: 2 rounds plus a red team every time (~45 calls).</small></div>
     <div class="field" style="justify-content:flex-end"><div class="row" style="justify-content:flex-end">
       <button type="button" class="btn" data-act="savedraft">Save draft</button>
       <button type="submit" class="btn primary">Ask Counsel for an analysis plan</button></div></div>
@@ -1210,6 +1239,16 @@ async function maybeMarkEvidence(){
   if(s.status==="research_requested"||s.status==="plan_ready"){ const n=clone(s); n.status="evidence_ready"; n.updatedAt=Date.now(); await Store.putSession(s.id,n); }
 }
 
+/* Usage estimate from the seated directors' data (what fits in their prompts), the evidence pack and the stage list. */
+function usageFor(ids, depth, ratify, pack, plan){
+  ids=(ids||[]).slice(0, depth==="quick"?RULES.QUICK_SEATS:ids.length);
+  const inPrompt=(list,budget)=>{ const p=planMaterials(list||[],budget,!!state.toolsOK); return p.full.reduce((n,a)=>n+(a.chars||String(a.text||"").length),0)+p.cut.reduce((n,c)=>n+c.keep,0); };
+  const shared=[]; ids.forEach(id=>(state.atts[id]||[]).forEach(a=>{ if(a.shared) shared.push(a); }));
+  return estimateUsage({plan:plan||buildPlan(roundsFor(depth),!!ratify,depth), own:ids.map(id=>inPrompt(state.atts[id],OWN_BUDGET)), shared:inPrompt(shared,SHARED_BUDGET),
+    evidence:pack?evidenceText(pack).length:undefined}, RULES);
+}
+const fmtTok = n => n>=1e6 ? (n/1e6).toFixed(1)+"M" : n>=1e3 ? Math.round(n/1e3)+"k" : String(n);
+function usageLine(u, lead){ return `${lead} about <b>${u.calls}</b> Claude calls, ~${fmtTok(u.input_tokens)} input and ~${fmtTok(u.output_tokens)} output tokens. Directors who search large data make a few more calls.`; }
 function pipelineHTML(s){
   const st=statusOf(s), items=[];
   const pre=[["Analysis plan", !!s.approvedPlan, ["planning","plan_ready"].includes(st)],["Sourced research", !!state.pack, st==="research_requested"]];
@@ -1217,7 +1256,8 @@ function pipelineHTML(s){
   const plan=s.plan||buildPlan(roundsFor(s.depth),!!s.ratify,s.depth), next=s.plan?s.next:0;
   plan.forEach((k,i)=>{ const skip=(s.skipped||[]).includes(k); const live=RUN&&RUN.sid===s.id&&i===next&&s.plan;
     items.push(`<span class="pi ${skip?"skip":(s.plan&&i<next)?"done":live?"now":""}">${esc(stageInfo(k).short)}</span>`); });
-  return `<div class="pipe" aria-label="Session agenda">${items.join("")}</div>`;
+  const u=usageFor(seatIds(s), s.depth||"standard", s.ratify, state.pack, s.plan);
+  return `<div class="pipe" aria-label="Session agenda">${items.join("")}</div><div class="muted" style="font-size:12.5px;margin-top:6px">${usageLine(u, s.plan&&s.next>=s.plan.length?"This session's estimated usage:":"Estimated usage for this session:")}</div>`;
 }
 function rosterHTML(s){
   const speaking=new Set(Object.values(liveFor(s.id)).map(l=>l.speaker));
@@ -1952,6 +1992,7 @@ async function downloadReport(){
 
 /* ───────────────────────── Events ───────────────────────── */
 document.addEventListener("change",async e=>{
+  if(e.target.name==="seat"||e.target.name==="depth"||e.target.id==="f-ratify"){ render(); }
   if(e.target.name==="sseat"){ const s=curS(); if(!s||s.plan) return; const box=e.target.closest(".seats");
     const ids=[...box.querySelectorAll('input[name=sseat]:checked')].map(x=>x.value);
     if(ids.length<MIN_SEATS||ids.length>MAX_SEATS){ e.target.checked=!e.target.checked; showNotice(`Seat between ${MIN_SEATS} and ${MAX_SEATS} directors.`); return; }

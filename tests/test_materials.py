@@ -12,10 +12,10 @@ note, big = it("PW1", 5000, pinned=True), it("PW2", 200000)
 cases = [
     ("tools: pinned note in full, file only searchable", lambda: (p := materials.plan([note, big], OWN, True)) and tags(p["full"]) == ["PW1"] and p["cut"] == [] and tags(p["indexed"]) == ["PW2"]),
     ("no tools: note in full, only the file is cut", lambda: (p := materials.plan([note, big], OWN, False)) and tags(p["full"]) == ["PW1"] and [(a["tag"], k) for a, k in p["cut"]] == [("PW2", OWN - 5000)] and p["indexed"] == []),
-    ("unpinned smallest first", lambda: tags(materials.plan([it("A1", 20000), it("A2", 4000), it("A3", 9000)], OWN, True)["full"]) == ["A2", "A3"]),
-    ("pinned over budget", lambda: (p := materials.plan([it("B1", 20000, pinned=True, added_at="1"), it("B2", 20000, pinned=True, added_at="2")], OWN, True))
-        and tags(p["full"]) == ["B1"] and [(a["tag"], k) for a, k in p["cut"]] == [("B2", 10000)] and tags(p["indexed"]) == ["B2"] and p["over_pinned"]),
-    ("shared budget", lambda: tags(materials.plan([it("S1", 35000, shared=True)], SHARED, True)["full"]) == ["S1"]),
+    ("unpinned smallest first", lambda: tags(materials.plan([it("A1", 20 * OWN // 30), it("A2", 4 * OWN // 30), it("A3", 9 * OWN // 30)], OWN, True)["full"]) == ["A2", "A3"]),
+    ("pinned over budget", lambda: (p := materials.plan([it("B1", OWN * 2 // 3, pinned=True, added_at="1"), it("B2", OWN * 2 // 3, pinned=True, added_at="2")], OWN, True))
+        and tags(p["full"]) == ["B1"] and [(a["tag"], k) for a, k in p["cut"]] == [("B2", OWN - OWN * 2 // 3)] and tags(p["indexed"]) == ["B2"] and p["over_pinned"]),
+    ("shared budget", lambda: tags(materials.plan([it("S1", SHARED - 5000, shared=True)], SHARED, True)["full"]) == ["S1"]),
 ]
 fails = 0
 for name, fn in cases:
