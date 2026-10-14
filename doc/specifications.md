@@ -1,6 +1,6 @@
 # Virtual Boardroom: how it works
 
-**Version 1.3.0.** This document describes the system's behavior: who takes part, what happens at each stage of a session, and the exact rules for evidence, voting and data. Field-level formats are in [`spec/schema.md`](../spec/schema.md). The numbers quoted here come from [`spec/rules.json`](../spec/rules.json); if they ever disagree, `rules.json` wins.
+**Version 1.3.1.** This document describes the system's behavior: who takes part, what happens at each stage of a session, and the exact rules for evidence, voting and data. Field-level formats are in [`spec/schema.md`](../spec/schema.md). The numbers quoted here come from [`spec/rules.json`](../spec/rules.json); if they ever disagree, `rules.json` wins.
 
 ## 1. What it is
 
@@ -51,11 +51,11 @@ It never votes and never recommends before the vote.
 | --- | --- | --- | --- |
 | `titan` | Market Expansion Strategist | ME | Growth goes where demand is forming. Get there before the field crowds in. |
 | `developer` | Customer & Deal Champion | CD | Follow the customer's money. Build what they will pay a premium for. |
-| `hawk` | Risk & Regulatory Hawk | RH | One bad contract or one compliance failure can erase years of profit. |
+| `hawk` | Chief Risk Counsel | CR (formerly RH) | One bad contract or one compliance failure can erase years of profit. |
 | `technologist` | First-Principles Technologist | FT | If revenue only grows when headcount grows, we are renting out people, not building a company. |
 | `allocator` | Capital & M&A Allocator | CA | Organic growth is slow. What can we buy, and what is it worth once it is ours? |
 | `maverick` | Sustainability & Long-Horizon Pathfinder | SP (formerly SM) | Positioning for the demand curve—well before the deadline. |
-| `warden` | Lean Operator / Profit Warden | PW | Who exactly is going to deliver this, and what does it do to our overhead and cash? |
+| `warden` | Delivery & Profit Lead | DP (formerly PW) | Who exactly is going to deliver this, and what does it do to our overhead and cash? |
 
 ### What defines a director
 
@@ -182,7 +182,7 @@ You can:
 
 **What directors may cite:**
 - **Evidence register:** `[F7]`
-- **Their own materials:** by tag, such as `[PW2]`
+- **Their own materials:** by tag, such as `[DP2]`
 
 **Discipline:**
 - Every factual statement about markets, buyers, budgets, rules, deadlines, competitors, prices or wages must carry a citation.
@@ -190,8 +190,8 @@ You can:
 - A director may reason freely, but must say when something is its own judgment.
 
 **What counts as a citation:** a token is a citation only if it is `F` followed by a number, or a tag that actually exists. `[CO2]`, `[I95]` and `[NJ1]` are plain text.
-- A token that uses a director's monogram but matches no item is flagged as an **unknown citation**. This includes former monograms, so `[SM9]` is flagged when no SM9 exists.
-- Old plugin citations such as `[PW:utilization.csv]` still resolve.
+- A token that uses a director's monogram but matches no item is flagged as an **unknown citation**. This includes former monograms (SM, RH and PW), so `[SM9]` is flagged when no SM9 exists.
+- Old plugin citations such as `[DP:utilization.csv]` still resolve.
 
 **The citation check flags three things** in directors' remarks and vote rationales:
 
@@ -267,7 +267,7 @@ First-choice votes are tallied too. When they disagree with the weighted result,
 
 Each director can hold private **materials**, such as files and notes. A material can be **shared** with the whole board.
 
-- **Tags:** each material gets a tag, `<monogram><number>` such as `PW2`, in the order it was added. Tags are never reused.
+- **Tags:** each material gets a tag, `<monogram><number>` such as `DP2`, in the order it was added. Tags are never reused.
 - **Formats:** the app extracts text from PDF, Word, Excel, CSV and text files in the browser, and stores only the text. The plugin converts files to text when they're attached.
 - **Monogram changes:** when a director's monogram changes, existing items keep their tags and keep resolving, and new items use the new monogram.
 

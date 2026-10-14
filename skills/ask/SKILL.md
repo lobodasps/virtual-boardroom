@@ -1,6 +1,6 @@
 ---
 name: ask
-description: Consult one Virtual Boardroom director for a quick answer, using its persona and its own data, optionally grounded in a past session's dilemma and evidence. One sub-agent run, no voting. Use when the user says "ask the Risk Hawk…", "what would the Profit Warden say…", or wants a single director's read.
+description: Consult one Virtual Boardroom director for a quick answer, using its persona and its own data, optionally grounded in a past session's dilemma and evidence. One sub-agent run, no voting. Use when the user says "ask the Chief Risk Counsel…", "what would the Delivery & Profit Lead say…", or wants a single director's read.
 argument-hint: "<director> <question> [--session <session-folder>]"
 ---
 

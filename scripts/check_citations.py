@@ -7,7 +7,7 @@ For every director turn in transcript/ (and vote rationales), each sentence that
   UNCITED   - a figure with no citation
   UNKNOWN   - a citation that doesn't exist (no such fact ID, or a director's monogram with no such material)
   MISMATCH  - the cited source text doesn't contain the figure (commas ignored). Treat as "check this", not proof of error.
-Citations are [F#] for the evidence register and [MONO#] (e.g. [PW2]) for materials listed in each director's
+Citations are [F#] for the evidence register and [MONO#] (e.g. [DP2]) for materials listed in each director's
 data/index.json. Legacy [MONO:filename] citations from v1.1 sessions resolve through the manifest, or by file name.
 Only real tags count: [CO2], [I95] or [NJ1] are not citations. Writes citations.json and prints a summary.
 Standard library only.
