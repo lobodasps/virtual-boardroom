@@ -14,6 +14,6 @@ SHARED BOARD MATERIALS (supplied by the chair; cite by tag):
 {{count}} more item(s) are too large to include in full. Search them with the search_materials tool and read passages with read_material before you write. Each index entry shows only the item's name and its first {{PREVIEW_CHARS}} characters:
 {{index}}
 <!-- part:tool_search -->
-Keyword search over your briefing materials and the board's shared materials. Returns up to 6 matching passages with their tag and part number. Use specific terms: names, metrics, years, places.
+Keyword search over your briefing materials and the board's shared materials. Returns up to 6 matching passages with their tag and part number. Your query is expanded with synonyms automatically (for example margin also finds gross margin, GP% and gross profit), so use specific terms: names, metrics, years, places.
 <!-- part:tool_read -->
 Read one part of a material in full, by its tag (e.g. PW2) and part number from the search results. Parts are about {{CHUNK}} characters.

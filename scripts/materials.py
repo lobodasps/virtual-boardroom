@@ -12,6 +12,8 @@ Usage:
   materials.py plan <director-folder> [--shared-only] [--budget N] [--no-tools]
                                                         print the reading plan for a director task (Markdown)
   materials.py tags <boardroom-dir>                     print every tag as JSON {tag: {director, file, path}}
+  materials.py expand "<query>" [<director-folder>]     expand a search with synonyms (spec + that director's cards);
+                                                        prints {added, text, grep}
 
 The manifest is a list of {tag, file, name, chars, shared, pinned, as_of, added_at} (spec/schema.md). Tags are
 <MONO><n>, numbered in order of attachment and never reused. The plan mirrors planMaterials() in the app: pinned
@@ -134,6 +136,8 @@ def plan_markdown(folder, shared_only=False, budget=None, tools=True):
     if pl["cut"]: out += ["Read only the first part of these (budget limit):"] + [line(a) + f", first {k:,} characters" for a, k in pl["cut"]]
     if pl["indexed"]: out += ["Search these with Grep and Read only the passages you need:"] + [line(a) for a in pl["indexed"]]
     if pl["over_pinned"]: out.append(f"(Pinned items alone exceed {budget:,} characters; the newest pinned items were cut.)")
+    groups = spec.load_synonyms() + card_synonyms(folder)
+    if items: out += ["Search synonyms (Grep for the whole pattern when your term is in one):"] + [f"- `{spec.grep_pattern(g)}`" for g in groups]
     if not items: out.append("(No materials.)")
     return "\n".join(out)
 
@@ -226,6 +230,12 @@ def main(a):
     elif cmd == "check-card":
         with open(folder, encoding="utf-8") as f: res = validate_card(f.read(), spec.load_rules())
         print(json.dumps(res)); sys.exit(0 if res["ok"] else 1)
+    elif cmd == "expand":
+        q = a[1]; folder2 = a[2] if len(a) > 2 else None; R = spec.load_rules()
+        groups = spec.load_synonyms() + (card_synonyms(folder2) if folder2 else [])
+        ex = spec.expand_query(q, groups, R["search"]["max_added_terms"])
+        terms = [t for g in spec.matched_groups(q, groups) for t in g]
+        ex["grep"] = spec.grep_pattern(terms) if terms else spec.grep_pattern([q]); print(json.dumps(ex, indent=1))
     elif cmd == "tags":
         print(json.dumps(all_tags(folder), indent=2))
     else: print(__doc__); sys.exit(1)

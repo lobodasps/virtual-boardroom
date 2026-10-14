@@ -11,4 +11,5 @@ echo "== app planMaterials"; node tests/test_data.mjs
 echo "== materials.py";     python3 tests/test_materials.py
 echo "== research prompt"; python3 tests/test_research_sync.py
 echo "== summary cards";   python3 tests/test_cards.py && node tests/test_cards.mjs
+echo "== query expansion"; python3 tests/test_expand.py && node tests/test_expand.mjs
 echo "All checks passed."

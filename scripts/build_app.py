@@ -5,7 +5,7 @@ Usage: build_app.py [--check]
 
 Blocks (the app's code reads board, rules and prompts only from these):
   /* SPEC:BOARD:BEGIN */ ... /* SPEC:BOARD:END */            const BOARD = [...], const COLOR_HEX = {...}
-  /* SPEC:RULES:BEGIN */ ... /* SPEC:RULES:END */            const RULES = {...}
+  /* SPEC:RULES:BEGIN */ ... /* SPEC:RULES:END */            const RULES = {...}, const SYNONYMS = [...] (spec/synonyms.json)
   /* SPEC:PROMPTS:BEGIN */ ... /* SPEC:PROMPTS:END */        const PROMPTS = {...}
   /* SPEC:COLORS:BEGIN */ ... /* SPEC:COLORS:END */          light --c-* CSS variables
   /* SPEC:COLORS-DARK:BEGIN */ ... /* SPEC:COLORS-DARK:END */  dark --c-* CSS variables (every occurrence)
@@ -51,7 +51,7 @@ def colors_css(directors, rules, which):
 
 def blocks():
     rules = spec.load_rules(); directors = spec.load_directors(); prompts, _ = spec.load_prompts(rules)
-    return {"BOARD": board_js(directors, rules), "RULES": obj_js("RULES", rules), "PROMPTS": obj_js("PROMPTS", dict(sorted(prompts.items()))),
+    return {"BOARD": board_js(directors, rules), "RULES": obj_js("RULES", rules) + "\nconst SYNONYMS = " + js(spec.load_synonyms()) + ";", "PROMPTS": obj_js("PROMPTS", dict(sorted(prompts.items()))),
             "COLORS": colors_css(directors, rules, "light"), "COLORS-DARK": colors_css(directors, rules, "dark")}
 
 

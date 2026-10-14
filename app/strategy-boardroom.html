@@ -321,10 +321,12 @@ const RULES = {
   "pairing":{"stance_values":{"pursue":2,"test":1,"avoid":0},"default_stance":1,"counsel_fault_line":2,"default_fault_line":1,"opponent":2,"opposite_crux_sides":2,"repeat_pair":-4,"max_times_challenged":2},
   "words":{"brief":650,"opening":220,"cruxes":150,"challenge":150,"response":220,"redteam":230,"draft":200,"consult":400},
   "cards":{"min_chars":1500,"max_chars":3000,"source_chars":100000,"max_headings":200,"sections":["KEY FIGURES","NAMED CLIENTS AND PEOPLE","CONCLUSIONS","SYNONYMS"]},
+  "search":{"max_added_terms":12},
   "research":{"facts_per_researcher":{"min":10,"max":18},"max_turns":20,"max_pages_opened":15,"recency_months":24,"recency_exception":"laws, rules and standards still in force","swing_facts":{"min":3,"max":5},"swing_facts_need_two_sources":true,"max_register_facts":80},
   "custom_palette":[{"name":"x1","light":"#8A3B7A","dark":"#D58BC6"},{"name":"x2","light":"#B05A1A","dark":"#E89A5C"},{"name":"x3","light":"#1E7A8C","dark":"#6CC5D6"},{"name":"x4","light":"#6B6B2A","dark":"#C2C27A"},{"name":"x5","light":"#9C2F5E","dark":"#E07FA8"},{"name":"x6","light":"#3E4FA3","dark":"#8F9CE6"}],
   "legacy_ids":{"market-expansion":"titan","customer-deal":"developer","risk-hawk":"hawk","capital-allocator":"allocator","long-horizon":"maverick","profit-warden":"warden","strategy-counsel":"counsel"}
 };
+const SYNONYMS = [["margin","gross margin","GP%","gross profit","gross profit margin"],["revenue","sales","turnover","top line"],["net income","net profit","bottom line","earnings"],["EBITDA","operating profit","operating income"],["utilization","billable hours","billable %","chargeable hours"],["DSO","days sales outstanding","collection period","receivable days"],["headcount","FTE","staff","employees","workforce"],["backlog","order book","pipeline"],["capex","capital expenditure","capital spending"],["working capital","line of credit","cash conversion"],["retainage","retention","holdback"],["RFP","request for proposal","solicitation","tender","bid"],["contract","agreement","MSA"],["insurance","coverage","policy limit"],["liability","indemnity","exposure"],["customer","client","account","buyer"],["price","pricing","rate","fee"],["churn","attrition","turnover rate"],["incentive","rebate","subsidy","grant","tax credit"]];
 /* SPEC:RULES:END */
 /* SPEC:PROMPTS:BEGIN */
 const PROMPTS = {
@@ -356,7 +358,7 @@ const PROMPTS = {
   "materials.private_note":"; items not marked shared are yours alone, so quote what you rely on",
   "materials.shared_full":"SHARED BOARD MATERIALS (supplied by the chair; cite by tag):\n{{items}}",
   "materials.tool_read":"Read one part of a material in full, by its tag (e.g. PW2) and part number from the search results. Parts are about 1500 characters.",
-  "materials.tool_search":"Keyword search over your briefing materials and the board's shared materials. Returns up to 6 matching passages with their tag and part number. Use specific terms: names, metrics, years, places.",
+  "materials.tool_search":"Keyword search over your briefing materials and the board's shared materials. Returns up to 6 matching passages with their tag and part number. Your query is expanded with synonyms automatically (for example margin also finds gross margin, GP% and gross profit), so use specific terms: names, metrics, years, places.",
   "opening":"TASK: OPENING POSITION. This is sealed: you have not heard the other directors. In 220 words or fewer, say which options the company should pursue, test or avoid, and why, from your mandate. Check your briefing materials first and use at least one PESTLE finding. Name the single assumption your position depends on most.\n{{meta_note}}\n{\"headline\":\"<your position in one sentence>\",\"stances\":[{{stances_schema}}],\"key_assumption\":\"<one sentence>\",\"confidence\":<0-100>}",
   "output-notes":"After your remarks, on a new line write exactly <<<META and then one JSON object, nothing after it:",
   "output-notes.tools":"Before you write, use the tools to check the materials you rely on. When you are done searching, write a line containing exactly <<<REMARKS and then your remarks (and the META block if one is requested). Nothing before <<<REMARKS is shown to anyone.",
@@ -373,6 +375,7 @@ const PROMPTS = {
   "research.output":"Reply with only this JSON:\n\n{\"facts\":[{\"claim\":\"...\",\"quote\":\"short verbatim excerpt\",\"source\":\"Publisher — Page title\",\"url\":\"https://...\",\"published\":\"YYYY-MM-DD, YYYY-MM or n.d.\",\"pestle\":\"Political|Economic|Social|Technological|Legal|Environmental\"}],\n \"gaps\":[{\"question\":\"...\",\"note\":\"where you looked\"}]}",
   "research.pack":"{\"researchedAt\":\"YYYY-MM-DD\",\"researchedBy\":\"who ran the research and how\",\n \"summary\":\"3 to 5 sentences citing [F#]\",\n \"markets\":[{\"name\":\"<exact market name>\",\"definition\":\"...\"}],\n \"facts\":[{\"id\":\"F1\",\"market\":\"<exact market name or all>\",\"pestle\":\"Political|Economic|Social|Technological|Legal|Environmental\",\"claim\":\"...\",\"source\":\"Publisher — Page title\",\"url\":\"https://...\",\"published\":\"YYYY-MM-DD, YYYY-MM or n.d.\"}],\n \"pestle\":[{\"market\":\"<exact market name>\",\"political\":[{\"point\":\"...\",\"facts\":[\"F1\"]}],\"economic\":[],\"social\":[],\"technological\":[],\"legal\":[],\"environmental\":[]}],\n \"scorecard\":[{\"market\":\"<exact market name>\",\"demand\":1,\"access\":1,\"right_to_win\":1,\"margin\":1,\"capital_light\":1,\"risk_low\":1,\"speed\":1,\"synergy\":1,\"basis\":\"... [F#]\"}],\n \"gaps\":[{\"market\":\"<exact market name or all>\",\"question\":\"...\",\"note\":\"where you looked\"}],\n \"dropped\":[{\"claim\":\"...\",\"source\":\"...\",\"reason\":\"why it was left out of the register\"}]}",
   "response":"TASK: REBUTTAL, round {{round}}. You were challenged:\n{{questions}}\nAnswer each question directly. Concede only what the evidence forces you to concede, and say exactly which fact or material changed your mind. Hold everything else and say why. Then answer each crux the Counsel named in one line. 220 words max.\n{{meta_note}}\n{\"headline\":\"<your position now, one sentence>\",\"conceded\":\"<what you concede, or 'nothing'>\",\"position_changed\":true|false,\"confidence\":<0-100>}",
+  "search":"Expand every search with synonyms. Your reading plan ends with synonym groups, each written as a Grep pattern. When the term you are looking for belongs to a group, Grep for the whole pattern (for example `gross profit margin|gross margin|gross profit|margin|GP%`) instead of the single word, so you also find the passages that use another name for it.",
   "summary-card":"You write a summary card for one briefing material. A board director reads this card in full every session; the original stays available for searching, so the card must carry what the director needs most often.\n\nMATERIAL: {{name}} ({{chars}} characters{{truncated_note}})\nDIRECTOR: the {{director_title}}, whose lens is \"{{director_lens}}\"\n\nWrite 1500 to 3000 characters of plain text in exactly these four sections, each starting on its own line with its label:\nKEY FIGURES: every figure that matters, written exactly as in the material, each with its as-of date or period (\"date not stated\" if the material gives none).\nNAMED CLIENTS AND PEOPLE: every client, company, agency and person named, with their role.\nCONCLUSIONS: what the material concludes or shows, in its own terms. Mark anything you infer with \"(inference)\".\nSYNONYMS: one line of alternative terms for the material's key concepts, so searches find them. Separate groups with semicolons and terms within a group with commas, e.g. \"margin, gross margin, GP%, gross profit; utilization, billable hours, billable %\".\n\nNever add a figure, name or date that is not in the material. Reply with the card text only.\n\nMATERIAL TEXT:\n{{text}}",
   "summary-card.rest_marker":"[…the rest of the material is not shown. Headings from the rest:]",
   "summary-card.truncated_note":"; you see the first 100000 characters and the headings from the rest",
@@ -647,6 +650,18 @@ function parseSynonyms(card){
   return m[1].split(";").map(g=>g.split(",").map(x=>x.trim()).filter(Boolean)).filter(g=>g.length>=2);
 }
 /* SPEC:CARDS:END */
+/* SPEC:SEARCH:BEGIN */
+/* Query expansion, mirrored by expand_query() in scripts/spec.py; tests/test_expand.* run the same fixtures.
+   Adds the other terms of every synonym group the query mentions (whole words, case-insensitive), in group order. */
+function expandQuery(q, groups, maxAdded){
+  const ql=String(q??"").toLowerCase(), esc=t=>t.toLowerCase().replace(/[.^$*+?()[\]{}|\\]/g,"\\$&");
+  const has=t=>new RegExp("(^|[^a-z0-9])"+esc(t)+"(?=[^a-z0-9]|$)").test(ql);
+  const added=[], seen=new Set();
+  for(const g of groups||[]){ if(!g.some(has)) continue;
+    for(const t of g){ if(added.length>=maxAdded) break; if(!has(t)&&!seen.has(t.toLowerCase())){ seen.add(t.toLowerCase()); added.push(t); } } }
+  return {added, text:String(q??"")+(added.length?" "+added.join(" "):"")};
+}
+/* SPEC:SEARCH:END */
 function packText(plan, order){
   const keep=new Map(plan.cut.map(c=>[c.item,c.keep])), inFull=new Set(plan.full);
   return order.filter(a=>inFull.has(a)||keep.has(a)).map(a=>{ let t=String(a.text||""); if(keep.has(a)) t=t.slice(0,keep.get(a))+"\n[…truncated]";
@@ -673,13 +688,18 @@ function buildChunks(ctx){
   }));
   return out;
 }
-function searchChunks(scope, q, k){
+function searchChunks(scope, q, k, phraseQ){
   const qs=[...new Set(toks(q))]; if(!qs.length) return [];
   const N=scope.length||1, df={}; qs.forEach(w=>df[w]=scope.reduce((n,c)=>n+(c.tf.has(w)?1:0),0));
-  const phrase=String(q).toLowerCase().trim();
+  const phrase=String(phraseQ??q).toLowerCase().trim();
   return scope.map(c=>{ let sc=0; qs.forEach(w=>{ const f=c.tf.get(w)||0; if(f) sc+=(1+Math.log(f))*Math.log(1+N/(df[w]||1)); });
       if(phrase.length>5 && c.text.toLowerCase().includes(phrase)) sc+=3; return {c,sc}; })
     .filter(x=>x.sc>0).sort((a,b)=>b.sc-a.sc).slice(0,k).map(x=>x.c);
+}
+/* Synonym groups for one director's searches: the spec's groups plus the SYNONYMS lines of the summary cards it can see. */
+function searchGroups(ctx, who){
+  const cards=[...(ctx.att?.[who]||[]), ...sharedList(ctx)].filter(a=>a.kind==="card"||a.cardFor);
+  return [...SYNONYMS, ...cards.flatMap(a=>parseSynonyms(a.text))];
 }
 function toolsFor(ctx, who, key, onNote){
   if(!state.toolsOK) return undefined;
@@ -690,8 +710,9 @@ function toolsFor(ctx, who, key, onNote){
   return [
     {name:"search_materials",description:P("materials.tool_search"),
      inputSchema:{type:"object",properties:{query:{type:"string",description:"Keywords to search for"}},required:["query"]},
-     execute:(inp)=>{ const q=String(inp?.query||""); bump(`Searching data: “${q.slice(0,60)}”`); const hits=searchChunks(scope,q,6);
-       return hits.length ? hits.map(h=>({tag:h.tag,part:h.part,of:h.of,name:h.name,text:h.text})) : "No matching passages. Try different keywords."; }},
+     execute:(inp)=>{ const q=String(inp?.query||""), ex=expandQuery(q, searchGroups(ctx,who), RULES.search.max_added_terms);
+       bump(`Searching data: “${q.slice(0,60)}”${ex.added.length?` (+${ex.added.length} synonyms)`:""}`); const hits=searchChunks(scope,ex.text,6,q);
+       return hits.length ? {expanded_with:ex.added, passages:hits.map(h=>({tag:h.tag,part:h.part,of:h.of,name:h.name,text:h.text}))} : "No matching passages. Try different keywords."; }},
     {name:"read_material",description:P("materials.tool_read"),
      inputSchema:{type:"object",properties:{tag:{type:"string"},part:{type:"number"}},required:["tag","part"]},
      execute:(inp)=>{ const tag=String(inp?.tag||"").toUpperCase().replace(/[^A-Z0-9]/g,""), part=Number(inp?.part)||1; bump(`Reading ${tag} part ${part}`);

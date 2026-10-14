@@ -75,6 +75,8 @@
     "sections": ["KEY FIGURES", "NAMED CLIENTS AND PEOPLE", "CONCLUSIONS", "SYNONYMS"]
   },
 
+  "search": {"max_added_terms": 12},
+
   "research": {
     "facts_per_researcher": {"min": 10, "max": 18},
     "max_turns": 20,

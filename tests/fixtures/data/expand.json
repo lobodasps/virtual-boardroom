@@ -1,0 +1,87 @@
+{
+ "cases": [
+  {
+   "name": "two groups in one question",
+   "query": "What was our margin and DSO in 2025?",
+   "max": 12,
+   "expected": [
+    "gross margin",
+    "GP%",
+    "gross profit",
+    "gross profit margin",
+    "days sales outstanding",
+    "collection period",
+    "receivable days"
+   ]
+  },
+  {
+   "name": "whole words only: 'marginal' is not 'margin'",
+   "query": "marginal cost",
+   "max": 12,
+   "expected": []
+  },
+  {
+   "name": "case-insensitive, terms already present are not added",
+   "query": "GROSS MARGIN trend",
+   "max": 12,
+   "expected": [
+    "GP%",
+    "gross profit",
+    "gross profit margin"
+   ]
+  },
+  {
+   "name": "the cap stops additions in group order",
+   "query": "margin and DSO",
+   "max": 3,
+   "expected": [
+    "gross margin",
+    "GP%",
+    "gross profit"
+   ]
+  },
+  {
+   "name": "terms with % match",
+   "query": "billable % by quarter",
+   "max": 12,
+   "expected": [
+    "utilization",
+    "billable hours",
+    "chargeable hours"
+   ]
+  },
+  {
+   "name": "GP% in the query finds the margin group",
+   "query": "GP% fell",
+   "max": 12,
+   "expected": [
+    "margin",
+    "gross margin",
+    "gross profit",
+    "gross profit margin"
+   ]
+  },
+  {
+   "name": "card synonym groups are used; plurals do not match",
+   "query": "heat pump rebates",
+   "max": 12,
+   "extra_groups": [
+    [
+     "heat pump",
+     "HP",
+     "ASHP"
+    ]
+   ],
+   "expected": [
+    "HP",
+    "ASHP"
+   ]
+  },
+  {
+   "name": "empty query",
+   "query": "",
+   "max": 12,
+   "expected": []
+  }
+ ]
+}

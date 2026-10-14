@@ -1,0 +1,24 @@
+{
+  "about": "Synonym groups for query expansion. When any term of a group appears in a search query (whole words, case-insensitive), the group's other terms are added, up to rules.json search.max_added_terms. Summary cards add their own SYNONYMS groups.",
+  "groups": [
+    ["margin", "gross margin", "GP%", "gross profit", "gross profit margin"],
+    ["revenue", "sales", "turnover", "top line"],
+    ["net income", "net profit", "bottom line", "earnings"],
+    ["EBITDA", "operating profit", "operating income"],
+    ["utilization", "billable hours", "billable %", "chargeable hours"],
+    ["DSO", "days sales outstanding", "collection period", "receivable days"],
+    ["headcount", "FTE", "staff", "employees", "workforce"],
+    ["backlog", "order book", "pipeline"],
+    ["capex", "capital expenditure", "capital spending"],
+    ["working capital", "line of credit", "cash conversion"],
+    ["retainage", "retention", "holdback"],
+    ["RFP", "request for proposal", "solicitation", "tender", "bid"],
+    ["contract", "agreement", "MSA"],
+    ["insurance", "coverage", "policy limit"],
+    ["liability", "indemnity", "exposure"],
+    ["customer", "client", "account", "buyer"],
+    ["price", "pricing", "rate", "fee"],
+    ["churn", "attrition", "turnover rate"],
+    ["incentive", "rebate", "subsidy", "grant", "tax credit"]
+  ]
+}

@@ -92,6 +92,15 @@ The app stores the same fields on each material document (`tag, name, kind, char
 3. Items that don't fit are searchable only when search tools are available. In the app that means `search_materials`/`read_material`; in the plugin, Grep/Read. They appear in the index with their name and first `PREVIEW_CHARS` characters.
 4. Without tools, unpinned items share the remaining space instead: smallest first, each cut to a fair share. A pinned item that doesn't fit is cut too, and only pinned items get the over-budget warning.
 
+## Query expansion (`spec/synonyms.json`, `rules.json` → `search`)
+
+A search query gains the other terms of every synonym group it mentions. Matching is whole words and case-insensitive (`marginal` does not match `margin`; plurals are not matched), groups are taken in order, and at most `search.max_added_terms` terms are added. The groups are `spec/synonyms.json` plus the SYNONYMS line of every summary card the director can see.
+
+- **App:** `search_materials` searches with the expanded query and reports `expanded_with`.
+- **Plugin:** each reading plan from `materials.py plan` lists the groups as Grep patterns, and the director agent is told to Grep for the whole pattern. `materials.py expand "<query>" [<director-folder>]` shows an expansion.
+
+`expandQuery` (app, `SPEC:SEARCH`) and `spec.expand_query` must agree (`tests/test_expand.*`).
+
 ## Research (`rules.json` → `research`, `spec/prompts/research.md`)
 
 Both front ends research the same way:

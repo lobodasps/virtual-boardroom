@@ -15,6 +15,42 @@ def spec_dir():
     raise SystemExit("spec/ not found next to the scripts or under $CLAUDE_PLUGIN_ROOT")
 
 
+def load_synonyms():
+    with open(os.path.join(spec_dir(), "synonyms.json"), encoding="utf-8") as f:
+        return json.load(f)["groups"]
+
+
+_META = re.compile(r"[.^$*+?()\[\]{}|\\]")
+
+
+def _matcher(q):
+    ql = str(q or "").lower()
+    return lambda t: re.search(r"(^|[^a-z0-9])" + _META.sub(lambda m: "\\" + m.group(0), t.lower()) + r"(?=[^a-z0-9]|$)", ql) is not None
+
+
+def matched_groups(q, groups):
+    has = _matcher(q)
+    return [g for g in groups if any(has(t) for t in g)]
+
+
+def expand_query(q, groups, max_added):
+    """Mirror of expandQuery() in the app's SPEC:SEARCH block: add the other terms of every group that the
+    query mentions (whole words, case-insensitive), in group order, up to max_added. -> {added, text}"""
+    has = _matcher(q)
+    added, seen = [], set()
+    for g in groups:
+        if not any(has(t) for t in g): continue
+        for t in g:
+            if len(added) >= max_added: break
+            if not has(t) and t.lower() not in seen: seen.add(t.lower()); added.append(t)
+    return {"added": added, "text": str(q or "") + ((" " + " ".join(added)) if added else "")}
+
+
+def grep_pattern(terms):
+    """A ripgrep alternation for the Grep tool: metacharacters escaped, longest terms first."""
+    return "|".join(_META.sub(lambda m: "\\" + m.group(0), t) for t in sorted(dict.fromkeys(terms), key=lambda x: (-len(x), x)))
+
+
 def load_rules():
     with open(os.path.join(spec_dir(), "rules.json"), encoding="utf-8") as f:
         return json.load(f)

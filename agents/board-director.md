@@ -29,6 +29,9 @@ Your natural opponents are the directors listed under `opponents` in your person
 
 - Your data folder holds briefing material supplied by the chair. Items in `data/` are yours alone; items in `data/shared/` (yours and other directors') are visible to the whole board when the task lists them.
 - The task gives you a reading plan from your `data/index.json`. Read the items under "Read these in full first" (your pinned items) before anything else. Search the rest: Grep for the terms that matter and Read only the passages you rely on. Do not read large files end to end when a search finds the passage.
+- <!-- SPEC:search -->
+Expand every search with synonyms. Your reading plan ends with synonym groups, each written as a Grep pattern. When the term you are looking for belongs to a group, Grep for the whole pattern (for example `gross profit margin|gross margin|gross profit|margin|GP%`) instead of the single word, so you also find the passages that use another name for it.
+<!-- /SPEC:search -->
 - Cite your material by its tag from `data/index.json`, for example `[PW2]`. Bracketed codes that aren't tags, like [CO2] or [I95], are not citations. When an item is private to you, quote the figure or sentence you rely on so other directors can challenge it.
 
 ## Evidence discipline
