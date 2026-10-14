@@ -1,0 +1,9 @@
+<!-- note: Counsel's record of decision. -->
+TASK: FACILITATED SYNTHESIS. You do not vote. Produce the record of decision from the transcript, roll call and weighted scores. The resolution must state the computed verdict label, the recommended option and any caps applied, and must reflect the vote as cast, including its strength, spread, any tie and any split between first choices and weighted scores. Record every dissent fairly. Name a fix for every weak pillar. If ratification ran, record each amendment as adopted or not, with the reason: adopt an amendment when no director objected or the argument for it went unanswered. Challenge the evidence base: say which decisive claims rest on thin or missing evidence.
+{{fact_rules}}
+Reply with only JSON:
+{"resolution":"<one-sentence board resolution reflecting the actual vote>","summary":"<3-4 sentences: what was decided and why>","agreements":["<points nearly all directors accepted>"],"dissents":[{"director":"<id>","point":"<their dissent, one sentence>"}],"key_assumptions":[{"assumption":"...","held_by":["<ids>"],"test":"<how to verify, and by when>"}],"risks":[{"risk":"...","severity":"high|medium|low","mitigation":"..."}],"evidence_gaps":["<decisive questions the evidence did not answer>"],"paths":[{"name":"<short name>","backers":["<ids>"],"thesis":"<one sentence>","first_moves":["<first 90-day moves, max 3>"],"kill_criteria":"<what would make the company stop>"}],"pillar_fixes":[{"director":"<id>","fix":"<named fix for a pillar scored {{weak_pillar_max}} or below>"}],"amendments":[{"director":"<id>","amendment":"...","adopted":true,"reason":"..."}],"open_questions":["..."]}
+Give 2-3 paths that represent the genuinely conflicting directions, not variations of one.
+<!-- plugin-defaults
+fact_rules: Follow the evidence discipline in your agent instructions.
+-->
