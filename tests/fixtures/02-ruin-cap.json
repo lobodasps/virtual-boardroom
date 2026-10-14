@@ -1,0 +1,56 @@
+{
+ "about": "One director sees likely ruin on the recommendation: capped at RESHAPE.",
+ "votes": [
+  {
+   "director": "titan",
+   "title": "Market Expansion Strategist",
+   "confidence": 80,
+   "scores": {
+    "A": 9,
+    "B": 5
+   }
+  },
+  {
+   "director": "hawk",
+   "title": "Risk & Regulatory Hawk",
+   "confidence": 70,
+   "scores": {
+    "A": 8,
+    "B": 6
+   },
+   "ruin_risk": {
+    "A": "likely"
+   }
+  },
+  {
+   "director": "warden",
+   "title": "Lean Operator / Profit Warden",
+   "confidence": 90,
+   "scores": {
+    "A": 8,
+    "B": 4
+   }
+  }
+ ],
+ "expected": {
+  "rec": "A",
+  "label": "RESHAPE",
+  "score": 8.3,
+  "options": {
+   "A": 8.3,
+   "B": 5.0
+  },
+  "spread": 1,
+  "confidence": 8,
+  "cap_codes": [
+   "ruin"
+  ],
+  "ruin": [
+   "hawk"
+  ],
+  "redBreached": [],
+  "redAtRisk": [],
+  "weak": [],
+  "support": null
+ }
+}

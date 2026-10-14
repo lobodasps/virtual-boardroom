@@ -1,0 +1,60 @@
+{
+ "about": "Majority call it one-way and scores spread 5: capped at GO WITH CONDITIONS; spread >= 5 also costs a confidence point.",
+ "votes": [
+  {
+   "director": "titan",
+   "title": "Market Expansion Strategist",
+   "confidence": 60,
+   "scores": {
+    "A": 10,
+    "B": 5
+   },
+   "door": {
+    "A": "one-way"
+   }
+  },
+  {
+   "director": "hawk",
+   "title": "Risk & Regulatory Hawk",
+   "confidence": 60,
+   "scores": {
+    "A": 5,
+    "B": 6
+   },
+   "door": {
+    "A": "one-way"
+   }
+  },
+  {
+   "director": "warden",
+   "title": "Lean Operator / Profit Warden",
+   "confidence": 60,
+   "scores": {
+    "A": 9,
+    "B": 4
+   },
+   "door": {
+    "A": "two-way"
+   }
+  }
+ ],
+ "expected": {
+  "rec": "A",
+  "label": "GO WITH CONDITIONS",
+  "score": 8.0,
+  "options": {
+   "A": 8.0,
+   "B": 5.0
+  },
+  "spread": 5,
+  "confidence": 5,
+  "cap_codes": [
+   "one_way_door"
+  ],
+  "ruin": [],
+  "redBreached": [],
+  "redAtRisk": [],
+  "weak": [],
+  "support": null
+ }
+}

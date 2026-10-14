@@ -1,0 +1,65 @@
+{
+ "about": "Clear winner, no flags: weighted 8.3 is GO.",
+ "votes": [
+  {
+   "director": "titan",
+   "title": "Market Expansion Strategist",
+   "confidence": 80,
+   "scores": {
+    "A": 8,
+    "B": 5,
+    "Hold": 2
+   },
+   "pillar_scores": {
+    "A": 8
+   }
+  },
+  {
+   "director": "hawk",
+   "title": "Risk & Regulatory Hawk",
+   "confidence": 70,
+   "scores": {
+    "A": 8,
+    "B": 6,
+    "Hold": 2
+   },
+   "pillar_scores": {
+    "A": 7
+   },
+   "door": {
+    "A": "two-way"
+   }
+  },
+  {
+   "director": "warden",
+   "title": "Lean Operator / Profit Warden",
+   "confidence": 90,
+   "scores": {
+    "A": 9,
+    "B": 4,
+    "Hold": 2
+   },
+   "pillar_scores": {
+    "A": 9
+   }
+  }
+ ],
+ "expected": {
+  "rec": "A",
+  "label": "GO",
+  "score": 8.3,
+  "options": {
+   "A": 8.3,
+   "B": 5.0,
+   "Hold": 2.0
+  },
+  "spread": 1,
+  "confidence": 8,
+  "cap_codes": [],
+  "ruin": [],
+  "redBreached": [],
+  "redAtRisk": [],
+  "weak": [],
+  "support": null
+ }
+}

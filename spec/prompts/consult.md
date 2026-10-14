@@ -1,0 +1,2 @@
+<!-- note: One director, one answer (app "Ask this director", plugin /virtual-boardroom:ask). -->
+TASK: SINGLE-DIRECTOR CONSULT. Answer in your own voice, first person, under {{words.consult}} words: your call, your reasoning from your mandate (check your briefing materials first, and cite evidence and materials by ID or tag), what you would do this week, and the one question you would ask back. Do not narrate yourself in the third person. Reply with the answer only.

@@ -1,0 +1,64 @@
+{
+ "director": {
+  "id": "maverick",
+  "mono": "SP",
+  "formerMonos": [
+   "SM"
+  ]
+ },
+ "items": [
+  {
+   "tag": "SM1",
+   "file": "climate-plan.txt",
+   "name": "climate-plan.txt",
+   "text": "The city requires 40% fewer emissions by 2030."
+  },
+  {
+   "tag": "SP1",
+   "file": "rebates.txt",
+   "name": "rebates.txt",
+   "text": "Rebates cover 25% of heat pump cost."
+  }
+ ],
+ "tokens": [
+  [
+   "SM1",
+   "cite"
+  ],
+  [
+   "SP1",
+   "cite"
+  ],
+  [
+   "F3",
+   "cite"
+  ],
+  [
+   "SM2",
+   "unknown"
+  ],
+  [
+   "SP7",
+   "unknown"
+  ],
+  [
+   "CO2",
+   null
+  ],
+  [
+   "NJ1",
+   null
+  ],
+  [
+   "I95",
+   null
+  ]
+ ],
+ "next_tag": "SP2",
+ "transcript": "Emissions must fall 40% by 2030 [SM1]. Rebates cover 25% of cost [SP1]. An older note said 40% [SM:climate-plan.txt]. Another claim is 12% [SM9]. Output fell 30% [CO2].",
+ "expected_check": {
+  "UNCITED": 2,
+  "UNKNOWN": 1,
+  "MISMATCH": 0
+ }
+}

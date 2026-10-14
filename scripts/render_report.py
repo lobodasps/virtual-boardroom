@@ -2,15 +2,18 @@
 """Render Virtual Boardroom session records to self-contained HTML.
 
 Usage:
-  render_report.py <session-folder>              -> <session-folder>/report.html
+  render_report.py <session-folder>              -> <session-folder>/report.html (prints cleanly: open it and use Print or Save as PDF)
   render_report.py --compare <session-folder>... -> boardroom/comparison.html (+ Markdown summary on stdout)
 
 Standard library only.
 """
 import html, json, os, re, sys
+sys.path.insert(0, os.path.dirname(os.path.abspath(__file__)))
+import materials
 
 TURN_RE = re.compile(r"<!--\s*vb-turn\s+(\{.*?\})\s*-->", re.S)
-CITE_RE = re.compile(r"\[(F\d+|[A-Z]{1,3}:[^\]]+)\]")
+CITE_RE = re.compile(r"\[([^\]]+)\]")
+TAGS = {}  # material tags of the session's boardroom, filled by render_session/render_compare
 FIG_RE = re.compile(r"(\$\s?\d|\b\d[\d,.]*\s?(%|percent\b|million\b|billion\b|bn\b|[MBK]\b))", re.I)
 STAGE_LABEL = {"brief": "Counsel's evidence brief", "opening": "Opening positions (sealed)", "redteam": "Red-team dissent"}
 
@@ -34,6 +37,9 @@ th{font-size:11px;text-transform:uppercase;letter-spacing:.05em;color:var(--mute
 .bar{display:flex;height:24px;border-radius:5px;overflow:hidden;margin:8px 0}.bar div{display:grid;place-items:center;color:#fff;font:11px ui-monospace,monospace;background:var(--accent);overflow:hidden;white-space:nowrap}
 .bar div:nth-child(2){background:#5A8F87}.bar div:nth-child(n+3){background:var(--muted)}
 .cols{display:grid;grid-template-columns:repeat(auto-fit,minmax(280px,1fr));gap:12px}
+@media print{:root{--bg:#fff;--surface:#fff;--ink:#15191C;--muted:#5A646C;--line:#D3D8D5;--accent:#1F6F64;--soft:#D9ECE8;--flag:#FFF1C2;--flagink:#6B4B00;--bad:#B23A32;color-scheme:light}
+  body{font-size:12px}main{max-width:none;padding:0}.scroll{overflow:visible}a{color:inherit;text-decoration:none}
+  .panel,.turn,tr{break-inside:avoid}h1,h2,h3{break-after:avoid}}
 """
 
 def esc(s): return html.escape(str(s if s is not None else ""))
@@ -43,14 +49,26 @@ def load(path, default=None):
         with open(path, encoding="utf-8") as f: return json.load(f)
     except Exception: return default
 
+def is_cite(tok):
+    """Only F<n> or a real material tag (including legacy MONO:file) counts; [CO2] or [NJ1] does not."""
+    tok = html.unescape(tok).strip()
+    return bool(re.fullmatch(r"F\d+", tok)) or tok in TAGS
+
+def has_cite(s): return any(is_cite(t) for b in CITE_RE.findall(s) for t in re.split(r"\s*[,;]\s*", b))
+
 def inline(text, facts):
     h = esc(text)
     h = re.sub(r"\*\*(.+?)\*\*", r"<strong>\1</strong>", h)
-    def rep(m):
-        key = m.group(1)
+    def one(key):
         f = facts.get(key)
         if f: return f'<a class="cite" href="{esc(f.get("url","#"))}" title="{esc(f.get("claim",""))}">{esc(key)}</a>'
-        return f'<span class="cite" title="Briefing material">{esc(key)}</span>'
+        if re.fullmatch(r"F\d+", key): return f'<span class="cite" title="Not in the evidence register">{esc(key)}?</span>'
+        t = TAGS.get(html.unescape(key)) or {}
+        return f'<span class="cite" title="{esc("Briefing material: " + str(t.get("file", "")))}">{key}</span>'
+    def rep(m):
+        toks = re.split(r"\s*[,;]\s*", m.group(1))
+        if not any(is_cite(t) for t in toks): return m.group(0)
+        return " ".join(one(t) if is_cite(t) else t for t in toks)
     return CITE_RE.sub(rep, h)
 
 def prose(text, facts, flag=False):
@@ -63,7 +81,7 @@ def prose(text, facts, flag=False):
         parts = []
         for s in sents:
             h = inline(s, facts)
-            if flag and FIG_RE.search(s) and not CITE_RE.search(s):
+            if flag and FIG_RE.search(s) and not has_cite(s):
                 uncited += 1; h = f'<span class="uncited" title="Figure without a citation">{h}</span>'
             parts.append(h)
         out.append("<p>" + " ".join(parts) + "</p>")
@@ -96,7 +114,19 @@ def tally_bar(t):
     if not counts: return ""
     return '<div class="bar ui">' + "".join(f'<div style="flex:{v}" title="{esc(k)}">{esc(k)} · {v}</div>' for k, v in counts.items()) + "</div>"
 
+def red_flags(sc, names):
+    rb, ra = sc.get("redBreached") or [], sc.get("redAtRisk") or []
+    if not rb and not ra: return ""
+    who = [f"{esc(names.get(d, d))} (breached)" for d in rb] + [f"{esc(names.get(d, d))} (at risk)" for d in ra]
+    return f'<p class="ui">Red lines on {esc(sc.get("rec"))}: ' + ", ".join(who) + "</p>"
+
+def load_tags(folder):
+    TAGS.clear()
+    try: TAGS.update(materials.all_tags(os.path.dirname(os.path.dirname(os.path.abspath(folder)))))
+    except Exception: pass
+
 def render_session(folder):
+    load_tags(folder)
     s = load(os.path.join(folder, "session.json"), {}) or {}
     ev = load(os.path.join(folder, "evidence.json"), {}) or {}
     facts = {f["id"]: f for f in ev.get("facts", []) if "id" in f}
@@ -114,7 +144,7 @@ def render_session(folder):
                     + (f' · support for the resolution {esc(sc.get("support"))}/10' if sc.get("support") is not None else "") + "</p>"
                     + "".join(f'<span class="tag flag">{esc(c)}</span>' for c in sc.get("caps", []))
                     + "<table><tr><th>Option</th><th>Score</th><th>Math</th></tr>" + "".join(f"<tr><td>{esc(k)}</td><td>{esc(sc['options'][k]['score'])}</td><td>{esc(sc['options'][k]['math'])}</td></tr>" for k in sc.get("ranked", []))
-                    + "</table>" + (f'<p class="ui">Weak pillars on the recommendation: {esc(", ".join(names.get(d, d) for d in sc.get("weak", [])))}</p>' if sc.get("weak") else "") + "</div>")
+                    + "</table>" + red_flags(sc, names) + (f'<p class="ui">Weak pillars on the recommendation: {esc(", ".join(names.get(d, d) for d in sc.get("weak", [])))}</p>' if sc.get("weak") else "") + "</div>")
     if dec:
         body.append('<h2>Record of decision</h2>')
         body.append(f'<div class="resolution">{inline(dec.get("resolution",""), facts)}</div><p>{inline(dec.get("summary",""), facts)}</p>')
@@ -127,13 +157,16 @@ def render_session(folder):
             body.append(f'<div class="panel"><h3>{esc(p.get("name"))}</h3><p>{inline(p.get("thesis",""), facts)}</p><ul>' + "".join(f"<li>{inline(x, facts)}</li>" for x in p.get("first_moves", [])) + f'</ul><p class="ui"><b>Kill criteria:</b> {inline(p.get("kill_criteria",""), facts)}</p></div>')
         body.append("</div><h2>Key assumptions and risks</h2><div class='scroll'><table><tr><th>Assumption</th><th>How to test</th></tr>" + "".join(f"<tr><td>{inline(a.get('assumption',''), facts)}</td><td>{inline(a.get('test',''), facts)}</td></tr>" for a in dec.get("key_assumptions", [])) + "</table></div>")
         body.append("<div class='scroll'><table><tr><th>Risk</th><th>Severity</th><th>Mitigation</th></tr>" + "".join(f"<tr><td>{inline(r.get('risk',''), facts)}</td><td>{esc(r.get('severity'))}</td><td>{inline(r.get('mitigation',''), facts)}</td></tr>" for r in dec.get("risks", [])) + "</table></div>")
+        if dec.get("red_lines"): body.append('<div class="panel"><h3>Red lines on the recommendation</h3><ul>' + "".join(f"<li><b>{esc(names.get(x.get('director'), x.get('director')))}</b> <span class=\"tag flag\">{esc(str(x.get('status','')).replace('_',' '))}</span> {inline(x.get('response',''), facts)}</li>" for x in dec["red_lines"]) + "</ul></div>")
         if dec.get("pillar_fixes"): body.append('<div class="panel"><h3>Fixes for weak pillars</h3><ul>' + "".join(f"<li><b>{esc(names.get(x.get('director'), x.get('director')))}:</b> {inline(x.get('fix',''), facts)}</li>" for x in dec["pillar_fixes"]) + "</ul></div>")
         if dec.get("amendments"): body.append('<div class="panel"><h3>Amendments</h3><ul>' + "".join(f"<li><b>{esc(names.get(x.get('director'), x.get('director')))}</b> ({'adopted' if x.get('adopted') else 'not adopted'}): {inline(x.get('amendment',''), facts)}</li>" for x in dec["amendments"]) + "</ul></div>")
         if dec.get("evidence_gaps"): body.append('<div class="panel"><h3>Evidence gaps the decision rests on</h3><ul>' + "".join(f"<li>{inline(x, facts)}</li>" for x in dec["evidence_gaps"]) + "</ul></div>")
     if votes.get("votes"):
-        body.append("<h2>Roll call</h2><div class='scroll'><table><tr><th>Director</th><th>Choice</th><th>Support</th><th>Confidence</th><th>Rationale</th><th>Flips if</th></tr>")
+        body.append("<h2>Roll call</h2><div class='scroll'><table><tr><th>Director</th><th>Choice</th><th>Support</th><th>Confidence</th><th>Red-line flags</th><th>Rationale</th><th>Flips if</th></tr>")
         for v in votes["votes"]:
-            body.append(f"<tr><td>{esc(v.get('title') or v.get('director'))}</td><td><b>{esc(v.get('choice'))}</b></td><td>{esc(v.get('support'))}</td><td>{esc(v.get('confidence'))}</td><td>{inline(v.get('rationale',''), facts)}</td><td>{inline(v.get('flip_if',''), facts)}</td></tr>")
+            flags = [f"{k}: {str(x).replace('_', ' ')}" for k, x in (v.get("red_line") or {}).items() if re.sub(r"[\s-]+", "_", str(x).strip().lower()) in ("at_risk", "breached")]
+            flag_html = "".join('<span class="tag flag">' + esc(x) + "</span> " for x in flags) or "clear"
+            body.append(f"<tr><td>{esc(v.get('title') or v.get('director'))}</td><td><b>{esc(v.get('choice'))}</b></td><td>{esc(v.get('support'))}</td><td>{esc(v.get('confidence'))}</td><td>{flag_html}</td><td>{inline(v.get('rationale',''), facts)}</td><td>{inline(v.get('flip_if',''), facts)}</td></tr>")
         body.append("</table></div>")
     body.append("<h2>Transcript</h2>"); last = None
     for t in turns:

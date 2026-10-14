@@ -1,0 +1,4 @@
+#!/bin/sh
+# Virtual Boardroom: refuse a commit whose generated files are stale versus spec/.
+# Install: cp scripts/hooks/pre-commit.sample .git/hooks/pre-commit && chmod +x .git/hooks/pre-commit
+exec python3 "$(git rev-parse --show-toplevel)/scripts/check_sync.py"

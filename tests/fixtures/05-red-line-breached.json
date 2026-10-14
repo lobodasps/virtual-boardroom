@@ -1,0 +1,61 @@
+{
+ "about": "A director says the recommendation breaches their red line: capped at RESHAPE.",
+ "votes": [
+  {
+   "director": "titan",
+   "title": "Market Expansion Strategist",
+   "confidence": 80,
+   "scores": {
+    "A": 8,
+    "B": 5
+   },
+   "red_line": {
+    "A": "clear",
+    "B": "clear"
+   }
+  },
+  {
+   "director": "hawk",
+   "title": "Risk & Regulatory Hawk",
+   "confidence": 80,
+   "scores": {
+    "A": 8,
+    "B": 6
+   },
+   "red_line": {
+    "A": "breached",
+    "B": "clear"
+   }
+  },
+  {
+   "director": "warden",
+   "title": "Lean Operator / Profit Warden",
+   "confidence": 80,
+   "scores": {
+    "A": 8,
+    "B": 4
+   }
+  }
+ ],
+ "expected": {
+  "rec": "A",
+  "label": "RESHAPE",
+  "score": 8.0,
+  "options": {
+   "A": 8.0,
+   "B": 5.0
+  },
+  "spread": 0,
+  "confidence": 8,
+  "cap_codes": [
+   "red_breached"
+  ],
+  "ruin": [],
+  "redBreached": [
+   "hawk"
+  ],
+  "redAtRisk": [],
+  "weak": [],
+  "support": null
+ }
+}

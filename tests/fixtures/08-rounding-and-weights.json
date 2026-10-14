@@ -1,0 +1,73 @@
+{
+ "about": "Halves round up in both front ends: 37.5/6 = 6.25 -> 6.3, confidence 6.5 -> 7, weight 2.5 -> 3. Pillar 4 is weak.",
+ "weights": {
+  "titan": {
+   "w": 2.5
+  },
+  "hawk": {
+   "w": 1
+  }
+ },
+ "votes": [
+  {
+   "director": "titan",
+   "title": "Market Expansion Strategist",
+   "confidence": 60,
+   "scores": {
+    "A": 6,
+    "B": 5
+   },
+   "pillar_scores": {
+    "A": 6
+   }
+  },
+  {
+   "director": "hawk",
+   "title": "Risk & Regulatory Hawk",
+   "confidence": 70,
+   "scores": {
+    "A": 7.5,
+    "B": 5
+   },
+   "pillar_scores": {
+    "A": 4
+   }
+  },
+  {
+   "director": "warden",
+   "title": "Lean Operator / Profit Warden",
+   "confidence": 65,
+   "scores": {
+    "A": 6,
+    "B": 5
+   },
+   "pillar_scores": {
+    "A": 6
+   }
+  }
+ ],
+ "expected": {
+  "rec": "A",
+  "label": "GO WITH CONDITIONS",
+  "score": 6.3,
+  "options": {
+   "A": 6.3,
+   "B": 5.0
+  },
+  "spread": 1.5,
+  "confidence": 7,
+  "cap_codes": [],
+  "ruin": [],
+  "redBreached": [],
+  "redAtRisk": [],
+  "weak": [
+   "hawk"
+  ],
+  "support": null,
+  "weights": {
+   "titan": 3,
+   "hawk": 1,
+   "warden": 2
+  }
+ }
+}

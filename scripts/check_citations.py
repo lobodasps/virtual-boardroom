@@ -4,18 +4,24 @@
 Usage: check_citations.py <session-folder> [--boardroom <boardroom-dir>]
 
 For every director turn in transcript/ (and vote rationales), each sentence that contains a figure is checked:
-  UNCITED   - a figure with no [F#] or [MONO:file] citation
-  UNKNOWN   - a citation that doesn't exist (no such fact ID, or no such file in that director's data)
+  UNCITED   - a figure with no citation
+  UNKNOWN   - a citation that doesn't exist (no such fact ID, or a director's monogram with no such material)
   MISMATCH  - the cited source text doesn't contain the figure (commas ignored). Treat as "check this", not proof of error.
-Writes citations.json in the session folder and prints a summary. Standard library only.
+Citations are [F#] for the evidence register and [MONO#] (e.g. [PW2]) for materials listed in each director's
+data/index.json. Legacy [MONO:filename] citations from v1.1 sessions resolve through the manifest, or by file name.
+Only real tags count: [CO2], [I95] or [NJ1] are not citations. Writes citations.json and prints a summary.
+Standard library only.
 """
 import json, os, re, sys
+sys.path.insert(0, os.path.dirname(os.path.abspath(__file__)))
+import materials, spec
 
 TURN_RE = re.compile(r"<!--\s*vb-turn\s+(\{.*?\})\s*-->", re.S)
-CITE_RE = re.compile(r"\[(F\d+|[A-Z]{1,3}:[^\]]+)\]")
+BRACKET_RE = re.compile(r"\[([^\]]+)\]")
 FIG_RE = re.compile(r"(\$\s?\d|\b\d[\d,.]*\s?(%|percent\b|million\b|billion\b|bn\b|[MBK]\b))", re.I)
 NUM_RE = re.compile(r"\d[\d,]*(?:\.\d+)?")
 TEXT_EXT = (".txt", ".md", ".csv", ".tsv", ".json", ".html", ".htm")
+
 
 def nums(s):
     out = []
@@ -25,15 +31,18 @@ def nums(s):
         if len(re.sub(r"\D", "", x)) >= 2 or "." in x: out.append(x)
     return out
 
-def monos(boardroom):
-    m = {}
-    ddir = os.path.join(boardroom, "directors")
+
+def director_dirs(boardroom):
+    """{mono: director folder}"""
+    m = {}; ddir = os.path.join(boardroom, "directors")
     for d in (os.listdir(ddir) if os.path.isdir(ddir) else []):
         p = os.path.join(ddir, d, "persona.md")
         if os.path.isfile(p):
-            mm = re.search(r"^mono:\s*([A-Z]{1,3})\s*$", open(p, encoding="utf-8").read(), re.M)
-            if mm: m[mm.group(1)] = os.path.join(ddir, d, "data")
+            with open(p, encoding="utf-8") as f: per = spec.parse_persona(f.read(), d)
+            for mono in [per["mono"], *per["formerMonos"]]:  # former monograms keep resolving
+                if mono: m.setdefault(mono, os.path.join(ddir, d))
     return m
+
 
 def find_file(data_dir, name):
     for root, _, files in os.walk(data_dir):
@@ -41,25 +50,35 @@ def find_file(data_dir, name):
             if f == name or os.path.splitext(f)[0] == os.path.splitext(name)[0]: return os.path.join(root, f)
     return None
 
+
 def check(folder, boardroom=None):
     boardroom = boardroom or os.path.dirname(os.path.dirname(os.path.abspath(folder)))
     ev = {}
     try: ev = {f["id"]: f for f in json.load(open(os.path.join(folder, "evidence.json"), encoding="utf-8")).get("facts", [])}
     except Exception: pass
-    mono = monos(boardroom); cache = {}
-    def source_text(cite):
-        if cite.startswith("F"):
-            f = ev.get(cite); return (f.get("claim", "") + " " + f.get("quote", "")) if f else None
-        m, _, fname = cite.partition(":"); fname = fname.strip()
-        dd = mono.get(m)
-        if not dd: return None
-        p = find_file(dd, fname)
-        if not p: return None
-        if not p.lower().endswith(TEXT_EXT): return ""  # exists but not checkable (e.g. PDF)
-        if p not in cache:
-            try: cache[p] = open(p, encoding="utf-8", errors="ignore").read()
-            except Exception: cache[p] = ""
-        return cache[p]
+    tags = materials.all_tags(boardroom); monos = director_dirs(boardroom); cache = {}
+
+    def classify(tok):
+        """-> ('cite', path-or-fact-id) | ('unknown', None) | (None, None) for tokens that aren't citations."""
+        tok = tok.strip()
+        if re.fullmatch(r"F\d+", tok): return ("cite", tok) if tok in ev else ("unknown", None)
+        kind = materials.classify_cite(tok, tags, monos)
+        if kind == "cite": return "cite", tags[tok]["path"]
+        if kind == "unknown": return "unknown", None
+        m = re.fullmatch(r"([A-Z]{1,3}):\s*(.+)", tok)
+        if m and m.group(1) in monos:  # legacy [MONO:file] with no manifest entry
+            p = find_file(os.path.join(monos[m.group(1)], "data"), m.group(2).strip())
+            return ("cite", p) if p else ("unknown", None)
+        return None, None
+
+    def source_text(ref):
+        if ref in ev: f = ev[ref]; return f.get("claim", "") + " " + f.get("quote", "")
+        if not ref.lower().endswith(TEXT_EXT): return ""  # exists but not checkable (e.g. PDF)
+        if ref not in cache:
+            try: cache[ref] = open(ref, encoding="utf-8", errors="ignore").read()
+            except Exception: cache[ref] = ""
+        return cache[ref]
+
     items = []
     tdir = os.path.join(folder, "transcript")
     for name in sorted(os.listdir(tdir)) if os.path.isdir(tdir) else []:
@@ -77,25 +96,31 @@ def check(folder, boardroom=None):
     findings = []; counts = {"UNCITED": 0, "UNKNOWN": 0, "MISMATCH": 0}
     for where, who, text in items:
         for sent in re.split(r"(?<=[.!?])\s+", " ".join((text or "").split())):
-            cites = CITE_RE.findall(sent)
-            for c in cites:
-                if source_text(c) is None:
-                    counts["UNKNOWN"] += 1; findings.append({"type": "UNKNOWN", "where": where, "director": who, "citation": c, "sentence": sent})
+            refs, cited_tokens = [], []
+            for b in BRACKET_RE.findall(sent):
+                for tok in re.split(r"\s*[,;]\s*", b):
+                    kind, ref = classify(tok)
+                    if kind == "unknown":
+                        counts["UNKNOWN"] += 1; findings.append({"type": "UNKNOWN", "where": where, "director": who, "citation": tok.strip(), "sentence": sent})
+                        if re.fullmatch(r"F\d+", tok.strip()): cited_tokens.append(tok.strip())
+                    elif kind == "cite": refs.append(ref); cited_tokens.append(tok.strip())
             if not FIG_RE.search(sent): continue
-            if not cites:
+            if not cited_tokens:
                 counts["UNCITED"] += 1; findings.append({"type": "UNCITED", "where": where, "director": who, "sentence": sent}); continue
-            src = " ".join(t for t in (source_text(c) for c in cites) if t)
+            src = " ".join(t for t in (source_text(r) for r in refs) if t)
             if not src: continue
             src = src.replace(",", "")
-            missing = [n for n in nums(CITE_RE.sub("", sent)) if n not in src]
+            stripped = BRACKET_RE.sub(lambda m: "" if any(classify(t)[0] for t in re.split(r"\s*[,;]\s*", m.group(1))) else m.group(0), sent)
+            missing = [n for n in nums(stripped) if n not in src]
             if missing:
-                counts["MISMATCH"] += 1; findings.append({"type": "MISMATCH", "where": where, "director": who, "missing": missing, "citations": cites, "sentence": sent})
+                counts["MISMATCH"] += 1; findings.append({"type": "MISMATCH", "where": where, "director": who, "missing": missing, "citations": cited_tokens, "sentence": sent})
     out = {"counts": counts, "findings": findings}
     json.dump(out, open(os.path.join(folder, "citations.json"), "w", encoding="utf-8"), indent=2)
     print(f"Citation check: {counts['UNCITED']} uncited figures, {counts['UNKNOWN']} unknown citations, {counts['MISMATCH']} figures not found in the cited source")
     for f in findings[:20]:
         print(f"  {f['type']:<8} {f['where']} ({f['director']}): {f['sentence'][:140]}")
     return out
+
 
 if __name__ == "__main__":
     a = sys.argv[1:]

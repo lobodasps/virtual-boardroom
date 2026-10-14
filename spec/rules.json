@@ -1,0 +1,123 @@
+{
+  "version": "1.3.0",
+  "MIN_SEATS": 3,
+  "MAX_SEATS": 12,
+  "QUICK_SEATS": 4,
+  "OWN_BUDGET": 60000,
+  "SHARED_BUDGET": 40000,
+  "MAX_ATT": 3000000,
+  "PART": 120000,
+  "CHUNK": 1500,
+  "PREVIEW_CHARS": 180,
+
+  "verdict": {
+    "bands": [
+      {"min": 7.5, "label": "GO"},
+      {"min": 6.0, "label": "GO WITH CONDITIONS"},
+      {"min": 4.5, "label": "RESHAPE"}
+    ],
+    "floor_label": "DON'T DO IT",
+    "hold_label": "HOLD",
+    "order": ["DON'T DO IT", "RESHAPE", "GO WITH CONDITIONS", "GO"],
+    "rounding": "one decimal, halves round up"
+  },
+
+  "weights": {"min": 1, "max": 3, "default": 2},
+
+  "caps": {
+    "ruin": {"flag": "likely", "cap": "RESHAPE", "lift_by_ratification": true},
+    "one_way_door": {"flag": "one-way", "cap": "GO WITH CONDITIONS", "needs_majority": true, "min_spread": 4},
+    "red_line_breached": {"flag": "breached", "cap": "RESHAPE", "lift_by_ratification": true},
+    "red_line_at_risk": {"flag": "at_risk", "cap": "GO WITH CONDITIONS", "lift_by_ratification": false},
+    "ratify_lifting_votes": ["endorse", "amend"]
+  },
+
+  "confidence": {"spread_penalty_at": 5, "penalty": 1, "min": 1, "max": 10},
+  "weak_pillar_max": 4,
+
+  "consensus_alarm": {"min": 3, "seats_minus": 1},
+
+  "stages": {
+    "quick": ["brief", "opening", "cruxes", "challenge1", "response1", "redteam", "vote", "synthesis"],
+    "standard": ["brief", "opening", "cruxes", "challenge1", "response1", "redteam", "vote", "synthesis"],
+    "deep": ["brief", "opening", "cruxes", "challenge1", "response1", "challenge2", "response2", "redteam", "vote", "synthesis"]
+  },
+  "redteam": {"quick": "alarm", "standard": "alarm", "deep": "always"},
+  "ratify": {"default": false, "stages": ["draft", "ratify"], "insert_before": "synthesis"},
+
+  "pairing": {
+    "stance_values": {"pursue": 2, "test": 1, "avoid": 0},
+    "default_stance": 1,
+    "counsel_fault_line": 2,
+    "default_fault_line": 1,
+    "opponent": 2,
+    "opposite_crux_sides": 2,
+    "repeat_pair": -4,
+    "max_times_challenged": 2
+  },
+
+  "words": {
+    "brief": 650,
+    "opening": 220,
+    "cruxes": 150,
+    "challenge": 150,
+    "response": 220,
+    "redteam": 230,
+    "draft": 200,
+    "consult": 400
+  },
+
+  "cards": {
+    "min_chars": 1500,
+    "max_chars": 3000,
+    "source_chars": 100000,
+    "max_headings": 200,
+    "split_window": 2000,
+    "sections": ["KEY FIGURES", "NAMED CLIENTS AND PEOPLE", "CONCLUSIONS", "SYNONYMS"]
+  },
+
+  "search": {"max_added_terms": 12},
+
+  "usage": {
+    "about": "Estimate of Claude usage per session (estimateUsage in the app, spec.estimate_usage in the plugin). Directors who search large data make a few extra calls on top.",
+    "chars_per_token": 4,
+    "frame_chars": 4500,
+    "context_chars": 2500,
+    "default_evidence_chars": 15000,
+    "chars_per_word": 6,
+    "output_tokens_per_word": 1.4,
+    "json_output_tokens": {"plan": 2500, "vote": 700, "ratify": 200, "synthesis": 2500},
+    "counsel_stages": ["brief", "cruxes", "draft", "synthesis"],
+    "no_transcript_stages": ["vote", "ratify", "draft", "synthesis"]
+  },
+
+  "research": {
+    "facts_per_researcher": {"min": 10, "max": 18},
+    "max_turns": 20,
+    "max_pages_opened": 15,
+    "recency_months": 24,
+    "recency_exception": "laws, rules and standards still in force",
+    "swing_facts": {"min": 3, "max": 5},
+    "swing_facts_need_two_sources": true,
+    "max_register_facts": 80
+  },
+
+  "custom_palette": [
+    {"name": "x1", "light": "#8A3B7A", "dark": "#D58BC6"},
+    {"name": "x2", "light": "#B05A1A", "dark": "#E89A5C"},
+    {"name": "x3", "light": "#1E7A8C", "dark": "#6CC5D6"},
+    {"name": "x4", "light": "#6B6B2A", "dark": "#C2C27A"},
+    {"name": "x5", "light": "#9C2F5E", "dark": "#E07FA8"},
+    {"name": "x6", "light": "#3E4FA3", "dark": "#8F9CE6"}
+  ],
+
+  "legacy_ids": {
+    "market-expansion": "titan",
+    "customer-deal": "developer",
+    "risk-hawk": "hawk",
+    "capital-allocator": "allocator",
+    "long-horizon": "maverick",
+    "profit-warden": "warden",
+    "strategy-counsel": "counsel"
+  }
+}

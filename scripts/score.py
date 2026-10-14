@@ -3,89 +3,138 @@
 
 Usage: score.py <session-folder>
 
-Reads  votes.json        {"votes":[{"director","choice","confidence","scores":{opt:n},"pillar_scores":{opt:n},
-                                    "ruin_risk":{opt:"none|possible|likely"},"door":{opt:"one-way|two-way"}, ...}]}
-       calibration.json  {"weights":{"<director id>":{"w":1-3,"why":"..."}}}   (optional; default weight 2)
+Reads  votes.json        {"votes":[{"director","title","choice","confidence","scores":{opt:n},"pillar_scores":{opt:n},
+                                    "ruin_risk":{opt:"none|possible|likely"},"door":{opt:"one-way|two-way"},
+                                    "red_line":{opt:"clear|at_risk|breached"}, ...}]}
+       calibration.json  {"weights":{"<director id>":{"w":n,"why":"..."}}}   (optional; default weight from the rules)
        ratify.json       {"votes":[{"director","vote":"endorse|amend|dissent","final_score":n}]}  (optional)
 Writes votes.json["scoring"] and prints a summary. Standard library only.
 
-Rules
-  option score = sum(weight x score) / sum(weight), one decimal; recommended = highest.
-  bands: >=7.5 GO, >=6.0 GO WITH CONDITIONS, >=4.5 RESHAPE, else DON'T DO IT; "Hold" on top -> HOLD.
-  ruin cap: any director at ruin_risk "likely" on the recommendation caps at RESHAPE,
-            unless ratification ran and every such director endorsed or amended.
-  one-way door cap: majority call it one-way AND spread >= 4 -> cap at GO WITH CONDITIONS.
-  council confidence (1-10) = round(avg confidence / 10), minus 1 if spread >= 5.
-  weak pillars: pillar score <= 4 on the recommendation.
+Every threshold comes from spec/rules.json (found next to this script, or under $CLAUDE_PLUGIN_ROOT/spec):
+  option score = sum(weight x score) / sum(weight), one decimal with halves rounding up; recommended = highest.
+  verdict bands, the ruin cap, the red-line caps (any "breached" on the recommendation caps at RESHAPE unless
+  ratification lifts it; any "at_risk" caps at GO WITH CONDITIONS), the one-way-door cap, council confidence and
+  weak pillars as configured there.
+Director ids are normalized through rules["legacy_ids"], so sessions from v1.1 workspaces still score.
+This mirrors scoreVotes() in app/strategy-boardroom.html; tests/ check that both give the same result.
 """
-import json, os, sys
+import json, math, os, re, sys
+sys.path.insert(0, os.path.dirname(os.path.abspath(__file__)))
+import spec
 
-ORDER = ["DON'T DO IT", "RESHAPE", "GO WITH CONDITIONS", "GO"]
 
 def load(p, d=None):
     try:
         with open(p, encoding="utf-8") as f: return json.load(f)
     except Exception: return d
 
-def band(x): return "GO" if x >= 7.5 else "GO WITH CONDITIONS" if x >= 6 else "RESHAPE" if x >= 4.5 else "DON'T DO IT"
 
-def score(folder):
-    vp = os.path.join(folder, "votes.json"); votes = load(vp, {}) or {}
-    weights = (load(os.path.join(folder, "calibration.json"), {}) or {}).get("weights", {})
-    rat = {r.get("director"): r for r in (load(os.path.join(folder, "ratify.json"), {}) or {}).get("votes", [])}
-    V = [v for v in votes.get("votes", []) if isinstance(v.get("scores"), dict)]
-    if not V: print("No scored votes found."); return None
-    def W(d):
-        try: return min(3, max(1, round(float((weights.get(d) or {}).get("w", 2)))))
-        except Exception: return 2
+def num(x):
+    if isinstance(x, bool): return math.nan
+    if isinstance(x, (int, float)): return float(x)
+    if isinstance(x, str) and x.strip():
+        try: return float(x)
+        except ValueError: return math.nan
+    return math.nan
+
+
+def fin(x): return not math.isnan(x) and not math.isinf(x)
+
+
+def g(x): return f"{x:g}"
+
+
+def score_votes(votes, weights, rat, R, all_ids=None):
+    """votes: [{"id","title","v"}]; weights: {id:{"w"}}; rat: {id:{"vote","final_score"}}. Same result as the app's scoreVotes()."""
+    Wr = R["weights"]
+    def W(i):
+        x = num((weights.get(i) or {}).get("w"))
+        x = x if fin(x) and x else Wr["default"]
+        return min(Wr["max"], max(Wr["min"], spec.round0(x)))
+    V = [x for x in votes if isinstance((x.get("v") or {}).get("scores"), dict)]
+    if not V: return None
+    rat = rat or {}
+    title = lambda i: next((x.get("title") for x in V if x["id"] == i and x.get("title")), i)
     keys = []
-    for v in V:
-        for k in v["scores"]:
+    for x in V:
+        for k in x["v"]["scores"]:
             if k not in keys: keys.append(k)
     options = {}
     for k in keys:
-        num = den = 0; parts = []; per = []
-        for v in V:
-            try: sc = float(v["scores"].get(k))
-            except Exception: continue
-            w = W(v.get("director")); num += w * sc; den += w; parts.append(f"{w}x{sc:g}"); per.append(sc)
-        options[k] = {"score": round(num / den, 1) if den else 0.0, "math": f"({' + '.join(parts)}) / {den}", "spread": (max(per) - min(per)) if per else 0}
+        n = d = 0; parts = []; per = []
+        for x in V:
+            sc = num(x["v"]["scores"].get(k))
+            if not fin(sc): continue
+            w = W(x["id"]); n += w * sc; d += w; parts.append(f"{w}×{g(sc)}"); per.append(sc)
+        options[k] = {"score": spec.round1(n / d) if d else 0, "math": f"({' + '.join(parts)}) / {d}", "spread": (max(per) - min(per)) if per else 0}
     ranked = sorted(options, key=lambda k: -options[k]["score"])
-    rec = ranked[0]; sc = options[rec]["score"]; spread = options[rec]["spread"]
-    label = "HOLD" if rec.lower() == "hold" else band(sc); caps = []
-    def cap(to, why):
+    rec = ranked[0]; score = options[rec]["score"]; spread = options[rec]["spread"]; hold = rec.lower() == "hold"
+    O, C = R["verdict"]["order"], R["caps"]
+    label = R["verdict"]["hold_label"] if hold else next((b["label"] for b in R["verdict"]["bands"] if score >= b["min"]), R["verdict"]["floor_label"])
+    caps, codes = [], []
+    def cap_to(to, code, why):
         nonlocal label
-        if label != "HOLD" and ORDER.index(label) > ORDER.index(to): label = to
-        caps.append(why)
-    ruin = [v.get("director") for v in V if str((v.get("ruin_risk") or {}).get(rec, "")).lower() == "likely"]
-    if ruin and label != "HOLD":
-        if rat and all(rat.get(d, {}).get("vote") in ("endorse", "amend") for d in ruin):
-            caps.append(f"Ruin cap lifted: {', '.join(ruin)} endorsed the resolution's mitigation")
-        else: cap("RESHAPE", f"Ruin cap: {', '.join(ruin)} flagged likely ruin on '{rec}'")
-    oneway = sum(1 for v in V if str((v.get("door") or {}).get(rec, "")).lower() == "one-way")
-    if label != "HOLD" and oneway > len(V) / 2 and spread >= 4:
-        cap("GO WITH CONDITIONS", f"One-way door: {oneway} of {len(V)} directors call '{rec}' hard to reverse and scores spread {spread:g} points")
-    avg = sum(float(v.get("confidence") or 0) for v in V) / len(V)
-    conf = max(1, min(10, round(avg / 10) - (1 if spread >= 5 else 0)))
-    pillars = {v.get("director"): (v.get("pillar_scores") or {}).get(rec) for v in V}
-    weak = [d for d, p in pillars.items() if isinstance(p, (int, float)) and p <= 4]
+        if not hold and O.index(label) > O.index(to): label = to
+        caps.append(why); codes.append(code)
+    def note(code, why): caps.append(why); codes.append(code)
+    def flagged(field, val): return [x["id"] for x in V if str((x["v"].get(field) or {}).get(rec, "") or "").lower() == val]
+    def ratified(ids): return bool(rat) and all(i in rat and str(rat[i].get("vote", "")).lower() in C["ratify_lifting_votes"] for i in ids)
+    names = lambda ids: ", ".join(title(i) for i in ids)
+    norm = lambda x: re.sub(r"[\s-]+", "_", str(x if x is not None else "").strip().lower())
+    def red_on(val): return [x["id"] for x in V if norm((x["v"].get("red_line") or {}).get(rec)) == val]
+    ruin = flagged("ruin_risk", C["ruin"]["flag"])
+    if ruin and not hold:
+        if C["ruin"]["lift_by_ratification"] and ratified(ruin): note("ruin_lifted", f"Ruin cap lifted: {names(ruin)} endorsed the resolution's mitigation")
+        else: cap_to(C["ruin"]["cap"], "ruin", f'Ruin cap: {names(ruin)} flagged likely ruin on "{rec}"')
+    red_breached, red_at_risk = red_on(C["red_line_breached"]["flag"]), red_on(C["red_line_at_risk"]["flag"])
+    if red_breached and not hold:
+        if C["red_line_breached"]["lift_by_ratification"] and ratified(red_breached): note("red_breached_lifted", f"Red-line cap lifted: {names(red_breached)} endorsed the resolution's mitigation")
+        else: cap_to(C["red_line_breached"]["cap"], "red_breached", f'Red line breached: {names(red_breached)} say "{rec}" crosses their red line')
+    if red_at_risk and not hold:
+        if C["red_line_at_risk"]["lift_by_ratification"] and ratified(red_at_risk): note("red_at_risk_lifted", f"Red-line cap lifted: {names(red_at_risk)} endorsed the resolution's mitigation")
+        else: cap_to(C["red_line_at_risk"]["cap"], "red_at_risk", f'Red line at risk: {names(red_at_risk)} say "{rec}" puts their red line at risk')
+    oneway = len(flagged("door", C["one_way_door"]["flag"]))
+    if not hold and oneway > 0 and (not C["one_way_door"]["needs_majority"] or oneway > len(V) / 2) and spread >= C["one_way_door"]["min_spread"]:
+        cap_to(C["one_way_door"]["cap"], "one_way_door", f'One-way door: {oneway} of {len(V)} directors call "{rec}" hard to reverse and scores spread {g(spread)} points')
+    K = R["confidence"]
+    avg = sum((num(x["v"].get("confidence")) if fin(num(x["v"].get("confidence"))) else 0) for x in V) / len(V)
+    confidence = max(K["min"], min(K["max"], spec.round0(avg / 10) - (K["penalty"] if spread >= K["spread_penalty_at"] else 0)))
+    pillars = {}
+    for x in V:
+        p = num((x["v"].get("pillar_scores") or {}).get(rec))
+        if fin(p): pillars[x["id"]] = p
     support = None
     if rat:
         n = d = 0
-        for did, r in rat.items():
-            try: f = float(r.get("final_score"))
-            except Exception: continue
-            n += W(did) * f; d += W(did)
-        support = round(n / d, 1) if d else None
-    out = {"options": options, "ranked": ranked, "rec": rec, "score": sc, "label": label, "caps": caps, "spread": spread,
-           "confidence": conf, "ruin": ruin, "pillars": pillars, "weak": weak, "weights": {v.get("director"): W(v.get("director")) for v in V}, "support": support}
+        for i, r in rat.items():
+            f = num((r or {}).get("final_score"))
+            if fin(f): n += W(i) * f; d += W(i)
+        support = spec.round1(n / d) if d else None
+    return {"options": options, "ranked": ranked, "rec": rec, "score": score, "label": label, "caps": caps, "cap_codes": codes,
+            "spread": spread, "confidence": confidence, "ruin": ruin, "redBreached": red_breached, "redAtRisk": red_at_risk, "pillars": pillars,
+            "weak": [i for i, p in pillars.items() if p <= R["weak_pillar_max"]],
+            "weights": {i: W(i) for i in (all_ids or [x["id"] for x in V])}, "support": support}
+
+
+def score(folder):
+    R = spec.load_rules(); canon = lambda i: spec.canon(i, R)
+    vp = os.path.join(folder, "votes.json"); votes = load(vp, {}) or {}
+    weights = {canon(k): v for k, v in ((load(os.path.join(folder, "calibration.json"), {}) or {}).get("weights") or {}).items()}
+    rat = {canon(r.get("director")): r for r in (load(os.path.join(folder, "ratify.json"), {}) or {}).get("votes", [])}
+    V = [{"id": canon(v.get("director")), "title": v.get("title"), "v": v} for v in votes.get("votes", [])]
+    out = score_votes(V, weights, rat, R)
+    if not out: print("No scored votes found."); return None
     votes["scoring"] = out
     with open(vp, "w", encoding="utf-8") as f: json.dump(votes, f, indent=2)
-    print(f"VERDICT: {label} — {rec} at {sc}/10 (spread {spread:g}, council confidence {conf}/10)" + (f", support for the resolution {support}/10" if support is not None else ""))
-    for k in ranked: print(f"  {k}: {options[k]['math']} = {options[k]['score']}")
-    for c in caps: print(f"  * {c}")
-    if weak: print(f"  Weak pillars on the recommendation (<=4): {', '.join(weak)}")
+    print(f"VERDICT: {out['label']} — {out['rec']} at {g(out['score'])}/10 (spread {g(out['spread'])}, council confidence {out['confidence']}/10)"
+          + (f", support for the resolution {g(out['support'])}/10" if out["support"] is not None else ""))
+    for k in out["ranked"]: print(f"  {k}: {out['options'][k]['math']} = {g(out['options'][k]['score'])}")
+    for c in out["caps"]: print(f"  * {c}")
+    if out["redBreached"] or out["redAtRisk"]:
+        print(f"  Red lines on '{out['rec']}': breached by {', '.join(out['redBreached']) or 'none'}; at risk for {', '.join(out['redAtRisk']) or 'none'}")
+    if out["weak"]: print(f"  Weak pillars on the recommendation (<={R['weak_pillar_max']}): {', '.join(out['weak'])}")
     return out
+
 
 if __name__ == "__main__":
     if len(sys.argv) != 2: print(__doc__); sys.exit(1)

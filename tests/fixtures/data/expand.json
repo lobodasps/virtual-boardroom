@@ -1,0 +1,197 @@
+{
+ "cases": [
+  {
+   "name": "two groups in one question",
+   "query": "What was our margin and DSO in 2025?",
+   "max": 12,
+   "expected": [
+    "gross margin",
+    "GP%",
+    "gross profit",
+    "gross profit margin",
+    "days sales outstanding",
+    "collection period",
+    "receivable days"
+   ]
+  },
+  {
+   "name": "whole words only: 'marginal' is not 'margin'",
+   "query": "marginal cost",
+   "max": 12,
+   "expected": []
+  },
+  {
+   "name": "case-insensitive, terms already present are not added",
+   "query": "GROSS MARGIN trend",
+   "max": 12,
+   "expected": [
+    "GP%",
+    "gross profit",
+    "gross profit margin"
+   ]
+  },
+  {
+   "name": "the cap stops additions in group order",
+   "query": "margin and DSO",
+   "max": 3,
+   "expected": [
+    "gross margin",
+    "GP%",
+    "gross profit"
+   ]
+  },
+  {
+   "name": "terms with % match",
+   "query": "billable % by quarter",
+   "max": 12,
+   "expected": [
+    "utilization",
+    "billable hours",
+    "chargeable hours"
+   ]
+  },
+  {
+   "name": "GP% in the query finds the margin group",
+   "query": "GP% fell",
+   "max": 12,
+   "expected": [
+    "margin",
+    "gross margin",
+    "gross profit",
+    "gross profit margin"
+   ]
+  },
+  {
+   "name": "card synonym groups are used; 'rebates' now matches 'rebate' (plural)",
+   "query": "heat pump rebates",
+   "max": 12,
+   "extra_groups": [
+    [
+     "heat pump",
+     "HP",
+     "ASHP"
+    ]
+   ],
+   "expected": [
+    "incentive",
+    "subsidy",
+    "grant",
+    "tax credit",
+    "HP",
+    "ASHP"
+   ]
+  },
+  {
+   "name": "empty query",
+   "query": "",
+   "max": 12,
+   "expected": []
+  },
+  {
+   "name": "plural query finds a singular term",
+   "query": "what are our fees",
+   "max": 12,
+   "expected": [
+    "price",
+    "pricing",
+    "rate"
+   ]
+  },
+  {
+   "name": "singular query finds a plural term",
+   "query": "employee count by year",
+   "max": 12,
+   "expected": [
+    "headcount",
+    "FTE",
+    "staff",
+    "workforce"
+   ]
+  },
+  {
+   "name": "plural of an acronym",
+   "query": "DSOs trend",
+   "max": 12,
+   "expected": [
+    "days sales outstanding",
+    "collection period",
+    "receivable days"
+   ]
+  },
+  {
+   "name": "plural of a multi-word term's last word",
+   "query": "tax credits for 2026",
+   "max": 12,
+   "expected": [
+    "incentive",
+    "rebate",
+    "subsidy",
+    "grant"
+   ]
+  }
+ ],
+ "forms": [
+  {
+   "term": "rebates",
+   "expected": [
+    "rebates",
+    "rebate"
+   ]
+  },
+  {
+   "term": "policy",
+   "expected": [
+    "policy",
+    "policies"
+   ]
+  },
+  {
+   "term": "taxes",
+   "expected": [
+    "taxes",
+    "tax"
+   ]
+  },
+  {
+   "term": "class",
+   "expected": [
+    "class",
+    "classes"
+   ]
+  },
+  {
+   "term": "cases",
+   "expected": [
+    "cases",
+    "case"
+   ]
+  },
+  {
+   "term": "status",
+   "expected": [
+    "status",
+    "statuses"
+   ]
+  },
+  {
+   "term": "day",
+   "expected": [
+    "day",
+    "days"
+   ]
+  },
+  {
+   "term": "GP%",
+   "expected": [
+    "gp%"
+   ]
+  },
+  {
+   "term": "Heat Pump",
+   "expected": [
+    "heat pump",
+    "heat pumps"
+   ]
+  }
+ ]
+}

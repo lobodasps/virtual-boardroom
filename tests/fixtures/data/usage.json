@@ -1,0 +1,155 @@
+{
+ "plans": [
+  {
+   "depth": "quick",
+   "ratify": false,
+   "expected": [
+    "brief",
+    "opening",
+    "cruxes",
+    "challenge1",
+    "response1",
+    "redteam",
+    "vote",
+    "synthesis"
+   ]
+  },
+  {
+   "depth": "standard",
+   "ratify": true,
+   "expected": [
+    "brief",
+    "opening",
+    "cruxes",
+    "challenge1",
+    "response1",
+    "redteam",
+    "vote",
+    "draft",
+    "ratify",
+    "synthesis"
+   ]
+  },
+  {
+   "depth": "deep",
+   "ratify": false,
+   "expected": [
+    "brief",
+    "opening",
+    "cruxes",
+    "challenge1",
+    "response1",
+    "challenge2",
+    "response2",
+    "redteam",
+    "vote",
+    "synthesis"
+   ]
+  },
+  {
+   "depth": "standard",
+   "ratify": false,
+   "rounds": 3,
+   "expected": [
+    "brief",
+    "opening",
+    "cruxes",
+    "challenge1",
+    "response1",
+    "challenge2",
+    "response2",
+    "challenge3",
+    "response3",
+    "redteam",
+    "vote",
+    "synthesis"
+   ]
+  }
+ ],
+ "usage": [
+  {
+   "name": "hand-checked: brief, 2 openings, 2 votes, synthesis",
+   "input": {
+    "plan": [
+     "brief",
+     "opening",
+     "vote",
+     "synthesis"
+    ],
+    "own": [
+     1000,
+     0
+    ],
+    "shared": 0,
+    "evidence": 10000
+   },
+   "expected": {
+    "calls": 7,
+    "input_tokens": 34605,
+    "output_tokens": 7926
+   }
+  },
+  {
+   "name": "standard, 4 directors with data, ratify (Python result; the app must match)",
+   "input": {
+    "plan": [
+     "brief",
+     "opening",
+     "cruxes",
+     "challenge1",
+     "response1",
+     "redteam",
+     "vote",
+     "draft",
+     "ratify",
+     "synthesis"
+    ],
+    "own": [
+     60000,
+     12000,
+     0,
+     31000
+    ],
+    "shared": 8000,
+    "evidence": 22000
+   },
+   "expected": {
+    "calls": 26,
+    "input_tokens": 434593,
+    "output_tokens": 13626
+   }
+  },
+  {
+   "name": "deep, 7 directors, no data, default evidence (Python result; the app must match)",
+   "input": {
+    "plan": [
+     "brief",
+     "opening",
+     "cruxes",
+     "challenge1",
+     "response1",
+     "challenge2",
+     "response2",
+     "redteam",
+     "vote",
+     "synthesis"
+    ],
+    "own": [
+     0,
+     0,
+     0,
+     0,
+     0,
+     0,
+     0
+    ],
+    "shared": 0
+   },
+   "expected": {
+    "calls": 47,
+    "input_tokens": 543860,
+    "output_tokens": 20750
+   }
+  }
+ ]
+}
