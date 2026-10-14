@@ -1,0 +1,59 @@
+{
+ "about": "Hold scores highest: HOLD, and caps never apply to HOLD, though flags are still reported.",
+ "votes": [
+  {
+   "director": "titan",
+   "title": "Market Expansion Strategist",
+   "confidence": 70,
+   "scores": {
+    "A": 4,
+    "Hold": 7
+   }
+  },
+  {
+   "director": "hawk",
+   "title": "Risk & Regulatory Hawk",
+   "confidence": 70,
+   "scores": {
+    "A": 5,
+    "Hold": 8
+   },
+   "ruin_risk": {
+    "Hold": "likely"
+   },
+   "red_line": {
+    "Hold": "breached"
+   }
+  },
+  {
+   "director": "warden",
+   "title": "Lean Operator / Profit Warden",
+   "confidence": 70,
+   "scores": {
+    "A": 3,
+    "Hold": 6
+   }
+  }
+ ],
+ "expected": {
+  "rec": "Hold",
+  "label": "HOLD",
+  "score": 7.0,
+  "options": {
+   "A": 4.0,
+   "Hold": 7.0
+  },
+  "spread": 2,
+  "confidence": 7,
+  "cap_codes": [],
+  "ruin": [
+   "hawk"
+  ],
+  "redBreached": [
+   "hawk"
+  ],
+  "redAtRisk": [],
+  "weak": [],
+  "support": null
+ }
+}

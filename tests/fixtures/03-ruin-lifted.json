@@ -1,0 +1,75 @@
+{
+ "about": "Same as 02, but the ruin director amends the ratified resolution: the cap lifts.",
+ "votes": [
+  {
+   "director": "titan",
+   "title": "Market Expansion Strategist",
+   "confidence": 80,
+   "scores": {
+    "A": 9,
+    "B": 5
+   }
+  },
+  {
+   "director": "hawk",
+   "title": "Risk & Regulatory Hawk",
+   "confidence": 70,
+   "scores": {
+    "A": 8,
+    "B": 6
+   },
+   "ruin_risk": {
+    "A": "likely"
+   }
+  },
+  {
+   "director": "warden",
+   "title": "Lean Operator / Profit Warden",
+   "confidence": 90,
+   "scores": {
+    "A": 8,
+    "B": 4
+   }
+  }
+ ],
+ "ratify": {
+  "votes": [
+   {
+    "director": "titan",
+    "vote": "endorse",
+    "final_score": 8
+   },
+   {
+    "director": "hawk",
+    "vote": "amend",
+    "final_score": 7
+   },
+   {
+    "director": "warden",
+    "vote": "endorse",
+    "final_score": 9
+   }
+  ]
+ },
+ "expected": {
+  "rec": "A",
+  "label": "GO",
+  "score": 8.3,
+  "options": {
+   "A": 8.3,
+   "B": 5.0
+  },
+  "spread": 1,
+  "confidence": 8,
+  "cap_codes": [
+   "ruin_lifted"
+  ],
+  "ruin": [
+   "hawk"
+  ],
+  "redBreached": [],
+  "redAtRisk": [],
+  "weak": [],
+  "support": 8.0
+ }
+}

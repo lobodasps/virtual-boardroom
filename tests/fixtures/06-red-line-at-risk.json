@@ -1,0 +1,75 @@
+{
+ "about": "A red line at risk (written 'at risk', normalized) caps at GO WITH CONDITIONS, even after ratification.",
+ "votes": [
+  {
+   "director": "titan",
+   "title": "Market Expansion Strategist",
+   "confidence": 80,
+   "scores": {
+    "A": 8,
+    "B": 5
+   },
+   "red_line": {
+    "A": "at risk"
+   }
+  },
+  {
+   "director": "hawk",
+   "title": "Risk & Regulatory Hawk",
+   "confidence": 80,
+   "scores": {
+    "A": 8,
+    "B": 6
+   }
+  },
+  {
+   "director": "warden",
+   "title": "Lean Operator / Profit Warden",
+   "confidence": 80,
+   "scores": {
+    "A": 8,
+    "B": 4
+   }
+  }
+ ],
+ "ratify": {
+  "votes": [
+   {
+    "director": "titan",
+    "vote": "endorse",
+    "final_score": 8
+   },
+   {
+    "director": "hawk",
+    "vote": "endorse",
+    "final_score": 8
+   },
+   {
+    "director": "warden",
+    "vote": "endorse",
+    "final_score": 8
+   }
+  ]
+ },
+ "expected": {
+  "rec": "A",
+  "label": "GO WITH CONDITIONS",
+  "score": 8.0,
+  "options": {
+   "A": 8.0,
+   "B": 5.0
+  },
+  "spread": 0,
+  "confidence": 8,
+  "cap_codes": [
+   "red_at_risk"
+  ],
+  "ruin": [],
+  "redBreached": [],
+  "redAtRisk": [
+   "titan"
+  ],
+  "weak": [],
+  "support": 8.0
+ }
+}

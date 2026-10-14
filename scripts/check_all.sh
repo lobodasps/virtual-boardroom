@@ -1,0 +1,12 @@
+#!/bin/sh
+# Build both front ends from spec/, confirm they are in sync, and run every test.
+# Usage: scripts/check_all.sh   (needs python3 and node; no packages)
+set -e
+cd "$(dirname "$0")/.."
+echo "== build";            python3 scripts/build_app.py && python3 scripts/build_plugin.py
+echo "== sync";             python3 scripts/check_sync.py
+echo "== score.py";         python3 tests/test_score.py
+echo "== app scoreVotes";   node tests/test_app_score.mjs
+echo "== app planMaterials"; node tests/test_data.mjs
+echo "== materials.py";     python3 tests/test_materials.py
+echo "All checks passed."
