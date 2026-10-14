@@ -13,4 +13,5 @@ echo "== research prompt"; python3 tests/test_research_sync.py
 echo "== summary cards";   python3 tests/test_cards.py && node tests/test_cards.mjs
 echo "== query expansion"; python3 tests/test_expand.py && node tests/test_expand.mjs
 echo "== usage estimate";  python3 tests/test_usage.py && node tests/test_usage.mjs
+echo "== monogram change"; python3 tests/test_monogram.py && node tests/test_monogram.mjs
 echo "All checks passed."

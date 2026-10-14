@@ -2,7 +2,8 @@
 id: maverick
 order: 6
 title: Sustainability & Long-Horizon Pathfinder
-mono: SM
+mono: SP
+former_monos: [SM]
 color: {light: "#5B8A1F", dark: "#9CCB5E"}
 seated_by_default: true
 pestle: [Environmental, Legal, Political]

@@ -34,7 +34,7 @@ def export(boardroom, out=None):
     defaults = {d["id"] for d in spec.load_directors()}; dirs, mats = [], []
     for did, (folder, archived) in folders(boardroom).items():
         with open(os.path.join(folder, "persona.md"), encoding="utf-8") as f: p = spec.parse_persona(f.read(), os.path.basename(folder))
-        dirs.append({"id": did, "title": p["title"], "mono": p["mono"], "color": p["color"] or None, "lens": p["lens"], "mandate": p["mandate"],
+        dirs.append({"id": did, "title": p["title"], "mono": p["mono"], **({"formerMonos": p["formerMonos"]} if p["formerMonos"] else {}), "color": p["color"] or None, "lens": p["lens"], "mandate": p["mandate"],
                      "presses": p["presses"], "redLine": p["redLine"], "thresholds": p["thresholds"], "blindSpots": p["blindSpots"], "tone": p["tone"],
                      "pestle": p["pestle"], "opponents": p["opponents"], "custom": did not in defaults, "archived": archived, "active": p["active"]})
         items = materials.load_manifest(folder) or (materials.index(folder) if os.path.isdir(os.path.join(folder, "data")) else [])

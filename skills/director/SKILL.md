@@ -35,7 +35,7 @@ Show a table of every director: title, monogram, seated by default, number of pr
 4. Show the draft and ask the user to confirm or edit it. Then write `persona.md`, and create `data/`, `data/shared/` and an empty `data/index.json` (`[]`).
 
 ## edit
-Show the current persona, apply the user's changes, and keep the frontmatter valid. Never change `id`. Offer to fill in `## Thresholds` (the numbers that move this director from yes to no), `## Blind spots` (where the lens misjudges) and `opponents` (ids of the directors it should clash with) if they are empty or still hold the placeholder comment. If the monogram changes, existing items keep their tags (so past citations still resolve) and new items use the new monogram.
+Show the current persona, apply the user's changes, and keep the frontmatter valid. Never change `id`. Offer to fill in `## Thresholds` (the numbers that move this director from yes to no), `## Blind spots` (where the lens misjudges) and `opponents` (ids of the directors it should clash with) if they are empty or still hold the placeholder comment. If the monogram changes, add the old one to `former_monos` in the frontmatter (e.g. `former_monos: [SM]`): existing items keep their tags and keep resolving as citations, including legacy `[SM:file]` ones, and new items use the new monogram.
 
 ## seat
 Show the roster with `seated_by_default`, and update the flags the user changes. At least 3 directors should be seated by default.

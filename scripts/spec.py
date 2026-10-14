@@ -174,6 +174,7 @@ def parse_persona(text, slug=""):
     return {"id": str(meta.get("id") or slug), "slug": slug, "order": meta.get("order", 99), "title": meta.get("title", ""),
             "mono": meta.get("mono", ""), "color": color, "active": meta.get("seated_by_default", True) is not False,
             "nonVoting": meta.get("non_voting", False) is True, "pestle": lst(meta.get("pestle")), "opponents": lst(meta.get("opponents")),
+            "formerMonos": lst(meta.get("former_monos")),
             "lens": sec.get("lens", ""), "mandate": sec.get("mandate", ""), "presses": presses, "redLine": sec.get("redLine", ""),
             "thresholds": sec.get("thresholds", ""), "blindSpots": sec.get("blindSpots", ""), "tone": sec.get("tone", "")}
 
@@ -277,6 +278,7 @@ def _yaml(v):
 def render_persona(p):
     """Write a persona (app field names, as from parse_persona or a board export) back to persona.md text."""
     fm = [("id", p["id"]), ("title", p.get("title", "")), ("mono", p.get("mono", ""))]
+    if p.get("formerMonos"): fm.append(("former_monos", list(p["formerMonos"])))
     if p.get("color"): fm.append(("color", p["color"]))
     fm += [("seated_by_default", p.get("active", True) is not False), ("pestle", list(p.get("pestle") or [])), ("opponents", list(p.get("opponents") or []))]
     presses = p.get("presses") or []

@@ -58,6 +58,7 @@ def chars(path):
 
 
 def next_tag(mono, items):
+    """Next tag for the current monogram; items tagged with a former monogram keep their tags and don't count."""
     n = 0
     for it in items:
         m = re.fullmatch(re.escape(mono) + r"(\d+)", str(it.get("tag", "")))
@@ -208,6 +209,16 @@ def card_synonyms(folder):
     return out
 
 
+# ───────── citations (mirrors classifyCite/nextTag in the app's SPEC:CITE block) ─────────
+def classify_cite(tok, tags, monos):
+    """'cite' for F<n> or a real tag; 'unknown' for <MONO><n> of a known current or former monogram that has no
+    such item; None for anything else ([CO2], [I95], [NJ1])."""
+    t = str(tok or "").strip()
+    if re.fullmatch(r"F\d+", t) or t in tags: return "cite"
+    m = re.fullmatch(r"([A-Z]{1,3})(\d+)", t)
+    return "unknown" if m and m.group(1) in monos else None
+
+
 def all_tags(boardroom):
     """{tag: {director, mono, file, path}} for every director under boardroom/directors, including legacy MONO:file keys."""
     out = {}; d = os.path.join(boardroom, "directors")
@@ -218,7 +229,8 @@ def all_tags(boardroom):
         for it in load_manifest(folder):
             info = {"director": p["id"], "mono": p["mono"], "file": it.get("file"), "path": os.path.join(folder, "data", it.get("file", ""))}
             out[it.get("tag")] = info
-            out[f"{p['mono']}:{os.path.basename(it.get('file', ''))}"] = info
+            for mono in [p["mono"], *p.get("formerMonos", [])]:  # legacy [MONO:file] citations, old monograms included
+                out[f"{mono}:{os.path.basename(it.get('file', ''))}"] = info
     return out
 
 

@@ -38,8 +38,9 @@ def director_dirs(boardroom):
     for d in (os.listdir(ddir) if os.path.isdir(ddir) else []):
         p = os.path.join(ddir, d, "persona.md")
         if os.path.isfile(p):
-            with open(p, encoding="utf-8") as f: mono = spec.parse_persona(f.read(), d)["mono"]
-            if mono: m[mono] = os.path.join(ddir, d)
+            with open(p, encoding="utf-8") as f: per = spec.parse_persona(f.read(), d)
+            for mono in [per["mono"], *per["formerMonos"]]:  # former monograms keep resolving
+                if mono: m.setdefault(mono, os.path.join(ddir, d))
     return m
 
 
@@ -61,13 +62,13 @@ def check(folder, boardroom=None):
         """-> ('cite', path-or-fact-id) | ('unknown', None) | (None, None) for tokens that aren't citations."""
         tok = tok.strip()
         if re.fullmatch(r"F\d+", tok): return ("cite", tok) if tok in ev else ("unknown", None)
-        if tok in tags: return "cite", tags[tok]["path"]
-        m = re.fullmatch(r"([A-Z]{1,3})(?:\d+|:\s*(.+))", tok)
-        if m and m.group(1) in monos:
-            if m.group(2):  # legacy [MONO:file] with no manifest entry
-                p = find_file(os.path.join(monos[m.group(1)], "data"), m.group(2).strip())
-                if p: return "cite", p
-            return "unknown", None
+        kind = materials.classify_cite(tok, tags, monos)
+        if kind == "cite": return "cite", tags[tok]["path"]
+        if kind == "unknown": return "unknown", None
+        m = re.fullmatch(r"([A-Z]{1,3}):\s*(.+)", tok)
+        if m and m.group(1) in monos:  # legacy [MONO:file] with no manifest entry
+            p = find_file(os.path.join(monos[m.group(1)], "data"), m.group(2).strip())
+            return ("cite", p) if p else ("unknown", None)
         return None, None
 
     def source_text(ref):

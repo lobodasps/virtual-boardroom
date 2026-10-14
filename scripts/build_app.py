@@ -33,6 +33,7 @@ def board_js(directors, rules):
             o.update(pestle=", ".join(d["pestle"]), lens=d["lens"], mandate=d["mandate"], presses="\n".join(d["presses"]),
                      redLine=d["redLine"], thresholds=d["thresholds"], blindSpots=d["blindSpots"], tone=d["tone"],
                      opponents=d["opponents"], active=d["active"])
+            if d.get("formerMonos"): o["formerMonos"] = d["formerMonos"]
         rows.append("  " + js(o))
     hexes = {"--c-" + d["id"]: d["color"] for d in directors}
     hexes.update({"--c-" + c["name"]: {"light": c["light"], "dark": c["dark"]} for c in rules.get("custom_palette", [])})

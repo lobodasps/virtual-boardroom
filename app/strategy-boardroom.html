@@ -291,7 +291,7 @@ const BOARD = [
   {"id":"hawk","title":"Risk & Regulatory Hawk","mono":"RH","color":"--c-hawk","pestle":"Legal, Political, Environmental","lens":"One bad contract or one compliance failure can erase years of profit.","mandate":"Protect the balance sheet and the licenses to operate: liability and insurance limits, contract terms (indemnity, payment terms, consequential damages), litigation exposure, licensing and regulatory requirements, labor and employment law, safety and quality record.","presses":"What is the worst-case loss, who carries it, and does our insurance actually respond?","redLine":"Uncapped liability, risk beyond insurance capacity, or cutting corners on legally required qualifications.","thresholds":"","blindSpots":"","tone":"Analytical, skeptical, precise, unmoved by enthusiasm.","opponents":["technologist","developer"],"active":true},
   {"id":"technologist","title":"First-Principles Technologist","mono":"FT","color":"--c-technologist","pestle":"Technological, Economic","lens":"If revenue only grows when headcount grows, we are renting out people, not building a company.","mandate":"Rebuild the delivery model from first principles: automation, software, data, AI and new tools that change the cost and speed of delivery. Grow revenue per person instead of headcount.","presses":"What does each unit of output actually cost to produce, and which steps exist only because they always have?","redLine":"Growth plans that just add people in a straight line.","thresholds":"","blindSpots":"","tone":"Blunt, fast, numerate, dismissive of legacy excuses but willing to be shown the rule.","opponents":["hawk","warden"],"active":true},
   {"id":"allocator","title":"Capital & M&A Allocator","mono":"CA","color":"--c-allocator","pestle":"Economic, Legal","lens":"Organic growth is slow. What can we buy, and what is it worth once it is ours?","mandate":"Maximize enterprise value: EBITDA margin, recurring revenue, working capital and days sales outstanding, debt capacity, buy-versus-build. Looks for tuck-in acquisitions of smaller competitors and adjacent businesses and for how each move changes the company's valuation.","presses":"What is the return on each dollar and each month, and what multiple does this move earn us?","redLine":"Pouring capital into markets that cannot scale or that tie up cash for years.","thresholds":"","blindSpots":"","tone":"Exacting, transactional, macro-aware, speaks in returns.","opponents":["warden","maverick"],"active":true},
-  {"id":"maverick","title":"Sustainability & Long-Horizon Pathfinder","mono":"SM","color":"--c-maverick","pestle":"Environmental, Legal, Political","lens":"Positioning for the demand curve—well before the deadline.","mandate":"Ride the long-term shifts that force buyers to spend: regulation and mandates, decarbonization and climate resilience, demographic and technology transitions. Thinks 10 to 20 years out and wants the company positioned before the wave.","presses":"Which rule or shift forces a buyer to spend, by what date, and who is already positioned to serve them?","redLine":"Ignoring a structural shift until competitors own it.","thresholds":"","blindSpots":"","tone":"Energetic, forward-looking, persuasive, impatient with short-termism.","opponents":["titan","allocator"],"active":true},
+  {"id":"maverick","title":"Sustainability & Long-Horizon Pathfinder","mono":"SP","color":"--c-maverick","pestle":"Environmental, Legal, Political","lens":"Positioning for the demand curve—well before the deadline.","mandate":"Ride the long-term shifts that force buyers to spend: regulation and mandates, decarbonization and climate resilience, demographic and technology transitions. Thinks 10 to 20 years out and wants the company positioned before the wave.","presses":"Which rule or shift forces a buyer to spend, by what date, and who is already positioned to serve them?","redLine":"Ignoring a structural shift until competitors own it.","thresholds":"","blindSpots":"","tone":"Energetic, forward-looking, persuasive, impatient with short-termism.","opponents":["titan","allocator"],"active":true,"formerMonos":["SM"]},
   {"id":"warden","title":"Lean Operator / Profit Warden","mono":"PW","color":"--c-warden","pestle":"Social, Economic","lens":"Who exactly is going to deliver this, and what does it do to our overhead and cash?","mandate":"Guard unit economics and delivery capacity: utilization, margins, overhead, cash conversion and days sales outstanding, bench depth, hiring and retaining scarce licensed or skilled people, management span of control.","presses":"Names, hours, and the month the cash actually arrives.","redLine":"Adding overhead before revenue, or growth that outruns the people who must deliver it.","thresholds":"","blindSpots":"","tone":"Grounded, systematic, realistic about people, allergic to slideware.","opponents":["allocator","technologist"],"active":true},
   {"id":"counsel","title":"Strategy Counsel","mono":"SC","color":"--c-counsel","nonVoting":true,"lens":"Facts first, then the fight. I don't vote."}
 ];
@@ -390,7 +390,7 @@ const byId = {}; BOARD.forEach(b=>byId[b.id]=b);
 const DEFAULT_IDS = BOARD.filter(b=>!b.nonVoting).map(b=>b.id);
 const COUNSEL = BOARD.find(b=>b.nonVoting);
 const COLORS = [...BOARD.filter(b=>!b.nonVoting).map(b=>b.color), ...(RULES.custom_palette||[]).map(p=>"--c-"+p.name)];
-const PFIELDS = ["title","mono","color","lens","mandate","presses","redLine","thresholds","blindSpots","tone","pestle","opponents"];
+const PFIELDS = ["title","mono","formerMonos","color","lens","mandate","presses","redLine","thresholds","blindSpots","tone","pestle","opponents"];
 const {MIN_SEATS, MAX_SEATS, OWN_BUDGET, SHARED_BUDGET, MAX_ATT, PART, CHUNK} = RULES;
 /* Prompt text lives in PROMPTS (generated from spec/prompts); fill() injects {{placeholders}} in one pass. */
 const P = k => PROMPTS[k] ?? "";
@@ -489,9 +489,19 @@ function showNotice(msg){ state.notice=msg; render(); }
 /* ───────────────────────── Text helpers ───────────────────────── */
 const esc = s => String(s??"").replace(/[&<>"']/g,c=>({"&":"&amp;","<":"&lt;",">":"&gt;",'"':"&quot;","'":"&#39;"}[c]));
 const FIG = /(\$\s?\d|\b\d[\d,.]*\s?(%|percent\b|million\b|billion\b|bn\b|mm\b|[MBK]\b))/i;
-/* A token is a citation only if it is F<n> or a real material tag; [CO2], [I95] and [NJ1] are not. */
-const isTag = id => /^F\d+$/.test(id) || !!state.attIndex[id];
-const knownMono = id => { const m=String(id).match(/^([A-Z]{1,3})\d+$/); return !!m && Object.values(byId).some(p=>p&&p.mono===m[1]); };
+/* SPEC:CITE:BEGIN */
+/* Citations, mirrored by classify_cite()/next_tag() in scripts/materials.py; tests/test_monogram.* run the same fixtures.
+   'cite' for F<n> or a real tag; 'unknown' for <MONO><n> of a known current or former monogram with no such item;
+   null for anything else ([CO2], [I95], [NJ1]). nextTag numbers only the current monogram; old tags keep theirs. */
+function classifyCite(tok, tags, monos){
+  const t=String(tok??"").trim(); if(/^F\d+$/.test(t) || tags.has(t)) return "cite";
+  const m=t.match(/^([A-Z]{1,3})(\d+)$/); return m && monos.has(m[1]) ? "unknown" : null;
+}
+function nextTag(mono, tags){ let n=0; for(const t of tags){ const m=String(t).match(/^([A-Z]{1,3})(\d+)$/); if(m&&m[1]===mono) n=Math.max(n,+m[2]); } return mono+(n+1); }
+/* SPEC:CITE:END */
+const citeMonos = () => new Set(Object.values(byId).flatMap(p=>p?[p.mono,...(p.formerMonos||[])]:[]).filter(Boolean));
+const isTag = id => classifyCite(id, new Set(Object.keys(state.attIndex)), citeMonos())==="cite";
+const knownMono = id => classifyCite(id, new Set(Object.keys(state.attIndex)), citeMonos())==="unknown";
 function citeIds(s){ return [...String(s).matchAll(/\[([^\]]+)\]/g)].flatMap(m=>m[1].split(/\s*[,;]\s*/)).map(x=>x.trim()).filter(isTag); }
 function factLink(id, facts){
   if(!/^F\d+$/.test(id)){ const a=state.attIndex[id];
@@ -1585,10 +1595,9 @@ async function deleteMaterial(dirId, a){
   await Store.del(`directors/${dirId}/data`,a.id);
 }
 async function addAttachments(dirId, items, monoHint){
-  const mono=persona(dirId)?.mono||monoHint; if(!mono) return []; let n=0; const made=[];
-  Object.keys(state.attIndex).forEach(t=>{ const m=t.match(/^([A-Z]{1,3})(\d+)$/); if(m&&m[1]===mono) n=Math.max(n,+m[2]); });
-  for(const it of items){ n++; let t=String(it.text).replace(/\u0000/g,""); const truncated=t.length>MAX_ATT; if(truncated) t=t.slice(0,MAX_ATT);
-    const aid=newId("a"), meta={name:it.name,kind:it.kind,tag:it.tag||mono+n,chars:t.length,truncated,shared:!!it.shared,pinned:!!it.pinned,asOf:it.asOf||"",addedAt:it.addedAt||Date.now(),...(it.cardFor?{cardFor:it.cardFor}:{}),...(it.cardWarnings?{cardWarnings:it.cardWarnings}:{})};
+  const mono=persona(dirId)?.mono||monoHint; if(!mono) return []; const made=[], used=new Set(Object.keys(state.attIndex));
+  for(const it of items){ const tag=it.tag||nextTag(mono, used); used.add(tag); let t=String(it.text).replace(/\u0000/g,""); const truncated=t.length>MAX_ATT; if(truncated) t=t.slice(0,MAX_ATT);
+    const aid=newId("a"), meta={name:it.name,kind:it.kind,tag,chars:t.length,truncated,shared:!!it.shared,pinned:!!it.pinned,asOf:it.asOf||"",addedAt:it.addedAt||Date.now(),...(it.cardFor?{cardFor:it.cardFor}:{}),...(it.cardWarnings?{cardWarnings:it.cardWarnings}:{})};
     made.push({id:aid,tag:meta.tag,name:meta.name,text:t,shared:meta.shared});
     if(t.length<=PART){ await Store.put(`directors/${dirId}/data`, aid, {...meta,text:t}); }
     else { const k=Math.ceil(t.length/PART); for(let i=0;i<k;i++) await Store.put(`directors/${dirId}/data/${aid}/parts`,"p"+i,{n:i,text:t.slice(i*PART,(i+1)*PART)});
@@ -1682,7 +1691,8 @@ async function saveDirectorForm(){
   if(clash){ showNotice(`The monogram ${mono} is already used by the ${clash.title}. Choose another.`); return; }
   const pestle=[...document.querySelectorAll('input[name=d-pestle]:checked')].map(x=>x.value).join(", ");
   const opponents=[...document.querySelectorAll('input[name=d-opp]:checked')].map(x=>x.value);
-  const data={title,mono,color:state.dirColor||nextColor(),lens:v("d-lens"),mandate,presses:lines(v("d-presses")).join("\n"),redLine:v("d-red"),thresholds:v("d-thresholds"),blindSpots:v("d-blind"),tone:v("d-tone"),pestle,opponents,active:document.getElementById("d-active").checked};
+  const before=state.dirId==="new"?null:persona(state.dirId), formerMonos=[...new Set([...(before?.formerMonos||[]), ...(before&&before.mono&&before.mono!==mono?[before.mono]:[])])].filter(m=>m!==mono);
+  const data={title,mono,color:state.dirColor||nextColor(),lens:v("d-lens"),mandate,presses:lines(v("d-presses")).join("\n"),redLine:v("d-red"),thresholds:v("d-thresholds"),blindSpots:v("d-blind"),tone:v("d-tone"),pestle,opponents,formerMonos,active:document.getElementById("d-active").checked};
   if(state.dirId==="new"){ const id=newId("d"); await Store.put("directors",id,{...data,custom:true,createdAt:Date.now(),updatedAt:Date.now()}); state.dirId=id; state.notice="Saved. You can now attach supporting data."; main_rerender_dir(true); }
   else { await saveDir(state.dirId,data); state.notice="Saved."; render(); }
 }
@@ -1730,7 +1740,7 @@ function dirFormHTML(p,isNew){
     <small>Optional. Counsel drafts a persona that will clash with your current board; edit it before saving.</small></div></div>`:""}
   <form id="dir-form" class="sec panel form" autocomplete="off">
     ${f("d-title","Title",p.title,"e.g. Chief Customer Officer",false)}
-    <div class="field"><label for="d-mono">Monogram</label><input type="text" id="d-mono" maxlength="3" value="${esc(p.mono||"")}" placeholder="1–3 letters"><small>Used for the avatar and to tag this director's data, e.g. [${esc(p.mono||"CC")}1].</small></div>
+    <div class="field"><label for="d-mono">Monogram</label><input type="text" id="d-mono" maxlength="3" value="${esc(p.mono||"")}" placeholder="1–3 letters"><small>Used for the avatar and to tag this director's data, e.g. [${esc(p.mono||"CC")}1].${(p.formerMonos||[]).length?` Earlier tags (${p.formerMonos.map(esc).join(", ")}) keep working.`:""}</small></div>
     <div class="field full"><label>Color</label><div class="swatches">${COLORS.map(c=>`<button type="button" class="swatch" style="--who:var(${c})" data-act="swatch" data-c="${c}" aria-pressed="${String((state.dirColor||p.color)===c)}" aria-label="Color ${c.replace("--c-","")}"></button>`).join("")}</div></div>
     ${f("d-lens","Lens: their one-line motto",p.lens,"e.g. If the customer won't renew it, it isn't revenue.",true)}
     ${f("d-mandate","Mandate: what they push the company toward",p.mandate,"Two sentences on what this director is on the board to protect or pursue",true,true)}
@@ -1923,7 +1933,7 @@ function drawCompare(main){
 const isoOf = t => t ? new Date(t).toISOString() : "";
 const timeOf = s => { const t=Date.parse(s||""); return Number.isFinite(t)?t:Date.now(); };
 function exportPersona(p){
-  return {id:p.id, title:p.title||"", mono:p.mono||"", color:COLOR_HEX[p.color]||null, lens:p.lens||"", mandate:p.mandate||"", presses:lines(p.presses),
+  return {id:p.id, title:p.title||"", mono:p.mono||"", ...((p.formerMonos||[]).length?{formerMonos:p.formerMonos}:{}), color:COLOR_HEX[p.color]||null, lens:p.lens||"", mandate:p.mandate||"", presses:lines(p.presses),
     redLine:p.redLine||"", thresholds:p.thresholds||"", blindSpots:p.blindSpots||"", tone:p.tone||"",
     pestle:String(p.pestle||"").split(/\s*,\s*/).filter(Boolean), opponents:p.opponents||[], custom:!!p.custom, archived:!!p.archived, active:p.active!==false};
 }
@@ -1977,7 +1987,7 @@ async function applyImport(overwrite){
   for(const d of P.dirs){
     if(P.skipDirs.includes(d.id)) continue;
     const cur=persona(d.id); if(cur && !overwrite) continue;
-    const fields={title:d.title, mono:String(d.mono||initials(d.title)).toUpperCase().slice(0,3), color:colorFor(d,cur?.color), lens:d.lens||"", mandate:d.mandate||"",
+    const fields={title:d.title, mono:String(d.mono||initials(d.title)).toUpperCase().slice(0,3), formerMonos:(d.formerMonos||[]).map(String), color:colorFor(d,cur?.color), lens:d.lens||"", mandate:d.mandate||"",
       presses:lines(d.presses).join("\n"), redLine:d.redLine||"", thresholds:d.thresholds||"", blindSpots:d.blindSpots||"", tone:d.tone||"",
       pestle:(Array.isArray(d.pestle)?d.pestle:String(d.pestle||"").split(/\s*,\s*/)).filter(Boolean).join(", "), opponents:(d.opponents||[]).map(String), archived:!!d.archived, active:d.active!==false};
     if(DEFAULT_IDS.includes(d.id)) await saveDir(d.id, fields);
