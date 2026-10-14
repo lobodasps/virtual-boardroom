@@ -9,9 +9,10 @@
   --bg:#EEF0EE; --surface:#FFFFFF; --sunk:#E4E7E4; --ink:#15191C; --muted:#5A646C; --line:#D3D8D5;
   --accent:#1F6F64; --accent-ink:#FFFFFF; --accent-soft:#D9ECE8;
   --good:#2C7A47; --warn:#A86A06; --bad:#B23A32; --flag:#FFF1C2; --flag-ink:#6B4B00;
-  --c-titan:#2F5D9E; --c-developer:#946311; --c-hawk:#A23B3B; --c-technologist:#6A4CA3;
-  --c-allocator:#2E7D4F; --c-maverick:#5B8A1F; --c-warden:#7A5A44; --c-counsel:#36424D;
+  /* SPEC:COLORS:BEGIN */
+  --c-titan:#2F5D9E; --c-developer:#946311; --c-hawk:#A23B3B; --c-technologist:#6A4CA3; --c-allocator:#2E7D4F; --c-maverick:#5B8A1F; --c-warden:#7A5A44; --c-counsel:#36424D;
   --c-x1:#8A3B7A; --c-x2:#B05A1A; --c-x3:#1E7A8C; --c-x4:#6B6B2A; --c-x5:#9C2F5E; --c-x6:#3E4FA3;
+  /* SPEC:COLORS:END */
   --f-display:"Archivo","Helvetica Neue",Arial,sans-serif;
   --f-read:"Newsreader",Georgia,"Times New Roman",serif;
   --f-mono:"JetBrains Mono",ui-monospace,Menlo,Consolas,monospace;
@@ -21,17 +22,19 @@
   --bg:#101315; --surface:#181C1F; --sunk:#0C0E10; --ink:#E6EAEC; --muted:#98A2AA; --line:#2B3136;
   --accent:#55B8A8; --accent-ink:#0B1714; --accent-soft:#16312C;
   --good:#5DBB7E; --warn:#E2A53A; --bad:#E2716A; --flag:#3A3010; --flag-ink:#F3D37A;
-  --c-titan:#7FA6E0; --c-developer:#D9A84C; --c-hawk:#E07A7A; --c-technologist:#A98EE0;
-  --c-allocator:#6CC08E; --c-maverick:#9CCB5E; --c-warden:#C29F86; --c-counsel:#9AA8B5;
+  /* SPEC:COLORS-DARK:BEGIN */
+  --c-titan:#7FA6E0; --c-developer:#D9A84C; --c-hawk:#E07A7A; --c-technologist:#A98EE0; --c-allocator:#6CC08E; --c-maverick:#9CCB5E; --c-warden:#C29F86; --c-counsel:#9AA8B5;
   --c-x1:#D58BC6; --c-x2:#E89A5C; --c-x3:#6CC5D6; --c-x4:#C2C27A; --c-x5:#E07FA8; --c-x6:#8F9CE6;
+  /* SPEC:COLORS-DARK:END */
   color-scheme:dark}}
 :root[data-theme="dark"]{
   --bg:#101315; --surface:#181C1F; --sunk:#0C0E10; --ink:#E6EAEC; --muted:#98A2AA; --line:#2B3136;
   --accent:#55B8A8; --accent-ink:#0B1714; --accent-soft:#16312C;
   --good:#5DBB7E; --warn:#E2A53A; --bad:#E2716A; --flag:#3A3010; --flag-ink:#F3D37A;
-  --c-titan:#7FA6E0; --c-developer:#D9A84C; --c-hawk:#E07A7A; --c-technologist:#A98EE0;
-  --c-allocator:#6CC08E; --c-maverick:#9CCB5E; --c-warden:#C29F86; --c-counsel:#9AA8B5;
+  /* SPEC:COLORS-DARK:BEGIN */
+  --c-titan:#7FA6E0; --c-developer:#D9A84C; --c-hawk:#E07A7A; --c-technologist:#A98EE0; --c-allocator:#6CC08E; --c-maverick:#9CCB5E; --c-warden:#C29F86; --c-counsel:#9AA8B5;
   --c-x1:#D58BC6; --c-x2:#E89A5C; --c-x3:#6CC5D6; --c-x4:#C2C27A; --c-x5:#E07FA8; --c-x6:#8F9CE6;
+  /* SPEC:COLORS-DARK:END */
   color-scheme:dark}
 html,body{height:100%}
 body{background:var(--bg);color:var(--ink);font-family:var(--f-display);font-size:14px;line-height:1.45}
@@ -268,58 +271,96 @@ a.aref{font-family:var(--f-mono);font-size:.78em;text-decoration:none;padding:0 
 <script>
 "use strict";
 /* ───────────────────────── Board ───────────────────────── */
+/* SPEC:BOARD:BEGIN */
 const BOARD = [
-  {id:"titan",title:"Market Expansion Strategist",mono:"ME",color:"--c-titan",pestle:"Political, Economic",
-   lens:"Growth goes where demand is forming. Get there before the field crowds in.",
-   mandate:"Find where demand is growing: new segments, new geographies, large institutional and public buyers, channel partners and joint ventures. Builds the qualifications, relationships and teaming that let a mid-sized company win bigger work.",
-   presses:"Which buyers, through which buying process, on what timeline, and who must we partner with to qualify?",
-   redLine:"Jeopardizing qualifications, certifications or relationships that took years to build.",
-   tone:"Pragmatic, politically astute, patient with long sales and procurement cycles."},
-  {id:"developer",title:"Customer & Deal Champion",mono:"CD",color:"--c-developer",pestle:"Economic, Social",
-   lens:"Follow the customer's money. Build what they will pay a premium for.",
-   mandate:"Pull the company toward the most valuable customers and deals: premium segments, commercial and private buyers, large accounts, bundled offers and pricing power. Prefers customers who pay faster and value speed and trust over lowest price.",
-   presses:"Who exactly is the buyer, what is our work worth to them, and why would they buy from us twice?",
-   redLine:"Staying a commoditized, lowest-price supplier forever.",
-   tone:"Confident, deal-driven, impatient with bureaucracy, thinks in customer lifetime value."},
-  {id:"hawk",title:"Risk & Regulatory Hawk",mono:"RH",color:"--c-hawk",pestle:"Legal, Political",
-   lens:"One bad contract or one compliance failure can erase years of profit.",
-   mandate:"Protect the balance sheet and the licenses to operate: liability and insurance limits, contract terms (indemnity, payment terms, consequential damages), litigation exposure, licensing and regulatory requirements, labor and employment law, safety and quality record.",
-   presses:"What is the worst-case loss, who carries it, and does our insurance actually respond?",
-   redLine:"Uncapped liability, risk beyond insurance capacity, or cutting corners on legally required qualifications.",
-   tone:"Analytical, skeptical, precise, unmoved by enthusiasm."},
-  {id:"technologist",title:"First-Principles Technologist",mono:"FT",color:"--c-technologist",pestle:"Technological",
-   lens:"If revenue only grows when headcount grows, we are renting out people, not building a company.",
-   mandate:"Rebuild the delivery model from first principles: automation, software, data, AI and new tools that change the cost and speed of delivery. Grow revenue per person instead of headcount.",
-   presses:"What does each unit of output actually cost to produce, and which steps exist only because they always have?",
-   redLine:"Growth plans that just add people in a straight line.",
-   tone:"Blunt, fast, numerate, dismissive of legacy excuses but willing to be shown the rule."},
-  {id:"allocator",title:"Capital & M&A Allocator",mono:"CA",color:"--c-allocator",pestle:"Economic",
-   lens:"Organic growth is slow. What can we buy, and what is it worth once it is ours?",
-   mandate:"Maximize enterprise value: EBITDA margin, recurring revenue, working capital and days sales outstanding, debt capacity, buy-versus-build. Looks for tuck-in acquisitions of smaller competitors and adjacent businesses and for how each move changes the company's valuation.",
-   presses:"What is the return on each dollar and each month, and what multiple does this move earn us?",
-   redLine:"Pouring capital into markets that cannot scale or that tie up cash for years.",
-   tone:"Exacting, transactional, macro-aware, speaks in returns."},
-  {id:"maverick",title:"Sustainability & Long-Horizon Maverick",mono:"SM",color:"--c-maverick",pestle:"Environmental, Legal",
-   lens:"Mandates create buyers who must buy. Be there before the deadlines bite.",
-   mandate:"Ride the long-term shifts that force buyers to spend: regulation and mandates, decarbonization and climate resilience, demographic and technology transitions. Thinks 10 to 20 years out and wants the company positioned before the wave.",
-   presses:"Which rule or shift forces a buyer to spend, by what date, and who is already positioned to serve them?",
-   redLine:"Ignoring a structural shift until competitors own it.",
-   tone:"Energetic, forward-looking, persuasive, impatient with short-termism."},
-  {id:"warden",title:"Lean Operator / Profit Warden",mono:"PW",color:"--c-warden",pestle:"Social, Economic",
-   lens:"Who exactly is going to deliver this, and what does it do to our overhead and cash?",
-   mandate:"Guard unit economics and delivery capacity: utilization, margins, overhead, cash conversion and days sales outstanding, bench depth, hiring and retaining scarce licensed or skilled people, management span of control.",
-   presses:"Names, hours, and the month the cash actually arrives.",
-   redLine:"Adding overhead before revenue, or growth that outruns the people who must deliver it.",
-   tone:"Grounded, systematic, realistic about people, allergic to slideware."},
-  {id:"counsel",title:"Strategy Counsel",mono:"SC",color:"--c-counsel",nonVoting:true,
-   lens:"Facts first, then the fight. I don't vote."}
+  {"id":"titan","title":"Market Expansion Strategist","mono":"ME","color":"--c-titan","pestle":"Political, Economic","lens":"Growth goes where demand is forming. Get there before the field crowds in.","mandate":"Find where demand is growing: new segments, new geographies, large institutional and public buyers, channel partners and joint ventures. Builds the qualifications, relationships and teaming that let a mid-sized company win bigger work.","presses":"Which buyers, through which buying process, on what timeline, and who must we partner with to qualify?","redLine":"Jeopardizing qualifications, certifications or relationships that took years to build.","thresholds":"","blindSpots":"","tone":"Pragmatic, politically astute, patient with long sales and procurement cycles.","opponents":["maverick","developer"],"active":true},
+  {"id":"developer","title":"Customer & Deal Champion","mono":"CD","color":"--c-developer","pestle":"Economic, Social","lens":"Follow the customer's money. Build what they will pay a premium for.","mandate":"Pull the company toward the most valuable customers and deals: premium segments, commercial and private buyers, large accounts, bundled offers and pricing power. Prefers customers who pay faster and value speed and trust over lowest price.","presses":"Who exactly is the buyer, what is our work worth to them, and why would they buy from us twice?","redLine":"Staying a commoditized, lowest-price supplier forever.","thresholds":"","blindSpots":"","tone":"Confident, deal-driven, impatient with bureaucracy, thinks in customer lifetime value.","opponents":["hawk","titan"],"active":true},
+  {"id":"hawk","title":"Risk & Regulatory Hawk","mono":"RH","color":"--c-hawk","pestle":"Legal, Political, Environmental","lens":"One bad contract or one compliance failure can erase years of profit.","mandate":"Protect the balance sheet and the licenses to operate: liability and insurance limits, contract terms (indemnity, payment terms, consequential damages), litigation exposure, licensing and regulatory requirements, labor and employment law, safety and quality record.","presses":"What is the worst-case loss, who carries it, and does our insurance actually respond?","redLine":"Uncapped liability, risk beyond insurance capacity, or cutting corners on legally required qualifications.","thresholds":"","blindSpots":"","tone":"Analytical, skeptical, precise, unmoved by enthusiasm.","opponents":["technologist","developer"],"active":true},
+  {"id":"technologist","title":"First-Principles Technologist","mono":"FT","color":"--c-technologist","pestle":"Technological, Economic","lens":"If revenue only grows when headcount grows, we are renting out people, not building a company.","mandate":"Rebuild the delivery model from first principles: automation, software, data, AI and new tools that change the cost and speed of delivery. Grow revenue per person instead of headcount.","presses":"What does each unit of output actually cost to produce, and which steps exist only because they always have?","redLine":"Growth plans that just add people in a straight line.","thresholds":"","blindSpots":"","tone":"Blunt, fast, numerate, dismissive of legacy excuses but willing to be shown the rule.","opponents":["hawk","warden"],"active":true},
+  {"id":"allocator","title":"Capital & M&A Allocator","mono":"CA","color":"--c-allocator","pestle":"Economic, Legal","lens":"Organic growth is slow. What can we buy, and what is it worth once it is ours?","mandate":"Maximize enterprise value: EBITDA margin, recurring revenue, working capital and days sales outstanding, debt capacity, buy-versus-build. Looks for tuck-in acquisitions of smaller competitors and adjacent businesses and for how each move changes the company's valuation.","presses":"What is the return on each dollar and each month, and what multiple does this move earn us?","redLine":"Pouring capital into markets that cannot scale or that tie up cash for years.","thresholds":"","blindSpots":"","tone":"Exacting, transactional, macro-aware, speaks in returns.","opponents":["warden","maverick"],"active":true},
+  {"id":"maverick","title":"Sustainability & Long-Horizon Maverick","mono":"SM","color":"--c-maverick","pestle":"Environmental, Legal, Political","lens":"Mandates create buyers who must buy. Be there before the deadlines bite.","mandate":"Ride the long-term shifts that force buyers to spend: regulation and mandates, decarbonization and climate resilience, demographic and technology transitions. Thinks 10 to 20 years out and wants the company positioned before the wave.","presses":"Which rule or shift forces a buyer to spend, by what date, and who is already positioned to serve them?","redLine":"Ignoring a structural shift until competitors own it.","thresholds":"","blindSpots":"","tone":"Energetic, forward-looking, persuasive, impatient with short-termism.","opponents":["titan","allocator"],"active":true},
+  {"id":"warden","title":"Lean Operator / Profit Warden","mono":"PW","color":"--c-warden","pestle":"Social, Economic","lens":"Who exactly is going to deliver this, and what does it do to our overhead and cash?","mandate":"Guard unit economics and delivery capacity: utilization, margins, overhead, cash conversion and days sales outstanding, bench depth, hiring and retaining scarce licensed or skilled people, management span of control.","presses":"Names, hours, and the month the cash actually arrives.","redLine":"Adding overhead before revenue, or growth that outruns the people who must deliver it.","thresholds":"","blindSpots":"","tone":"Grounded, systematic, realistic about people, allergic to slideware.","opponents":["allocator","technologist"],"active":true},
+  {"id":"counsel","title":"Strategy Counsel","mono":"SC","color":"--c-counsel","nonVoting":true,"lens":"Facts first, then the fight. I don't vote."}
 ];
+/* SPEC:BOARD:END */
+/* SPEC:RULES:BEGIN */
+const RULES = {
+  "version":"1.2.0",
+  "MIN_SEATS":3,
+  "MAX_SEATS":12,
+  "QUICK_SEATS":4,
+  "OWN_BUDGET":30000,
+  "SHARED_BUDGET":40000,
+  "MAX_ATT":3000000,
+  "PART":120000,
+  "CHUNK":1500,
+  "PREVIEW_CHARS":180,
+  "verdict":{"bands":[{"min":7.5,"label":"GO"},{"min":6.0,"label":"GO WITH CONDITIONS"},{"min":4.5,"label":"RESHAPE"}],"floor_label":"DON'T DO IT","hold_label":"HOLD","order":["DON'T DO IT","RESHAPE","GO WITH CONDITIONS","GO"],"rounding":"one decimal, halves round up"},
+  "weights":{"min":1,"max":3,"default":2},
+  "caps":{"ruin":{"flag":"likely","cap":"RESHAPE","lift_by_ratification":true},"one_way_door":{"flag":"one-way","cap":"GO WITH CONDITIONS","needs_majority":true,"min_spread":4},"red_line_breached":{"flag":"breached","cap":"RESHAPE","lift_by_ratification":true},"red_line_at_risk":{"flag":"at_risk","cap":"GO WITH CONDITIONS","lift_by_ratification":false},"ratify_lifting_votes":["endorse","amend"]},
+  "confidence":{"spread_penalty_at":5,"penalty":1,"min":1,"max":10},
+  "weak_pillar_max":4,
+  "consensus_alarm":{"min":3,"seats_minus":1},
+  "stages":{"quick":["brief","opening","cruxes","challenge1","response1","redteam","vote","synthesis"],"standard":["brief","opening","cruxes","challenge1","response1","redteam","vote","synthesis"],"deep":["brief","opening","cruxes","challenge1","response1","challenge2","response2","redteam","vote","synthesis"]},
+  "redteam":{"quick":"alarm","standard":"alarm","deep":"always"},
+  "ratify":{"default":false,"stages":["draft","ratify"],"insert_before":"synthesis"},
+  "pairing":{"stance_values":{"pursue":2,"test":1,"avoid":0},"default_stance":1,"counsel_fault_line":2,"default_fault_line":1,"opponent":2,"opposite_crux_sides":2,"repeat_pair":-4,"max_times_challenged":2},
+  "words":{"brief":650,"opening":220,"cruxes":150,"challenge":150,"response":220,"redteam":230,"draft":200,"consult":400},
+  "custom_palette":[{"name":"x1","light":"#8A3B7A","dark":"#D58BC6"},{"name":"x2","light":"#B05A1A","dark":"#E89A5C"},{"name":"x3","light":"#1E7A8C","dark":"#6CC5D6"},{"name":"x4","light":"#6B6B2A","dark":"#C2C27A"},{"name":"x5","light":"#9C2F5E","dark":"#E07FA8"},{"name":"x6","light":"#3E4FA3","dark":"#8F9CE6"}],
+  "legacy_ids":{"market-expansion":"titan","customer-deal":"developer","risk-hawk":"hawk","capital-allocator":"allocator","long-horizon":"maverick","profit-warden":"warden","strategy-counsel":"counsel"}
+};
+/* SPEC:RULES:END */
+/* SPEC:PROMPTS:BEGIN */
+const PROMPTS = {
+  "brief":"TASK: EVIDENCE BRIEF opening the session. Write these sections, each under a \"### \" heading:\n### The real question: one or two sentences, including what is not being decided.\n### Market map: for each option, the buyers and procurement path, competitive intensity, right to win for this company, margin and cash profile, people required, and time to first revenue. Cite [F#] for every fact.\n### PESTLE highlights: the two or three forces per market most likely to decide it, cited.\n### Evidence challenge: where the register is thin, single-sourced, stale or silent; which of the chair's assumptions the evidence does not support; what the board must not treat as settled.\n### Synergies: how each option reuses or strains existing service lines, certifications, licenses and staff.\n### Expected fault lines: which directors will clash and over what.\nAbout 650 words. Neutral: no recommendation.\n{{fact_rules}}\n{{meta_note}}\n{\"fault_lines\":[{\"a\":\"<director id>\",\"b\":\"<director id>\",\"issue\":\"<12 words max>\"}],\"evidence_flags\":[{\"fact\":\"<F# or 'gap'>\",\"issue\":\"<why it is weak>\"}]}\nDirector ids: {{director_ids}}.",
+  "calibrate":"TASK: Calibrate the board to this company's sector and geography before the debate. Framing only, no figures.\nReply with only JSON: {{{calibration_schema}}}",
+  "calibrate.lens":"\"{{id}}\":\"<one sentence: what the {{title}}'s lens means for this company's sector and geography>\"",
+  "calibrate.schema":"\"calibration\":{\"themes\":[\"<4-6 structural realities of this sector and geography a board must reason about: regulators and licensing, buyer types and buying process, labor model, funding and payment cycles, competitive structure; framing only, no figures>\"],\"lenses\":{{{lenses}}},\"weights\":{{{weights}}}}",
+  "calibrate.weight":"\"{{id}}\":{\"w\":<1-3>,\"why\":\"<one line: how much this director's mandate matters to this decision>\"}",
+  "challenge":"TASK: CROSS-EXAMINATION, round {{round}}. You are directed to challenge the {{target_title}}. Make the challenge bear on a crux where the two of you sit on opposite sides, if there is one. Quote or closely paraphrase one specific claim they made. Explain concretely why it fails in this sector and geography or for a company this size, citing the register or your materials, or showing that their claim is uncited. End with one pointed question they must answer. 150 words max. Challenge no one else.\n{{meta_note}}\n{\"claim\":\"<the claim you attack, 25 words max>\",\"question\":\"<your question>\",\"confidence\":<0-100>}",
+  "consult":"TASK: SINGLE-DIRECTOR CONSULT. Answer in your own voice, first person, under 400 words: your call, your reasoning from your mandate (check your briefing materials first, and cite evidence and materials by ID or tag), what you would do this week, and the one question you would ask back. Do not narrate yourself in the third person. Reply with the answer only.",
+  "counsel-frame":"You are the Strategy Counsel to this board: a non-voting adviser in the style of an engagement partner at a top-tier strategy consultancy. You structure problems so the parts don't overlap and nothing is missed, lead with what the board needs to know, challenge weak evidence, and stay scrupulously neutral between directors. You never vote and never recommend before the vote.\n- Planning and calibration are framing, not findings: never state facts or figures in them.\n- In the brief, the draft and the synthesis, cite the evidence register by ID ([F7]) and director materials by tag ([PW2]) for every fact. If the register is thin, single-sourced, stale or silent on something decisive, say so plainly. That is part of your job.\n- After the vote, reflect it exactly as cast, including its strength and any tie, and record every dissent fairly.",
+  "cruxes":"TASK: NAME THE CRUXES. From the sealed opening positions, in 150 words or fewer, name the one to three underlying disagreements that explain why the directors split. Classify each as factual (resolvable with evidence), numbers (turns on an estimate) or values (a trade-off such as speed versus safety), and say which directors sit on each side. {{alarm_note}} Neutral: no recommendation.\n{{meta_note}}\n{\"cruxes\":[{\"question\":\"<the disagreement as a question>\",\"type\":\"factual|numbers|values\",\"side_a\":{\"position\":\"<short>\",\"directors\":[\"<id>\"]},\"side_b\":{\"position\":\"<short>\",\"directors\":[\"<id>\"]}}],\"unanimity\":{{unanimity}},\"unargued_alternative\":\"<option, or empty>\"}\nDirector ids: {{director_ids}}.",
+  "cruxes.alarm":"The openings converged on \"{{lead_option}}\" ({{lead_count}} of {{seat_count}} directors). Treat that as a warning, not a win: make the strongest unargued alternative a crux and name the directors who must argue it at full strength.",
+  "director-frame":"You are the {{title}}, {{seat_phrase}} on this company's advisory board. You are a composite archetype, not any real person; never claim to be or quote a real executive.\n\nMANDATE: {{mandate}}\nYOUR LENS: \"{{lens}}\"\nWHAT YOU ALWAYS PRESS ON: {{presses}}\nYOUR RED LINE: {{red_line}}\nPESTLE FACTORS YOU WATCH MOST: {{pestle}}\nIN THIS COMPANY'S SECTOR AND GEOGRAPHY: {{local_lens}}\nVOICE: {{tone}}\n\nOther directors: {{others}}. The non-voting Strategy Counsel briefs and facilitates.\n\n{{materials}}\n\n{{conduct}}\n\n{{fact_rules}}",
+  "director-frame.conduct":"DEBATE CONDUCT:\n- Argue from your mandate. You are on this board because you see what the others miss; do not drift toward consensus.\n- Agreement must add something: name what the other director missed or when they would be wrong.\n- Refer to colleagues by role title (e.g. \"the Risk & Regulatory Hawk\"). Sharp and professional, never insulting.\n- Ground every point in how this sector and geography actually work, the PESTLE findings, and this company's actual size and capabilities.\n- Plain prose, no headings, no sign-off. Respect the word limit in the task.",
+  "director-frame.local_default":"Apply your mandate to this company's specific sector, geography and size.",
+  "director-frame.seat_many":"one of {{count}} voting directors",
+  "director-frame.seat_one":"a voting director",
+  "draft":"TASK: DRAFT RESOLUTION for the board to ratify. Recommend the option with the highest weighted score ({{rec}}) and state the verdict label ({{label}}). In 200 words or fewer: the recommendation; the conditions directors asked for (merge duplicates, make each checkable with a number, a date or a test result; where directors differ, pick one and say whose); next steps with dates; the cheapest test; kill criteria; and a mitigation for every ruin flag. Weigh arguments, not headcount: one director with a decisive fact beats three with opinions.\n{{fact_rules}}\n{{meta_note}}\n{\"recommendation\":\"<option>\",\"label\":\"<verdict label>\",\"conditions\":[\"...\"],\"next_steps\":[\"...\"],\"cheapest_test\":\"...\",\"kill_criteria\":\"...\",\"mitigations\":[{\"for\":\"<director id>\",\"mitigation\":\"...\"}]}",
+  "draft-director":"You design voting directors for a company's AI advisory board. Each director is a composite archetype, never a real or named person.\nThe chair wants a new director described as: {{brief}}\nExisting directors (the new one must hold a distinct view that will clash with at least one of them):\n{{others}}\nReply with only JSON: {\"title\":\"<role title, 2-5 words>\",\"lens\":\"<one-sentence motto in the first person plural>\",\"mandate\":\"<2 sentences: what this director pushes the company toward>\",\"presses\":\"<the question they always ask>\",\"redLine\":\"<what they will never accept>\",\"tone\":\"<voice, a few adjectives>\",\"pestle\":[\"<1-2 of: Political, Economic, Social, Technological, Legal, Environmental>\"]}",
+  "fact-rules":"EVIDENCE DISCIPLINE (strict):\n- Every factual statement about markets, buyers, agencies, budgets, programs, regulations, deadlines, competitors, prices, fees or wages must cite the evidence register by ID, e.g. [F7], or a briefing material by its tag, e.g. [PW2].\n- Never introduce a number, date, dollar amount or program detail that is not in the register, the briefing materials or the company context. If you need a fact the register lacks, say it is unknown and that it should be researched.\n- When a material is private to you, quote the figure or sentence you rely on so other directors can challenge it.\n- You may reason and give judgment freely; make clear when something is your judgment.",
+  "materials":"YOUR BRIEFING MATERIALS (supplied by the chair to support your seat{{private_note}}; cite by tag, e.g. [{{example_tag}}])",
+  "materials.own_full":"{{head}}:\n{{items}}",
+  "materials.own_search":"{{head}}. They are too large to include in full, so search them with the search_materials tool and read passages with read_material before you write. Index:\n{{index}}",
+  "materials.private_note":"; items not marked shared are yours alone, so quote what you rely on",
+  "materials.shared_full":"SHARED BOARD MATERIALS (supplied by the chair; cite by tag):\n{{items}}",
+  "materials.shared_search":"SHARED BOARD MATERIALS (supplied by the chair; too large to include in full, so search them with the search_materials tool; cite by tag). Index:\n{{index}}",
+  "materials.tool_read":"Read one part of a material in full, by its tag (e.g. PW2) and part number from the search results. Parts are about 1500 characters.",
+  "materials.tool_search":"Keyword search over your briefing materials and the board's shared materials. Returns up to 6 matching passages with their tag and part number. Use specific terms: names, metrics, years, places.",
+  "opening":"TASK: OPENING POSITION. This is sealed: you have not heard the other directors. In 220 words or fewer, say which options the company should pursue, test or avoid, and why, from your mandate. Check your briefing materials first and use at least one PESTLE finding. Name the single assumption your position depends on most.\n{{meta_note}}\n{\"headline\":\"<your position in one sentence>\",\"stances\":[{{stances_schema}}],\"key_assumption\":\"<one sentence>\",\"confidence\":<0-100>}",
+  "output-notes":"After your remarks, on a new line write exactly <<<META and then one JSON object, nothing after it:",
+  "output-notes.tools":"Before you write, use the tools to check the materials you rely on. When you are done searching, write a line containing exactly <<<REMARKS and then your remarks (and the META block if one is requested). Nothing before <<<REMARKS is shown to anyone.",
+  "output-notes.tools_json":"Use the tools first if you need to check materials. Your final message must contain only the JSON.",
+  "plan":"TASK: Recommend the market analysis the board needs before it can decide, and calibrate the board to this company's sector and geography.\n1. Define 3 to 5 distinct, specific markets or segments within or adjacent to the growth area that this company could realistically enter in its geography. Include the chair's markets if named; you may sharpen or add. For each one, list the questions that decide it and the specific public data to pull, naming the likely primary sources for this sector and geography (government statistics, regulators and their rules, public budgets and procurement portals, industry associations, public company filings, labor market data). Assign the PESTLE dimensions most relevant to each.\n2. Calibrate: list 4 to 6 structural realities of this sector and geography (regulators and licensing, buyer types and buying process, labor model, funding and payment cycles, competitive structure). For each seated director, write one sentence on what their lens means here, and give a relevance weight from 1 to 3 for how much that director's mandate matters to this decision, with a one-line reason.\nFraming only: do not state any facts or figures. This is a research plan, not findings.\n\nReply with only JSON:\n{\"framing\":\"<2 sentences: what the board is really deciding>\",\n \"markets\":[{\"name\":\"<short market name>\",\"definition\":\"<one sentence: customer type, offering, geography>\",\"why\":\"<why it is worth analyzing for this company>\",\"questions\":[\"<decisive question>\"],\"data\":[{\"item\":\"<data point to find>\",\"sources\":\"<likely primary sources>\"}],\"pestle\":[\"political\",\"economic\",\"social\",\"technological\",\"legal\",\"environmental\"]}],\n {{calibration_schema}},\n \"criteria\":\"<one sentence on how markets will be screened>\"}",
+  "ratify":"TASK: RATIFY THE DRAFT RESOLUTION. Sealed: you cannot see other directors' ratification votes. Endorse it, endorse with one amendment, or dissent. If you flagged ruin risk, endorse only if the mitigation answers it.\nReply with only JSON: {\"vote\":\"endorse|amend|dissent\",\"final_score\":<0-10, your support for the resolution as written>,\"amendment\":\"<what to change, or why you dissent; empty if you endorse>\",\"one_line\":\"<the one thing from your mandate the chair must not forget>\"}",
+  "redteam":"TASK: RED-TEAM DISSENT. {{alarm_prefix}}The board is leaning toward \"{{lead_option}}\". Counsel gives you the floor to make the strongest possible case against it and for the best alternative, even beyond your usual lens. Name the specific evidence, or missing evidence, that would prove the majority wrong. 230 words max.\n{{meta_note}}\n{\"headline\":\"<the dissent in one sentence>\",\"confidence\":<0-100>}",
+  "redteam.alarm":"Counsel has sounded a consensus alarm.",
+  "response":"TASK: REBUTTAL, round {{round}}. You were challenged:\n{{questions}}\nAnswer each question directly. Concede only what the evidence forces you to concede, and say exactly which fact or material changed your mind. Hold everything else and say why. Then answer each crux the Counsel named in one line. 220 words max.\n{{meta_note}}\n{\"headline\":\"<your position now, one sentence>\",\"conceded\":\"<what you concede, or 'nothing'>\",\"position_changed\":true|false,\"confidence\":<0-100>}",
+  "synthesis":"TASK: FACILITATED SYNTHESIS. You do not vote. Produce the record of decision from the transcript, roll call and weighted scores. The resolution must state the computed verdict label, the recommended option and any caps applied, and must reflect the vote as cast, including its strength, spread, any tie and any split between first choices and weighted scores. Record every dissent fairly. Name a fix for every weak pillar. If ratification ran, record each amendment as adopted or not, with the reason: adopt an amendment when no director objected or the argument for it went unanswered. Challenge the evidence base: say which decisive claims rest on thin or missing evidence.\n{{fact_rules}}\nReply with only JSON:\n{\"resolution\":\"<one-sentence board resolution reflecting the actual vote>\",\"summary\":\"<3-4 sentences: what was decided and why>\",\"agreements\":[\"<points nearly all directors accepted>\"],\"dissents\":[{\"director\":\"<id>\",\"point\":\"<their dissent, one sentence>\"}],\"key_assumptions\":[{\"assumption\":\"...\",\"held_by\":[\"<ids>\"],\"test\":\"<how to verify, and by when>\"}],\"risks\":[{\"risk\":\"...\",\"severity\":\"high|medium|low\",\"mitigation\":\"...\"}],\"evidence_gaps\":[\"<decisive questions the evidence did not answer>\"],\"paths\":[{\"name\":\"<short name>\",\"backers\":[\"<ids>\"],\"thesis\":\"<one sentence>\",\"first_moves\":[\"<first 90-day moves, max 3>\"],\"kill_criteria\":\"<what would make the company stop>\"}],\"pillar_fixes\":[{\"director\":\"<id>\",\"fix\":\"<named fix for a pillar scored 4 or below>\"}],\"amendments\":[{\"director\":\"<id>\",\"amendment\":\"...\",\"adopted\":true,\"reason\":\"...\"}],\"open_questions\":[\"...\"]}\nGive 2-3 paths that represent the genuinely conflicting directions, not variations of one.",
+  "vote":"TASK: SEALED ROLL-CALL VOTE. You cannot see anyone else's vote. Choose exactly one option for the company to pursue as its priority, or \"Hold\" (pursue none now). Options: {{options_list}}.\nAlso score EVERY option, including Hold:\n- scores: 0-10, how strongly you back it.\n- pillar_scores: 0-10, the option judged only on your own mandate.\n- ruin_risk: \"none\", \"possible\" or \"likely\". This means an irreversible downside that could sink the company if it pursued that option.\n- door: \"one-way\" (hard to reverse) or \"two-way\" (easy to reverse).\nReply with only JSON:\n{\"choice\":\"<exact option name or Hold>\",\"scores\":{{{scores_schema}}},\"pillar_scores\":{{{scores_schema}}},\"ruin_risk\":{{{ruin_schema}}},\"door\":{{{door_schema}}},\"support\":\"strong|conditional\",\"ranking\":[\"<options best to worst>\"],\"conditions\":[\"<what your vote depends on, max 3>\"],\"flip_if\":\"<the one finding that would flip your vote>\",\"confidence\":<0-100>,\"rationale\":\"<2-3 sentences in your voice, citing [F#] or material tags for facts>\",\"changed_from_opening\":true|false,\"change_reason\":\"<why, or empty>\"}"
+};
+/* SPEC:PROMPTS:END */
 const byId = {}; BOARD.forEach(b=>byId[b.id]=b);
 const DEFAULT_IDS = BOARD.filter(b=>!b.nonVoting).map(b=>b.id);
 const COUNSEL = BOARD.find(b=>b.nonVoting);
-const COLORS = ["--c-titan","--c-developer","--c-hawk","--c-technologist","--c-allocator","--c-maverick","--c-warden","--c-x1","--c-x2","--c-x3","--c-x4","--c-x5","--c-x6"];
+const COLORS = [...BOARD.filter(b=>!b.nonVoting).map(b=>b.color), ...(RULES.custom_palette||[]).map(p=>"--c-"+p.name)];
 const PFIELDS = ["title","mono","color","lens","mandate","presses","redLine","tone","pestle"];
-const MIN_SEATS=3, MAX_SEATS=12, OWN_BUDGET=30000, SHARED_BUDGET=40000, MAX_ATT=3000000, PART=120000, CHUNK=1500;
+const {MIN_SEATS, MAX_SEATS, OWN_BUDGET, SHARED_BUDGET, MAX_ATT, PART, CHUNK} = RULES;
+/* Prompt text lives in PROMPTS (generated from spec/prompts); fill() injects {{placeholders}} in one pass. */
+const P = k => PROMPTS[k] ?? "";
+function fill(tpl, vars){ return String(tpl).replace(/\{\{([A-Za-z0-9_.]+)\}\}/g,(m,k)=>vars&&vars[k]!=null?String(vars[k]):"").replace(/\n{3,}/g,"\n\n"); }
+const T = (k, vars) => fill(P(k), vars);
 function rosterList(all){
   const out=[];
   BOARD.filter(b=>!b.nonVoting).forEach(d=>{ const o=state.dirs[d.id]; const p={...d,...(o||{}),id:d.id,builtIn:true}; if(all||!p.archived) out.push(p); });
@@ -331,7 +372,8 @@ function seatIds(s){ return s?.seats?.length ? s.seats : DEFAULT_IDS; }
 function members(s){ if(s?.board?.length) return s.board; return seatIds(s).map(persona).filter(Boolean); }
 function registerPeople(list){ (list||[]).forEach(p=>{ if(p&&p.id) byId[p.id]=p; }); }
 function defaultSeats(){ return rosterList().filter(p=>p.active!==false).map(p=>p.id); }
-const DEFAULT_FAULTS = [["allocator","warden"],["technologist","hawk"],["titan","maverick"],["developer","hawk"],["maverick","allocator"],["titan","developer"],["technologist","warden"]];
+const DEFAULT_FAULTS = (()=>{ const seen=new Set(), out=[];
+  BOARD.forEach(b=>(b.opponents||[]).forEach(o=>{ const k=[b.id,o].sort().join("|"); if(byId[o]&&!seen.has(k)){ seen.add(k); out.push([b.id,o]); } })); return out; })();
 const PESTLE = [["political","P","Political"],["economic","E","Economic"],["social","S","Social"],["technological","T","Technological"],["legal","L","Legal"],["environmental","E","Environmental"]];
 
 const EXAMPLE = {
@@ -344,9 +386,7 @@ const EXAMPLE = {
   assumptions:"Building performance standards will force owners to replace gas equipment within 5 years.\nOur service-agreement customers will buy retrofits from us first."
 };
 function calibSpec(list){
-  const keys=list.map(m=>`"${m.id}":"<one sentence: what the ${m.title}'s lens means for this company's sector and geography>"`).join(",");
-  const wk=list.map(m=>`"${m.id}":{"w":<1-3>,"why":"<one line: how much this director's mandate matters to this decision>"}`).join(",");
-  return `"calibration":{"themes":["<4-6 structural realities of this sector and geography a board must reason about: regulators and licensing, buyer types and buying process, labor model, funding and payment cycles, competitive structure; framing only, no figures>"],"lenses":{${keys}},"weights":{${wk}}}`;
+  return T("calibrate.schema",{lenses:list.map(m=>T("calibrate.lens",{id:m.id,title:m.title})).join(","), weights:list.map(m=>T("calibrate.weight",{id:m.id})).join(",")});
 }
 function profileText(s){
   return [`COMPANY: ${s.company||"(not named)"}`, `SECTOR: ${s.sector||"(infer from the company context)"}`, `GEOGRAPHY: ${s.geography||"(infer from the company context)"}`, `COMPANY CONTEXT:\n${s.context||"(not provided)"}`].join("\n");
@@ -484,7 +524,14 @@ function stageInfo(k){
   if(m) return m[1]==="challenge"?{label:`Cross-examination, round ${m[2]}`,short:`Cross-exam ${m[2]}`}:{label:`Rebuttals, round ${m[2]}`,short:`Rebuttals ${m[2]}`};
   return {label:k,short:k};
 }
-function buildPlan(rounds, ratify){ const p=["brief","opening","cruxes"]; for(let i=1;i<=rounds;i++) p.push("challenge"+i,"response"+i); p.push("redteam","vote"); if(ratify) p.push("draft","ratify"); p.push("synthesis"); return p; }
+const isRound = k => /^(challenge|response)\d+$/.test(k);
+const roundsFor = depth => (RULES.stages[depth]||RULES.stages.standard).filter(k=>/^challenge\d+$/.test(k)).length;
+function buildPlan(rounds, ratify, depth){
+  const base=(RULES.stages[depth]||RULES.stages.standard).filter(k=>!isRound(k)), p=[];
+  base.forEach(k=>{ if(k==="redteam"||(k==="vote"&&!base.includes("redteam"))) for(let i=1;i<=rounds;i++) p.push("challenge"+i,"response"+i);
+    if(ratify && k===RULES.ratify.insert_before) p.push(...RULES.ratify.stages); p.push(k); });
+  return p;
+}
 const pIdx = (s,k) => (s.plan||[]).indexOf(k);
 const sortTurns = (s,turns) => turns.slice().sort((a,b)=>(pIdx(s,a.stage)-pIdx(s,b.stage))||((a.slot||0)-(b.slot||0)));
 
@@ -513,40 +560,19 @@ function dossier(s, pack){
     s.notes?`CHAIR'S NOTES:\n${s.notes}`:""
   ].filter(Boolean).join("\n\n");
 }
-const FACT_RULES = `EVIDENCE DISCIPLINE (strict):
-- Every factual statement about markets, agencies, budgets, programs, regulations, deadlines, competitors, fees, or wages must cite the evidence register by ID, e.g. [F7], or a briefing material by its tag, e.g. [PW2].
-- Never introduce a number, date, dollar amount, or program detail that is not in the register, the briefing materials, or the company context. If you need a fact the register lacks, say it is unknown and that it should be researched.
-- You may reason and give judgment freely; make clear when something is your judgment.`;
+const FACT_RULES = P("fact-rules");
+const lines = v => (Array.isArray(v)?v:String(v||"").split(/\n+/)).map(x=>String(x).replace(/^[-*•]\s*/,"").trim()).filter(Boolean);
 function memberFrame(m, s){
-  const others = members(s).filter(x=>x.id!==m.id).map(x=>x.title).join("; ");
-  const local = s?.calibration?.lenses?.[m.id];
+  const all = members(s), others = all.filter(x=>x.id!==m.id).map(x=>x.title).join("; ");
   const own = (ATT_CTX||RUN)?.att?.[m.id]||[];
-  const head = `\n\nYOUR BRIEFING MATERIALS (supplied by the chair to support your seat${own.some(a=>!a.shared)?"; items not marked shared are yours alone, so quote what you rely on":""}; cite by tag, e.g. [${own[0]?.tag}])`;
-  const brief = !own.length ? "" : (totalChars(own)>OWN_BUDGET && state.toolsOK)
-    ? head+". They are too large to include in full, so search them with the search_materials tool and read passages with read_material before you write. Index:\n"+indexAtts(own)
-    : head+":\n"+packAtts(own,OWN_BUDGET);
-  return `You are the ${m.title}, ${members(s).length>1?`one of ${members(s).length} voting directors`:"a voting director"} on this company's advisory board. You are a composite archetype, not any real person; never claim to be or quote a real executive.
-
-MANDATE: ${m.mandate}
-YOUR LENS: "${m.lens}"
-WHAT YOU ALWAYS PRESS ON: ${m.presses}
-YOUR RED LINE: ${m.redLine}
-PESTLE FACTORS YOU WATCH MOST: ${m.pestle}
-IN THIS COMPANY'S SECTOR AND GEOGRAPHY: ${local||"Apply your mandate to this company's specific sector, geography and size."}
-VOICE: ${m.tone}
-
-Other directors: ${others}. The non-voting Strategy Counsel briefs and facilitates.
-
-${brief}
-
-DEBATE CONDUCT:
-- Argue from your mandate. You are on this board because you see what the others miss; do not drift toward consensus.
-- Agreement must add something: name what the other director missed or when they would be wrong.
-- Refer to colleagues by role (e.g. "the Risk Hawk"). Sharp and professional, never insulting.
-- Ground every point in how this sector and geography actually work, the PESTLE findings, and this company's actual size and capabilities.
-- Plain prose, no headings, no sign-off.
-
-${FACT_RULES}`;
+  const head = T("materials",{private_note:own.some(a=>!a.shared)?P("materials.private_note"):"", example_tag:own[0]?.tag||""});
+  const materials = !own.length ? "" : (totalChars(own)>OWN_BUDGET && state.toolsOK)
+    ? T("materials.own_search",{head, index:indexAtts(own)})
+    : T("materials.own_full",{head, items:packAtts(own,OWN_BUDGET)});
+  return T("director-frame",{title:m.title, seat_phrase:all.length>1?T("director-frame.seat_many",{count:all.length}):P("director-frame.seat_one"),
+    mandate:m.mandate, lens:m.lens, presses:lines(m.presses).join(" / "), red_line:m.redLine, pestle:m.pestle,
+    local_lens:s?.calibration?.lenses?.[m.id]||P("director-frame.local_default"), tone:m.tone, others, materials,
+    conduct:P("director-frame.conduct"), fact_rules:FACT_RULES});
 }
 function packAtts(list, budget){
   const items=list.slice().sort((a,b)=>(a.chars||0)-(b.chars||0)); let left=budget; const out={};
@@ -556,11 +582,11 @@ function packAtts(list, budget){
 function sharedList(ctx){ const list=[]; (ctx.members||[]).forEach(m=>(ctx.att?.[m.id]||[]).forEach(a=>{ if(a.shared) list.push({...a,name:a.name+" — from the "+m.title}); })); return list; }
 function sharedBlock(ctx){
   const list=sharedList(ctx); if(!list.length) return "";
-  if(totalChars(list)>SHARED_BUDGET && state.toolsOK) return "SHARED BOARD MATERIALS (supplied by the chair; too large to include in full, so search them with the search_materials tool; cite by tag). Index:\n"+indexAtts(list);
-  return "SHARED BOARD MATERIALS (supplied by the chair; cite by tag):\n"+packAtts(list,SHARED_BUDGET);
+  if(totalChars(list)>SHARED_BUDGET && state.toolsOK) return T("materials.shared_search",{index:indexAtts(list)});
+  return T("materials.shared_full",{items:packAtts(list,SHARED_BUDGET)});
 }
 const totalChars = l => (l||[]).reduce((n,a)=>n+(a.chars||String(a.text||"").length),0);
-function indexAtts(list){ return list.map(a=>`[${a.tag}] ${a.name}${a.shared?" (shared)":""} · ${(a.chars||0).toLocaleString()} characters · begins: "${String(a.text||"").slice(0,180).replace(/\s+/g," ")}…"`).join("\n"); }
+function indexAtts(list){ return list.map(a=>`[${a.tag}] ${a.name}${a.shared?" (shared)":""} · ${(a.chars||0).toLocaleString()} characters · begins: "${String(a.text||"").slice(0,RULES.PREVIEW_CHARS).replace(/\s+/g," ")}…"`).join("\n"); }
 /* Retrieval over attached materials */
 const STOP=new Set("the and for with that this from are was were has have had not but its into our their than then they them what when which will would shall can could about over under after before also more most such only other some each per any all".split(" "));
 const toks = t => (String(t).toLowerCase().match(/[a-z0-9][a-z0-9.%$-]*[a-z0-9%]|[a-z0-9]/g)||[]).filter(w=>w.length>2&&!STOP.has(w));
@@ -588,20 +614,20 @@ function toolsFor(ctx, who, key, onNote){
   const scope=(ctx.chunks||[]).filter(c=>c.owner===who || c.shared);
   const bump=(msg)=>{ ctx.lookups[key]=(ctx.lookups[key]||0)+1; onNote&&onNote(msg); };
   return [
-    {name:"search_materials",description:"Keyword search over your briefing materials and the board's shared materials. Returns up to 6 matching passages with their tag and part number. Use specific terms: names, metrics, years, places.",
+    {name:"search_materials",description:P("materials.tool_search"),
      inputSchema:{type:"object",properties:{query:{type:"string",description:"Keywords to search for"}},required:["query"]},
      execute:(inp)=>{ const q=String(inp?.query||""); bump(`Searching data: “${q.slice(0,60)}”`); const hits=searchChunks(scope,q,6);
        return hits.length ? hits.map(h=>({tag:h.tag,part:h.part,of:h.of,name:h.name,text:h.text})) : "No matching passages. Try different keywords."; }},
-    {name:"read_material",description:"Read one part of a material in full, by its tag (e.g. PW2) and part number from the search results. Parts are about 1,500 characters.",
+    {name:"read_material",description:P("materials.tool_read"),
      inputSchema:{type:"object",properties:{tag:{type:"string"},part:{type:"number"}},required:["tag","part"]},
      execute:(inp)=>{ const tag=String(inp?.tag||"").toUpperCase().replace(/[^A-Z0-9]/g,""), part=Number(inp?.part)||1; bump(`Reading ${tag} part ${part}`);
        const c=scope.find(x=>x.tag===tag&&x.part===part); if(!c) throw new Error("No such part. Use search_materials first.");
        return {tag:c.tag,part:c.part,of:c.of,name:c.name,text:c.text}; }}
   ];
 }
-const TOOL_NOTE = `\n\nBefore you write, use the tools to check the materials you rely on. When you are done searching, write a line containing exactly <<<REMARKS and then your remarks (and the META block if one is requested). Nothing before <<<REMARKS is shown to anyone.`;
-const TOOL_NOTE_JSON = `\n\nUse the tools first if you need to check materials. Your final message must contain only the JSON.`;
-const COUNSEL_FRAME = `You are the Strategy Counsel to this board: a non-voting adviser in the style of a top-tier strategy consultancy engagement partner. You structure problems so the parts don't overlap and nothing is missed, lead with what the board needs to know, challenge weak evidence, and stay scrupulously neutral between directors. You never vote.`;
+const TOOL_NOTE = "\n\n"+P("output-notes.tools");
+const TOOL_NOTE_JSON = "\n\n"+P("output-notes.tools_json");
+const COUNSEL_FRAME = P("counsel-frame");
 function transcriptText(s, turns, beforeKey){
   const lim = pIdx(s,beforeKey);
   const list = sortTurns(s,turns).filter(t=>pIdx(s,t.stage)<lim && !["vote","synthesis","ratify","draft"].includes(t.stage));
@@ -612,7 +638,7 @@ function transcriptText(s, turns, beforeKey){
     return `[${stageInfo(t.stage).short}] ${who}${tgt}:\n${t.text}`;
   }).join("\n\n");
 }
-const META_NOTE = `After your remarks, on a new line write exactly <<<META and then one JSON object, nothing after it:`;
+const META_NOTE = P("output-notes");
 
 /* ───────────────────────── Claude calls ───────────────────────── */
 async function ask(prompt, {tier="default", signal, onText, json=false, tools}={}){
@@ -649,16 +675,7 @@ async function runPlan(sid, base){
     const prompt = [COUNSEL_FRAME, profileText(s), `GROWTH AREA THE CHAIR WANTS TO EXPLORE: ${s.growthArea}`, `QUESTION: ${s.question}`,
       s.markets?.length?`Markets the chair already has in mind:\n${s.markets.map(m=>"- "+m).join("\n")}`:"",
       s.constraints?`Constraints:\n${s.constraints}`:"", s.notes?`Chair's notes:\n${s.notes}`:"",
-      `TASK: Recommend the market analysis the board needs before it can decide, and calibrate the board to this company's sector and geography.
-1. Define 3 to 5 distinct, specific markets or segments within or adjacent to the growth area that this company could realistically enter in its geography (include the chair's markets if named; you may add or sharpen). For each, list the questions that decide it and the specific public data to pull, naming the likely primary sources for this sector and geography (government statistics, regulators and their rules, public budgets and procurement portals, industry associations, public company filings, labor market data). Assign the PESTLE dimensions most relevant to each.
-2. Calibrate: describe the structural realities of this sector and geography, and translate each director's lens into this context.
-Do not state any facts or figures; this is a research plan and framing, not findings.
-
-Reply with only JSON:
-{"framing":"<2 sentences: what the board is really deciding>",
- "markets":[{"name":"<short market name>","definition":"<one sentence: customer type, offering, geography>","why":"<why it is worth analyzing for this company>","questions":["<decisive question>", "..."],"data":[{"item":"<data point to find>","sources":"<likely primary sources>"}],"pestle":["political","economic","social","technological","legal","environmental"]}],
- ${calibSpec(members(s))},
- "criteria":"<one sentence on how markets will be screened>"}`
+      T("plan",{calibration_schema:calibSpec(members(s))})
     ].filter(Boolean).join("\n\n");
     const r = await ask(prompt,{tier:"complex",json:true,signal:ctx.ctl.signal});
     if(!r || !Array.isArray(r.markets) || !r.markets.length) throw {code:"invalid_json"};
@@ -685,9 +702,11 @@ async function speak(ctx, t){
 }
 const turnsArr = ctx => [...ctx.turns.values()];
 
+const PR = RULES.pairing;
+const alarmAt = n => Math.max(RULES.consensus_alarm.min, n-RULES.consensus_alarm.seats_minus);
 function stanceMap(ctx, mid){
   const t=ctx.turns.get("opening__"+mid); const m={};
-  (t?.meta?.stances||[]).forEach(x=>{ m[String(x.option||"").toLowerCase()] = ({pursue:2,test:1,avoid:0})[String(x.stance||"").toLowerCase()] ?? 1; });
+  (t?.meta?.stances||[]).forEach(x=>{ m[String(x.option||"").toLowerCase()] = PR.stance_values[String(x.stance||"").toLowerCase()] ?? PR.default_stance; });
   return m;
 }
 function computePairings(ctx, round){
@@ -695,70 +714,53 @@ function computePairings(ctx, round){
   const counselFaults=(ctx.turns.get("brief__counsel")?.meta?.fault_lines)||[];
   const prev = new Set(); for(let r=1;r<round;r++){ const p=ctx.s.pairings?.["challenge"+r]||{}; Object.entries(p).forEach(([a,b])=>prev.add(a+">"+b)); }
   const has=(list,a,b)=>list.some(x=>Array.isArray(x)?((x[0]===a&&x[1]===b)||(x[0]===b&&x[1]===a)):((x.a===a&&x.b===b)||(x.a===b&&x.b===a)));
-  const score=(a,b)=>{ const sa=stanceMap(ctx,a), sb=stanceMap(ctx,b); let d=0; opts.forEach(o=>d+=Math.abs((sa[o]??1)-(sb[o]??1)));
-    if(has(counselFaults,a,b)) d+=2; if(has(DEFAULT_FAULTS,a,b)) d+=1; if(prev.has(a+">"+b)) d-=4;
-    (ctx.turns.get("cruxes__counsel")?.meta?.cruxes||[]).forEach(c=>{ const A=c.side_a?.directors||[], B=c.side_b?.directors||[]; if((A.includes(a)&&B.includes(b))||(B.includes(a)&&A.includes(b))) d+=2; });
+  const score=(a,b)=>{ const sa=stanceMap(ctx,a), sb=stanceMap(ctx,b); let d=0; opts.forEach(o=>d+=Math.abs((sa[o]??PR.default_stance)-(sb[o]??PR.default_stance)));
+    if(has(counselFaults,a,b)) d+=PR.counsel_fault_line; if(has(DEFAULT_FAULTS,a,b)) d+=PR.default_fault_line; if(prev.has(a+">"+b)) d+=PR.repeat_pair;
+    (ctx.turns.get("cruxes__counsel")?.meta?.cruxes||[]).forEach(c=>{ const A=c.side_a?.directors||[], B=c.side_b?.directors||[]; if((A.includes(a)&&B.includes(b))||(B.includes(a)&&A.includes(b))) d+=PR.opposite_crux_sides; });
     return d; };
   const load={}, out={};
   const order = ctx.members.map(m=>m.id).sort((x,y)=>(round%2?1:-1)*(slotOf(x)-slotOf(y)));
   for(const a of order){
     let best=null,bs=-1e9;
-    for(const m of ctx.members){ const b=m.id; if(b===a||(load[b]||0)>=2) continue; const sc=score(a,b)+Math.random()*0.01; if(sc>bs){bs=sc;best=b;} }
+    for(const m of ctx.members){ const b=m.id; if(b===a||(load[b]||0)>=PR.max_times_challenged) continue; const sc=score(a,b)+Math.random()*0.01; if(sc>bs){bs=sc;best=b;} }
     out[a]=best; load[best]=(load[best]||0)+1;
   }
   return out;
 }
 function leadingOption(ctx){
   const opts=options(ctx.s,ctx.pack); let best=null,bc=-1;
-  opts.forEach(o=>{ const c=ctx.members.filter(m=>stanceMap(ctx,m.id)[o.toLowerCase()]===2).length; if(c>bc){bc=c;best=o;} });
+  opts.forEach(o=>{ const c=ctx.members.filter(m=>stanceMap(ctx,m.id)[o.toLowerCase()]===PR.stance_values.pursue).length; if(c>bc){bc=c;best=o;} });
   return {option:best,count:bc};
 }
 
 async function runStage(ctx, key){
   const s=ctx.s, pack=ctx.pack, base=[contextBlock(s), dossier(s,pack), sharedBlock(ctx), evidenceText(pack)].filter(Boolean).join("\n\n");
   const tx = () => transcriptText(s, turnsArr(ctx), key);
+  const ids = () => ctx.members.map(m=>m.id+" ("+m.title+")").join(", ");
 
   if(key==="brief"){
     await speak(ctx,{id:"brief__counsel",stage:"brief",slot:0,speaker:"counsel",tier:"complex",prompt:[COUNSEL_FRAME,base,
-`TASK: EVIDENCE BRIEF opening the session. Write these sections, each under a "### " heading:
-### The real question — one or two sentences, including what is not being decided.
-### Market map — for each option: buyers and procurement path, competitive intensity, right to win for this company, margin and cash profile, people required, time to first revenue. Cite [F#] for every fact.
-### PESTLE highlights — the two or three forces per market most likely to decide it, cited.
-### Evidence challenge — where the register is thin, single-sourced, stale, or silent; which of the chair's assumptions the evidence does not support; what the board must not treat as settled.
-### Synergies — how each option reuses or strains existing service lines, certifications, licenses, and staff.
-### Expected fault lines — which directors will clash and over what.
-About 650 words. Neutral: no recommendation.
-${FACT_RULES}
-${META_NOTE}
-{"fault_lines":[{"a":"<director id>","b":"<director id>","issue":"<12 words max>"}],"evidence_flags":[{"fact":"<F# or 'gap'>","issue":"<why it is weak>"}]}
-Director ids: ${ctx.members.map(m=>m.id+" ("+m.title+")").join(", ")}.`].join("\n\n")});
+      T("brief",{fact_rules:FACT_RULES, meta_note:META_NOTE, director_ids:ids()})].join("\n\n")});
     return;
   }
   if(key==="opening"){
     const opts=options(s,pack);
     await pool(ctx.members, 2, m=>speak(ctx,{id:"opening__"+m.id,stage:"opening",slot:slotOf(m.id),speaker:m.id,prompt:[memberFrame(m,s),base,
       "COUNSEL'S BRIEF:\n"+(ctx.turns.get("brief__counsel")?.text||""),
-`TASK: OPENING POSITION. This is sealed: you have not heard the other directors. In 220 words or fewer, say which options the company should pursue, test, or avoid, and why, from your mandate. Use at least one PESTLE finding. Name the single assumption your position depends on most.
-${META_NOTE}
-{"headline":"<your position in one sentence>","stances":[${opts.map(o=>`{"option":${JSON.stringify(o)},"stance":"pursue|test|avoid"}`).join(",")}],"key_assumption":"<one sentence>","confidence":<0-100>}`].join("\n\n")}));
+      T("opening",{meta_note:META_NOTE, stances_schema:opts.map(o=>`{"option":${JSON.stringify(o)},"stance":"pursue|test|avoid"}`).join(",")})].join("\n\n")}));
     return;
   }
   if(key==="cruxes"){
-    const lead=leadingOption(ctx), alarm=lead.count>=Math.max(3,ctx.members.length-1);
+    const lead=leadingOption(ctx), alarm=lead.count>=alarmAt(ctx.members.length);
     await speak(ctx,{id:"cruxes__counsel",stage:"cruxes",slot:0,speaker:"counsel",prompt:[COUNSEL_FRAME,base,tx(),
-`TASK: NAME THE CRUXES. From the sealed opening positions, in 150 words or fewer, name the one to three underlying disagreements that explain why the directors split. Classify each as factual (resolvable with evidence), numbers (turns on an estimate) or values (a trade-off such as speed versus safety), and say which directors sit on each side. ${alarm?`The openings converged on "${lead.option}" (${lead.count} of ${ctx.members.length} directors). Treat that as a warning, not a win: make the strongest unargued alternative a crux and name the directors who must argue it at full strength.`:""} Neutral: no recommendation.
-${META_NOTE}
-{"cruxes":[{"question":"<the disagreement as a question>","type":"factual|numbers|values","side_a":{"position":"<short>","directors":["<id>"]},"side_b":{"position":"<short>","directors":["<id>"]}}],"unanimity":${alarm},"unargued_alternative":"<option, or empty>"}
-Director ids: ${ctx.members.map(m=>m.id+" ("+m.title+")").join(", ")}.`].join("\n\n")});
+      T("cruxes",{alarm_note:alarm?T("cruxes.alarm",{lead_option:lead.option, lead_count:lead.count, seat_count:ctx.members.length}):"",
+        meta_note:META_NOTE, unanimity:String(alarm), director_ids:ids()})].join("\n\n")});
     return;
   }
   if(key==="draft"){
     const sc=s.outcome?.scoring;
     await speak(ctx,{id:"draft__counsel",stage:"draft",slot:0,speaker:"counsel",tier:"complex",prompt:[COUNSEL_FRAME,base,transcriptText(s,turnsArr(ctx),"vote"),rollText(ctx),scoringText(sc),
-`TASK: DRAFT RESOLUTION for the board to ratify. Recommend the option with the highest weighted score${sc?` (${sc.rec})`:""} and state the verdict label${sc?` (${sc.label})`:""}. In 200 words or fewer: the recommendation; the conditions directors asked for (merge duplicates, make each checkable with a number, a date or a test result; where directors differ, pick one and say whose); next steps with dates; the cheapest test; kill criteria; and a mitigation for every ruin flag. Weigh arguments, not headcount: one director with a decisive fact beats three with opinions.
-${FACT_RULES}
-${META_NOTE}
-{"recommendation":"<option>","label":"<verdict label>","conditions":["..."],"next_steps":["..."],"cheapest_test":"...","kill_criteria":"...","mitigations":[{"for":"<director id>","mitigation":"..."}]}`].join("\n\n")});
+      T("draft",{rec:sc?.rec||"see the weighted scores", label:sc?.label||"see the weighted scores", fact_rules:FACT_RULES, meta_note:META_NOTE})].join("\n\n")});
     return;
   }
   if(key==="ratify"){
@@ -768,8 +770,7 @@ ${META_NOTE}
       const id="ratify__"+mm.id; if(ctx.turns.has(id)) return;
       state.live[LK(ctx.sid,id)]={id,sid:ctx.sid,stage:"ratify",slot:slotOf(mm.id),speaker:mm.id,text:"Ratifying…",sealed:true}; render();
       const v = await ask([memberFrame(mm,s),base,draftText,`YOUR VOTE: ${JSON.stringify(ctx.turns.get("vote__"+mm.id)?.meta?.choice||"")}`,
-`TASK: RATIFY THE DRAFT RESOLUTION. Sealed: you cannot see other directors' ratification votes. Endorse it, endorse with one amendment, or dissent. If you flagged ruin risk, endorse only if the mitigation answers it.
-Reply with only JSON: {"vote":"endorse|amend|dissent","final_score":<0-10, your support for the resolution as written>,"amendment":"<what to change, or why you dissent; empty if you endorse>","one_line":"<the one thing from your mandate the chair must not forget>"}`].join("\n\n"),{json:true,signal:ctx.ctl.signal});
+        P("ratify")].join("\n\n"),{json:true,signal:ctx.ctl.signal});
       const vv=String(v?.vote||"").toLowerCase(); const turn={id,stage:"ratify",slot:slotOf(mm.id),speaker:mm.id,text:String(v?.amendment||""),meta:{...v,vote:/dissent/.test(vv)?"dissent":/amend/.test(vv)?"amend":"endorse"},at:Date.now()};
       delete state.live[LK(ctx.sid,id)]; ctx.turns.set(id,turn); await Store.putTurn(ctx.sid,turn); render();
     });
@@ -784,10 +785,8 @@ Reply with only JSON: {"vote":"endorse|amend|dissent","final_score":<0-10, your 
     const pairs=s.pairings[key];
     await pool(ctx.members, 2, a=>{ const tgt=byId[pairs[a.id]]; if(!tgt) return null; const t=tx();
       return speak(ctx,{id:key+"__"+a.id,stage:key,slot:slotOf(a.id),speaker:a.id,target:tgt.id,prompt:[memberFrame(a,s),base,t,
-cruxText(ctx),
-`TASK: CROSS-EXAMINATION, round ${round}. You are directed to challenge the ${tgt.title}. Make the challenge bear on a crux where the two of you sit on opposite sides, if there is one. Quote or closely paraphrase one specific claim they made, explain concretely why it fails in this sector and geography or for a company this size (cite the register where you can, or show that their claim is uncited), and end with one pointed question they must answer. 150 words max. Challenge no one else.
-${META_NOTE}
-{"claim":"<the claim you attack, 25 words max>","question":"<your question>","confidence":<0-100>}`].join("\n\n")}); });
+        cruxText(ctx),
+        T("challenge",{round, target_title:tgt.title, meta_note:META_NOTE})].join("\n\n")}); });
     return;
   }
   if((m=key.match(/^response(\d+)$/))){
@@ -797,41 +796,30 @@ ${META_NOTE}
     await pool(targets, 2, b=>{ const t=tx();
       const qs=against[b.id].map(a=>{ const ct=ctx.turns.get(ck+"__"+a); return `The ${byId[a].title} asked: ${ct?.meta?.question||"(see transcript)"}`; }).join("\n");
       return speak(ctx,{id:key+"__"+b.id,stage:key,slot:slotOf(b.id),speaker:b.id,targets:against[b.id],prompt:[memberFrame(b,s),base,t,cruxText(ctx),
-`TASK: REBUTTAL, round ${m[1]}. You were challenged:
-${qs}
-Answer each question directly. Concede only what the evidence forces you to concede and say exactly which fact changed your mind; hold everything else and say why. Then answer each crux the Counsel named in one line. 220 words max.
-${META_NOTE}
-{"headline":"<your position now, one sentence>","conceded":"<what you concede, or 'nothing'>","position_changed":true|false,"confidence":<0-100>}`].join("\n\n")}); });
+        T("response",{round:m[1], questions:qs, meta_note:META_NOTE})].join("\n\n")}); });
     return;
   }
   if(key==="redteam"){
     const lead=leadingOption(ctx);
-    const alarm = lead.count>=Math.max(3,ctx.members.length-1);
-    if(s.depth!=="deep" && !alarm){ s.skipped=[...new Set([...(s.skipped||[]),"redteam"])]; return; }
+    const alarm = lead.count>=alarmAt(ctx.members.length);
+    if(RULES.redteam[s.depth||"standard"]!=="always" && !alarm){ s.skipped=[...new Set([...(s.skipped||[]),"redteam"])]; return; }
     let pick=null,low=9,lc=101;
-    ctx.members.forEach(x=>{ const v=stanceMap(ctx,x.id)[String(lead.option).toLowerCase()]??1; const c=ctx.turns.get("opening__"+x.id)?.meta?.confidence??50; if(v<low||(v===low&&c<lc)){low=v;lc=c;pick=x;} });
+    ctx.members.forEach(x=>{ const v=stanceMap(ctx,x.id)[String(lead.option).toLowerCase()]??PR.default_stance; const c=ctx.turns.get("opening__"+x.id)?.meta?.confidence??50; if(v<low||(v===low&&c<lc)){low=v;lc=c;pick=x;} });
     pick = pick||byId.hawk;
     await speak(ctx,{id:"redteam__"+pick.id,stage:"redteam",slot:slotOf(pick.id),speaker:pick.id,prompt:[memberFrame(pick,s),base,tx(),
-`TASK: RED-TEAM DISSENT. ${alarm?"Counsel has sounded a consensus alarm: ":""}the board is leaning toward "${lead.option}". Counsel gives you the floor to make the strongest possible case against it and for the best alternative, even beyond your usual lens. Name the specific evidence (or missing evidence) that would prove the majority wrong. 230 words max.
-${META_NOTE}
-{"headline":"<the dissent in one sentence>","confidence":<0-100>}`].join("\n\n")});
+      T("redteam",{alarm_prefix:alarm?P("redteam.alarm")+" ":"", lead_option:lead.option, meta_note:META_NOTE})].join("\n\n")});
     return;
   }
   if(key==="vote"){
-    const opts=options(s,pack), all=transcriptText(s,turnsArr(ctx),"vote");
+    const opts=options(s,pack), all=transcriptText(s,turnsArr(ctx),"vote"), every=[...opts,"Hold"];
+    const schema = val => every.map(o=>JSON.stringify(o)+":"+val).join(",");
     await pool(ctx.members, 2, async mm=>{
       const id="vote__"+mm.id; if(ctx.turns.has(id)) return;
       state.live[LK(ctx.sid,id)]={id,sid:ctx.sid,stage:"vote",slot:slotOf(mm.id),speaker:mm.id,text:"Casting a sealed vote…",sealed:true}; render();
       const vt = toolsFor(ctx, mm.id, id, msg=>{ const L=state.live[LK(ctx.sid,id)]; if(L){ L.note=msg; render(); } });
       const v = await ask([memberFrame(mm,s),base,all,
-`TASK: SEALED ROLL-CALL VOTE. You cannot see anyone else's vote. Choose exactly one option for the company to pursue as its priority, or "Hold" (pursue none now). Options: ${opts.map(o=>JSON.stringify(o)).join(", ")}, "Hold".
-Also score EVERY option including Hold:
-- scores: 0-10, how strongly you back it.
-- pillar_scores: 0-10, the option judged only on your own mandate.
-- ruin_risk: "none", "possible" or "likely" — an irreversible downside that could sink the company if it pursued that option.
-- door: "one-way" (hard to reverse) or "two-way" (easy to reverse).
-Reply with only JSON:
-{"choice":"<exact option name or Hold>","scores":{${[...opts,"Hold"].map(o=>JSON.stringify(o)+":<0-10>").join(",")}},"pillar_scores":{${[...opts,"Hold"].map(o=>JSON.stringify(o)+":<0-10>").join(",")}},"ruin_risk":{${[...opts,"Hold"].map(o=>JSON.stringify(o)+':"none|possible|likely"').join(",")}},"door":{${[...opts,"Hold"].map(o=>JSON.stringify(o)+':"one-way|two-way"').join(",")}},"support":"strong|conditional","ranking":["<options best to worst>"],"conditions":["<what your vote depends on, max 3>"],"flip_if":"<the one finding that would flip your vote>","confidence":<0-100>,"rationale":"<2-3 sentences in your voice, citing [F#] or material tags for facts>","changed_from_opening":true|false,"change_reason":"<why, or empty>"}`].join("\n\n")+(vt?TOOL_NOTE_JSON:""),{json:true,signal:ctx.ctl.signal,tools:vt});
+        T("vote",{options_list:every.map(o=>JSON.stringify(o)).join(", "), scores_schema:schema("<0-10>"), ruin_schema:schema('"none|possible|likely"'), door_schema:schema('"one-way|two-way"')})
+        ].join("\n\n")+(vt?TOOL_NOTE_JSON:""),{json:true,signal:ctx.ctl.signal,tools:vt});
       const choice = normChoice(v?.choice, opts);
       ["scores","pillar_scores","ruin_risk","door"].forEach(k=>{ if(v && v[k] && typeof v[k]==="object"){ const o={}; Object.entries(v[k]).forEach(([kk,vv])=>{ o[normChoice(kk,opts)]=vv; }); v[k]=o; } });
       const turn={id,stage:"vote",slot:slotOf(mm.id),speaker:mm.id,text:String(v?.rationale||""),meta:{...v,choice,...(ctx.lookups[id]?{lookups:ctx.lookups[id]}:{})},at:Date.now()};
@@ -848,11 +836,7 @@ Reply with only JSON:
     const ct = toolsFor(ctx, null, id);
     const r = await ask([COUNSEL_FRAME,base,transcriptText(s,turnsArr(ctx),"vote"),
 `ROLL CALL:\n${roll}\nFIRST CHOICES: ${Object.entries(out.counts).map(([k,v])=>k+" "+v).join(", ")}.`, scoringText(s.outcome?.scoring), ratifyText(ctx),
-`TASK: FACILITATED SYNTHESIS. You do not vote. Produce the record of decision from the transcript, roll call and weighted scores. The resolution must state the computed verdict label and recommended option, and any caps applied; reflect the vote as cast, including its strength, spread and any split between first choices and weighted scores. Name a fix for every weak pillar. Challenge the evidence base: say which decisive claims rest on thin or missing evidence.
-${FACT_RULES}
-Reply with only JSON:
-{"resolution":"<one-sentence board resolution reflecting the actual vote>","summary":"<3-4 sentences: what was decided and why>","agreements":["<points nearly all directors accepted>"],"dissents":[{"director":"<id>","point":"<their dissent, one sentence>"}],"key_assumptions":[{"assumption":"...","held_by":["<ids>"],"test":"<how to verify, and by when>"}],"risks":[{"risk":"...","severity":"high|medium|low","mitigation":"..."}],"evidence_gaps":["<decisive questions the evidence did not answer>"],"paths":[{"name":"<short name>","backers":["<ids>"],"thesis":"<one sentence>","first_moves":["<first 90-day moves, max 3>"],"kill_criteria":"<what would make the company stop>"}],"pillar_fixes":[{"director":"<id>","fix":"<named fix for a pillar scored 4 or below>"}],"amendments":[{"director":"<id>","amendment":"...","adopted":true,"reason":"..."}],"open_questions":["..."]}
-Give 2-3 paths that represent the genuinely conflicting directions, not variations of one.`].join("\n\n")+(ct?TOOL_NOTE_JSON:""),{tier:"complex",json:true,signal:ctx.ctl.signal,tools:ct});
+      T("synthesis",{fact_rules:FACT_RULES})].join("\n\n")+(ct?TOOL_NOTE_JSON:""),{tier:"complex",json:true,signal:ctx.ctl.signal,tools:ct});
     const turn={id,stage:"synthesis",slot:0,speaker:"counsel",text:String(r?.summary||""),meta:r||{},at:Date.now()};
     delete state.live[LK(ctx.sid,id)]; ctx.turns.set(id,turn); await Store.putTurn(ctx.sid,turn);
     s.synthesis={resolution:r?.resolution||"",paths:(r?.paths||[]).map(p=>p.name),risks:(r?.risks||[]).slice(0,3),label:s.outcome?.scoring?.label||"",score:s.outcome?.scoring?.score??null,rec:s.outcome?.scoring?.rec||""};
@@ -864,38 +848,55 @@ function normChoice(c, opts){
   const hit=opts.find(o=>o.toLowerCase()===t.toLowerCase()) || opts.find(o=>t.toLowerCase().includes(o.toLowerCase())||o.toLowerCase().includes(t.toLowerCase()));
   return hit || (/hold/i.test(t)?"Hold":t);
 }
-const LABEL_ORDER=["DON'T DO IT","RESHAPE","GO WITH CONDITIONS","GO"];
-function bandOf(x){ return x>=7.5?"GO":x>=6?"GO WITH CONDITIONS":x>=4.5?"RESHAPE":"DON'T DO IT"; }
-function scoreBoard(s, turns){
-  const M=members(s), W=id=>Math.min(3,Math.max(1,Math.round(+(s.calibration?.weights?.[id]?.w)||2)));
-  const votes=M.map(m=>({m,v:turns.find(t=>t.id==="vote__"+m.id)?.meta})).filter(x=>x.v&&x.v.scores);
-  if(!votes.length) return null;
-  const keys=[...new Set(votes.flatMap(x=>Object.keys(x.v.scores||{})))]; const options={};
-  keys.forEach(k=>{ let num=0,den=0; const parts=[], per=[];
-    votes.forEach(({m,v})=>{ const sc=Number(v.scores[k]); if(Number.isFinite(sc)){ const w=W(m.id); num+=w*sc; den+=w; parts.push(`${w}×${sc}`); per.push(sc); } });
-    options[k]={score:den?Math.round(num/den*10)/10:0, math:`(${parts.join(" + ")}) / ${den}`, spread:per.length?Math.max(...per)-Math.min(...per):0}; });
-  const ranked=Object.entries(options).sort((a,b)=>b[1].score-a[1].score); const rec=ranked[0][0], score=ranked[0][1].score, spread=ranked[0][1].spread;
-  let label = rec==="Hold" ? "HOLD" : bandOf(score); const caps=[];
-  const rat={}; M.forEach(m=>{ const r=turns.find(t=>t.id==="ratify__"+m.id); if(r) rat[m.id]=r.meta; });
-  const title=id=>byId[id]?.title||id;
-  const capTo=(to,why)=>{ if(rec!=="Hold" && LABEL_ORDER.indexOf(label)>LABEL_ORDER.indexOf(to)) label=to; caps.push(why); };
-  const ruin=votes.filter(x=>String(x.v.ruin_risk?.[rec]||"").toLowerCase()==="likely").map(x=>x.m.id);
-  if(ruin.length && rec!=="Hold"){
-    const lifted = Object.keys(rat).length && ruin.every(id=>rat[id] && rat[id].vote!=="dissent");
-    if(lifted) caps.push(`Ruin cap lifted: ${ruin.map(title).join(", ")} endorsed the resolution's mitigation`);
-    else capTo("RESHAPE",`Ruin cap: ${ruin.map(title).join(", ")} flagged likely ruin on "${rec}"`);
+/* SPEC:SCORE:BEGIN */
+/* Pure verdict arithmetic, mirrored by scripts/score.py; tests/test_app_score.mjs runs this block against tests/fixtures.
+   votes: [{id, title, v}] (v = the vote JSON); weights: {id:{w}}; rat: {id:{vote, final_score}} or {}; R: RULES. */
+function scoreVotes(votes, weights, rat, R, allIds){
+  const num = x => typeof x==="number" ? x : (typeof x==="string" && x.trim()!=="" ? Number(x) : NaN);
+  const r1 = x => Math.floor(x*10+0.5)/10;
+  const W = id => Math.min(R.weights.max, Math.max(R.weights.min, Math.round(num(weights?.[id]?.w)||R.weights.default)));
+  const V = (votes||[]).filter(x=>x && x.v && x.v.scores && typeof x.v.scores==="object");
+  if(!V.length) return null;
+  rat = rat||{};
+  const title = id => V.find(x=>x.id===id)?.title || id;
+  const keys=[...new Set(V.flatMap(x=>Object.keys(x.v.scores)))], options={};
+  keys.forEach(k=>{ let n=0,d=0; const parts=[], per=[];
+    V.forEach(({id,v})=>{ const sc=num(v.scores[k]); if(Number.isFinite(sc)){ const w=W(id); n+=w*sc; d+=w; parts.push(`${w}×${sc}`); per.push(sc); } });
+    options[k]={score:d?r1(n/d):0, math:`(${parts.join(" + ")}) / ${d}`, spread:per.length?Math.max(...per)-Math.min(...per):0}; });
+  const ranked=Object.keys(options).sort((a,b)=>options[b].score-options[a].score);
+  const rec=ranked[0], score=options[rec].score, spread=options[rec].spread, hold=String(rec).toLowerCase()==="hold";
+  const O=R.verdict.order, C=R.caps, caps=[], codes=[];
+  let label = hold ? R.verdict.hold_label : (R.verdict.bands.find(b=>score>=b.min)?.label || R.verdict.floor_label);
+  const capTo=(to,code,why)=>{ if(!hold && O.indexOf(label)>O.indexOf(to)) label=to; caps.push(why); codes.push(code); };
+  const note=(code,why)=>{ caps.push(why); codes.push(code); };
+  const flagged=(field,val)=>V.filter(x=>String(x.v[field]?.[rec]??"").toLowerCase()===val).map(x=>x.id);
+  const ratified=ids=>Object.keys(rat).length>0 && ids.every(id=>rat[id] && C.ratify_lifting_votes.includes(String(rat[id].vote||"").toLowerCase()));
+  const names=ids=>ids.map(title).join(", ");
+  const ruin=flagged("ruin_risk",C.ruin.flag);
+  if(ruin.length && !hold){
+    if(C.ruin.lift_by_ratification && ratified(ruin)) note("ruin_lifted",`Ruin cap lifted: ${names(ruin)} endorsed the resolution's mitigation`);
+    else capTo(C.ruin.cap,"ruin",`Ruin cap: ${names(ruin)} flagged likely ruin on "${rec}"`);
   }
-  const oneway=votes.filter(x=>String(x.v.door?.[rec]||"").toLowerCase()==="one-way").length;
-  if(rec!=="Hold" && oneway>votes.length/2 && spread>=4) capTo("GO WITH CONDITIONS",`One-way door: ${oneway} of ${votes.length} directors call "${rec}" hard to reverse and scores spread ${spread} points`);
-  const avgC=votes.reduce((n,x)=>n+(+x.v.confidence||0),0)/votes.length;
-  const confidence=Math.max(1,Math.min(10,Math.round(avgC/10)-(spread>=5?1:0)));
-  const pillars=votes.map(x=>({id:x.m.id,score:Number(x.v.pillar_scores?.[rec])})).filter(p=>Number.isFinite(p.score));
-  let support=null; const rk=Object.keys(rat); if(rk.length){ let n=0,d=0; rk.forEach(id=>{ const f=Number(rat[id].final_score); if(Number.isFinite(f)){ n+=W(id)*f; d+=W(id); } }); support=d?Math.round(n/d*10)/10:null; }
-  return {options, ranked:ranked.map(r=>r[0]), rec, score, label, caps, spread, confidence, ruin, pillars, weak:pillars.filter(p=>p.score<=4).map(p=>p.id), weights:Object.fromEntries(M.map(m=>[m.id,W(m.id)])), support};
+  const oneway=flagged("door",C.one_way_door.flag).length;
+  if(!hold && oneway>0 && (!C.one_way_door.needs_majority || oneway>V.length/2) && spread>=C.one_way_door.min_spread)
+    capTo(C.one_way_door.cap,"one_way_door",`One-way door: ${oneway} of ${V.length} directors call "${rec}" hard to reverse and scores spread ${spread} points`);
+  const K=R.confidence, avg=V.reduce((n,x)=>n+(num(x.v.confidence)||0),0)/V.length;
+  const confidence=Math.max(K.min,Math.min(K.max,Math.round(avg/10)-(spread>=K.spread_penalty_at?K.penalty:0)));
+  const pillars=V.map(x=>({id:x.id,score:num(x.v.pillar_scores?.[rec])})).filter(p=>Number.isFinite(p.score));
+  let support=null; const rk=Object.keys(rat);
+  if(rk.length){ let n=0,d=0; rk.forEach(id=>{ const f=num(rat[id]?.final_score); if(Number.isFinite(f)){ n+=W(id)*f; d+=W(id); } }); support=d?r1(n/d):null; }
+  return {options, ranked, rec, score, label, caps, cap_codes:codes, spread, confidence, ruin, pillars,
+    weak:pillars.filter(p=>p.score<=R.weak_pillar_max).map(p=>p.id), weights:Object.fromEntries((allIds||V.map(x=>x.id)).map(id=>[id,W(id)])), support};
+}
+/* SPEC:SCORE:END */
+function scoreBoard(s, turns){
+  const M=members(s), find=id=>turns.find(t=>t.id===id), rat={};
+  M.forEach(m=>{ const r=find("ratify__"+m.id); if(r) rat[m.id]=r.meta; });
+  return scoreVotes(M.map(m=>({id:m.id,title:m.title,v:find("vote__"+m.id)?.meta})), s.calibration?.weights||{}, rat, RULES, M.map(m=>m.id));
 }
 function scoringText(sc){
   if(!sc) return "";
-  return `WEIGHTED SCORES (director weight × score):\n${sc.ranked.map(k=>`  ${k}: ${sc.options[k].score} = ${sc.options[k].math}, spread ${sc.options[k].spread}`).join("\n")}\nRecommended: ${sc.rec} · verdict ${sc.label}${sc.caps.length?`\nCaps and overrides: ${sc.caps.join("; ")}`:""}\nSpread on the recommended option: ${sc.spread} · council confidence ${sc.confidence}/10${sc.weak.length?`\nWeak pillars (4 or below) on the recommendation: ${sc.weak.map(id=>byId[id]?.title||id).join(", ")}`:""}${sc.support!=null?`\nSupport for the resolution: ${sc.support}/10`:""}`;
+  return `WEIGHTED SCORES (director weight × score):\n${sc.ranked.map(k=>`  ${k}: ${sc.options[k].score} = ${sc.options[k].math}, spread ${sc.options[k].spread}`).join("\n")}\nRecommended: ${sc.rec} · verdict ${sc.label}${sc.caps.length?`\nCaps and overrides: ${sc.caps.join("; ")}`:""}\nSpread on the recommended option: ${sc.spread} · council confidence ${sc.confidence}/10${sc.weak.length?`\nWeak pillars (${RULES.weak_pillar_max} or below) on the recommendation: ${sc.weak.map(id=>byId[id]?.title||id).join(", ")}`:""}${sc.support!=null?`\nSupport for the resolution: ${sc.support}/10`:""}`;
 }
 function cruxText(ctx){
   const c=ctx.turns.get("cruxes__counsel")?.meta?.cruxes||[]; if(!c.length) return "";
@@ -924,15 +925,15 @@ async function runDebate(sid, mode){
   if(!ctx.s.plan){
     let seat=members(ctx.s);
     if(seat.length<MIN_SEATS){ showNotice(`Seat at least ${MIN_SEATS} directors before convening.`); return; }
-    if(ctx.s.depth==="quick" && seat.length>4){
+    if(ctx.s.depth==="quick" && seat.length>RULES.QUICK_SEATS){
       ctx.members=seat;
       if(seat.some(m=>!ctx.s.calibration?.weights?.[m.id])){ try{ await calibrate(ctx); }catch(e){ showNotice(errCopy(e)); return; } }
       const w=id=>+(ctx.s.calibration?.weights?.[id]?.w)||2;
-      seat=seat.map((m,i)=>({m,i})).sort((a,b)=>(w(b.m.id)-w(a.m.id))||(a.i-b.i)).slice(0,4).sort((a,b)=>a.i-b.i).map(x=>x.m);
+      seat=seat.map((m,i)=>({m,i})).sort((a,b)=>(w(b.m.id)-w(a.m.id))||(a.i-b.i)).slice(0,RULES.QUICK_SEATS).sort((a,b)=>a.i-b.i).map(x=>x.m);
     }
     ctx.s.board = seat.map(p=>{ const o={id:p.id,custom:!!p.custom}; PFIELDS.forEach(k=>o[k]=p[k]); return o; });
     ctx.s.seats = seat.map(p=>p.id);
-    ctx.s.rounds=ctx.s.depth==="deep"?2:1; ctx.s.plan=buildPlan(ctx.s.rounds,!!ctx.s.ratify); ctx.s.next=0; }
+    ctx.s.rounds=roundsFor(ctx.s.depth); ctx.s.plan=buildPlan(ctx.s.rounds,!!ctx.s.ratify,ctx.s.depth); ctx.s.next=0; }
   ctx.members = members(ctx.s); registerPeople(ctx.members); ctx.att={};
   RUN=ctx; ctx.s.status="running"; ctx.s.error=""; state.notice=""; await saveS(ctx); render();
   try{
@@ -959,7 +960,7 @@ async function calibrate(ctx){
   state.live[lk]={id:"calibrate",sid:ctx.sid,stage:"plan",speaker:"counsel",text:""}; render();
   try{
     const r = await ask([COUNSEL_FRAME, profileText(s), `GROWTH AREA: ${s.growthArea}`, `QUESTION: ${s.question}`,
-      `TASK: Calibrate the board to this company's sector and geography before the debate. Framing only, no figures.\nReply with only JSON: {${calibSpec(ctx.members)}}`].join("\n\n"),
+      T("calibrate",{calibration_schema:calibSpec(ctx.members)})].join("\n\n"),
       {tier:"default",json:true,signal:ctx.ctl.signal});
     const c = r?.calibration || r;
     if(c?.lenses){ s.calibration={themes:(c.themes&&c.themes.length?c.themes:s.calibration?.themes)||[],lenses:{...(s.calibration?.lenses||{}),...c.lenses},weights:{...(s.calibration?.weights||{}),...(c.weights||{})}}; await saveS(ctx); }
@@ -969,7 +970,7 @@ function stopRun(){ if(RUN) RUN.ctl.abort(); }
 
 async function rewindTo(sid, key, opts={}){
   if(RUN) return;
-  const s=clone(getS(sid)); if(opts.addRound){ s.rounds=(s.rounds||1)+1; s.plan=buildPlan(s.rounds,!!s.ratify); }
+  const s=clone(getS(sid)); if(opts.addRound){ s.rounds=(s.rounds||1)+1; s.plan=buildPlan(s.rounds,!!s.ratify,s.depth); }
   const i = opts.addRound ? s.plan.indexOf("challenge"+s.rounds) : s.plan.indexOf(key);
   if(i<0) return;
   const cut = i;
@@ -1057,7 +1058,7 @@ function drawIntake(main){
         <label><input type="radio" name="depth" value="standard" ${(d.depth??"standard")==="standard"?"checked":""}><span>Standard</span></label>
         <label><input type="radio" name="depth" value="deep" ${d.depth==="deep"?"checked":""}><span>Deep</span></label>
         <label><input type="radio" name="depth" value="quick" ${d.depth==="quick"?"checked":""}><span>Quick</span></label>
-      </div><label class="row" style="font-weight:600;margin-top:6px"><input type="checkbox" id="f-ratify" ${d.ratify?"checked":""}> Ratify a draft resolution after the vote (about one more call per director)</label><small>Quick: the 4 most relevant directors, 1 round. Standard: 1 cross-exam round, red team only if all but one director agree (~30 calls with 7 directors). Deep: 2 rounds plus a red team every time (~45 calls).</small></div>
+      </div><label class="row" style="font-weight:600;margin-top:6px"><input type="checkbox" id="f-ratify" ${d.ratify?"checked":""}> Ratify a draft resolution after the vote (about one more call per director)</label><small>Quick: the ${RULES.QUICK_SEATS} most relevant directors, 1 round. Standard: 1 cross-exam round, red team only if all but one director agree (~30 calls with 7 directors). Deep: 2 rounds plus a red team every time (~45 calls).</small></div>
     <div class="field" style="justify-content:flex-end"><div class="row" style="justify-content:flex-end">
       <button type="button" class="btn" data-act="savedraft">Save draft</button>
       <button type="submit" class="btn primary">Ask Counsel for an analysis plan</button></div></div>
@@ -1101,7 +1102,7 @@ function pipelineHTML(s){
   const st=statusOf(s), items=[];
   const pre=[["Analysis plan", !!s.approvedPlan, ["planning","plan_ready"].includes(st)],["Sourced research", !!state.pack, st==="research_requested"]];
   pre.forEach(([l,d,n])=>items.push(`<span class="pi ${d?"done":n?"now":""}">${l}</span>`));
-  const plan=s.plan||buildPlan(s.depth==="deep"?2:1,!!s.ratify), next=s.plan?s.next:0;
+  const plan=s.plan||buildPlan(roundsFor(s.depth),!!s.ratify,s.depth), next=s.plan?s.next:0;
   plan.forEach((k,i)=>{ const skip=(s.skipped||[]).includes(k); const live=RUN&&RUN.sid===s.id&&i===next&&s.plan;
     items.push(`<span class="pi ${skip?"skip":(s.plan&&i<next)?"done":live?"now":""}">${esc(stageInfo(k).short)}</span>`); });
   return `<div class="pipe" aria-label="Session agenda">${items.join("")}</div>`;
@@ -1277,7 +1278,7 @@ function votesHTML(s){
     <div style="margin-top:10px">${sc.ranked.map(k=>`<div class="obar ${k===sc.rec?"rec":""}"><span>${esc(k)}</span><div class="t"><div style="width:${sc.options[k].score*10}%"></div></div><span class="mono" title="${esc(sc.options[k].math)}">${sc.options[k].score}</span></div>`).join("")}</div>
     <details><summary class="muted" style="font-size:13px">Score math and pillar scorecard</summary>
       <div class="mono muted" style="font-size:12px">${sc.ranked.map(k=>`${esc(k)}: ${esc(sc.options[k].math)} = ${sc.options[k].score}`).join("<br>")}</div>
-      <table style="margin-top:8px"><thead><tr><th>Director</th><th>Weight</th><th>Pillar score on ${esc(sc.rec)}</th></tr></thead><tbody>${members(s).map(m=>{ const p=sc.pillars.find(x=>x.id===m.id); return `<tr><td>${esc(m.title)}</td><td class="n">${sc.weights[m.id]??""}</td><td class="n">${p?`<span class="${p.score<=4?"tag flag":""}">${p.score}</span>`:"—"}</td></tr>`; }).join("")}</tbody></table>
+      <table style="margin-top:8px"><thead><tr><th>Director</th><th>Weight</th><th>Pillar score on ${esc(sc.rec)}</th></tr></thead><tbody>${members(s).map(m=>{ const p=sc.pillars.find(x=>x.id===m.id); return `<tr><td>${esc(m.title)}</td><td class="n">${sc.weights[m.id]??""}</td><td class="n">${p?`<span class="${p.score<=RULES.weak_pillar_max?"tag flag":""}">${p.score}</span>`:"—"}</td></tr>`; }).join("")}</tbody></table>
       <div class="muted" style="font-size:12px">Weights come from the Counsel's calibration: ${members(s).map(m=>`${esc(m.title)} ${sc.weights[m.id]} (${esc(s.calibration?.weights?.[m.id]?.why||"default")})`).join("; ")}</div></details></div>` : "";
   return `<div class="sec"><h2>Roll call</h2>${verdict}
   ${out.cast?`<div class="panel"><div class="row" style="justify-content:space-between"><div><span class="eyebrow">${sc?"First choices":"Board choice"}</span><div style="font-size:18px;font-weight:700">${esc(out.leader)} ${out.tie?'<span class="tag flag">tie</span>':""}</div></div>
@@ -1410,11 +1411,7 @@ async function draftDirector(btn){
   btn.disabled=true; const old=btn.textContent; btn.textContent="Drafting…";
   try{
     const others=rosterList().map(p=>`- ${p.title}: ${p.lens}`).join("\n");
-    const r=await ask(`You design voting directors for a company's AI advisory board. Each director is a composite archetype, never a real or named person.
-The chair wants a new director described as: ${brief}
-Existing directors (the new one must hold a distinct view that will clash with at least one of them):
-${others}
-Reply with only JSON: {"title":"<role title, 2-5 words>","lens":"<one-sentence motto in the first person plural>","mandate":"<2 sentences: what this director pushes the company toward>","presses":"<the question they always ask>","redLine":"<what they will never accept>","tone":"<voice, a few adjectives>","pestle":["<1-2 of: Political, Economic, Social, Technological, Legal, Environmental>"]}`,{json:true,tier:"default"});
+    const r=await ask(T("draft-director",{brief, others}),{json:true,tier:"default"});
     const set=(id,val)=>{ const el=document.getElementById(id); if(el&&val) el.value=String(val); };
     set("d-title",r?.title); set("d-lens",r?.lens); set("d-mandate",r?.mandate); set("d-presses",r?.presses); set("d-red",r?.redLine); set("d-tone",r?.tone);
     if(r?.title && !document.getElementById("d-mono").value) set("d-mono",initials(r.title));
@@ -1511,7 +1508,7 @@ async function runConsult(){
     const after=x=>{ const i=x.lastIndexOf("<<<REMARKS"); return i<0?(tools?"":x):x.slice(i+10); };
     const prompt=[memberFrame(p,s), sess?[contextBlock(sess),dossier(sess,pack),evidenceText(pack)].join("\n\n"):"",
       `QUESTION FROM THE CHAIR:\n${q}`,
-      `TASK: SINGLE-DIRECTOR CONSULT. Answer in your own voice, first person, under 400 words: your call, your reasoning from your mandate (cite evidence and materials by ID or tag), what you would do this week, and the one question you would ask back. Do not narrate yourself in the third person.`].filter(Boolean).join("\n\n")+(tools?TOOL_NOTE:"");
+      P("consult")].filter(Boolean).join("\n\n")+(tools?TOOL_NOTE:"");
     const r=await ask(prompt,{tier:"default",signal:state.consultCtl.signal,tools,onText:t=>{ if(state.consultLive){ state.consultLive.text=after(t); render(); } }});
     const a=tools&&r.text.includes("<<<REMARKS")?after(r.text):r.text;
     await Store.put(`directors/${p.id}/consults`, newId("c"), {q,a:a.trim(),at:Date.now(),sessionId:sid||null,sessionTitle:sess?.title||""});

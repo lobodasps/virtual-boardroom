@@ -65,6 +65,32 @@ All seven are composite archetypes, not real people. Edit them or add your own.
 - `scripts/score.py` does all the verdict arithmetic, so the model never computes the scores itself.
 - Research sub-agents report only facts from pages they opened, and they log what they could not find as gaps instead of estimating.
 
+## Two front ends, one spec
+
+This repo ships the same board in two forms: the Claude Code plugin (`agents/`, `skills/`, `scripts/`, `templates/`) and a single-file browser app, `app/strategy-boardroom.html`, which runs as a Claude artifact. Both are built from `spec/`:
+
+| In `spec/` | What it controls |
+| --- | --- |
+| `directors/<slug>.md` | The default directors: persona text, monogram, colors, PESTLE focus, opponents |
+| `rules.json` | Seat limits, data budgets, verdict bands, caps, stage lists, pairing weights, word limits |
+| `prompts/<stage>.md` | Every prompt the Counsel and directors receive |
+| `schema.md` | The formats: personas, attachment manifest, votes, scoring, board export |
+
+### How to change the board
+
+1. Edit the file in `spec/`. Don't edit the generated parts: the app's `SPEC:*` blocks, `templates/directors/*/persona.md`, or the text between `<!-- SPEC:… -->` markers in `skills/` and `agents/`.
+2. Regenerate both front ends:
+
+   ```sh
+   python3 scripts/build_app.py
+   python3 scripts/build_plugin.py
+   ```
+
+3. Check that everything agrees: `python3 scripts/check_sync.py`, or `scripts/check_all.sh` to also run the tests.
+4. Commit the spec change together with the regenerated files.
+
+To have git refuse stale commits, install the hook: `cp scripts/hooks/pre-commit.sample .git/hooks/pre-commit && chmod +x .git/hooks/pre-commit`.
+
 ## Cost
 
 A standard session with seven directors runs about 30 sub-agent turns, counting research and the Counsel. A deep session runs about 45. Each extra director adds about four turns. All of it counts against your Claude plan's usage.

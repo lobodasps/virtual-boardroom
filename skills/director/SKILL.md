@@ -7,7 +7,8 @@ argument-hint: "[list | add <description> | edit <director> | attach <director> 
 # Manage the board's directors
 
 Directors live in `boardroom/directors/<id>/`:
-- `persona.md` has YAML frontmatter (`id`, `title`, `mono`, `seated_by_default`, `pestle`) and five sections: `## Lens`, `## Mandate`, `## Always presses on`, `## Red line` and `## Voice`.
+- `persona.md` has YAML frontmatter (`id`, `title`, `mono`, `color`, `seated_by_default`, `pestle`, `opponents`) and these sections: `## Lens`, `## Mandate`, `## Always presses on` (bulleted, one or more), `## Red line`, `## Thresholds`, `## Blind spots` and `## Voice`. The full format is in `${CLAUDE_PLUGIN_ROOT}/spec/schema.md`. Every field after `## Voice` in that list is optional.
+- The folder name is for people; the frontmatter `id` is what sessions, votes and weights use. Never change an existing director's `id`.
 - `data/` holds material private to that director.
 - `data/shared/` holds material the whole board sees.
 
@@ -17,10 +18,18 @@ If `boardroom/directors/` is missing, run the setup skill first (`${CLAUDE_PLUGI
 Show a table of every director: title, monogram, seated by default, number of private files, number of shared files, and lens.
 
 ## add
-1. If the user gave a description, for example "a former hospital CFO who obsesses over reimbursement risk", draft a persona from it.
-   - The director must be a composite archetype, never a real or named person.
-   - Read the existing personas and make sure the new director holds a distinct view that will clash with at least one of them.
-2. Choose a monogram of 1 to 3 capital letters that no other director uses (SC is reserved for the Strategy Counsel). Choose a kebab-case `id`.
+1. If the user gave a description, for example "a former hospital CFO who obsesses over reimbursement risk", draft a persona from it with this prompt (generated from `spec/prompts/draft-director.md`):
+
+<!-- SPEC:draft-director quote -->
+> You design voting directors for a company's AI advisory board. Each director is a composite archetype, never a real or named person.
+> The chair wants a new director described as: <the user's description>
+> Existing directors (the new one must hold a distinct view that will clash with at least one of them):
+> <each existing director's title and lens, one per line>
+> Reply with only JSON: {"title":"<role title, 2-5 words>","lens":"<one-sentence motto in the first person plural>","mandate":"<2 sentences: what this director pushes the company toward>","presses":"<the question they always ask>","redLine":"<what they will never accept>","tone":"<voice, a few adjectives>","pestle":["<1-2 of: Political, Economic, Social, Technological, Legal, Environmental>"]}
+<!-- /SPEC:draft-director -->
+
+   The director must be a composite archetype, never a real or named person, and must clash with at least one existing director.
+2. Choose a monogram of 1 to 3 capital letters that no other director uses (SC is reserved for the Strategy Counsel). Choose a short lowercase `id` that no other director uses, and a kebab-case folder name.
 3. Show the draft and ask the user to confirm or edit it. Then write `persona.md`, and create `data/` and `data/shared/`.
 
 ## edit

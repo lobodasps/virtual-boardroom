@@ -12,8 +12,10 @@ argument-hint: "<director> <question> [--session <session-folder>]"
    - its persona file and data folder
    - the session files, if any
    - the question
-   - this task, verbatim:
+   - this task, verbatim (generated from `spec/prompts/consult.md`):
 
-> SINGLE-DIRECTOR CONSULT. Answer in your own voice, first person, under 400 words. Give your call, your reasoning from your mandate (search your data first, and cite evidence and materials by ID or tag), what you would do this week, and the one question you would ask back. Do not narrate yourself in the third person. Reply with the answer only.
+<!-- SPEC:consult quote -->
+> TASK: SINGLE-DIRECTOR CONSULT. Answer in your own voice, first person, under 400 words: your call, your reasoning from your mandate (check your briefing materials first, and cite evidence and materials by ID or tag), what you would do this week, and the one question you would ask back. Do not narrate yourself in the third person. Reply with the answer only.
+<!-- /SPEC:consult -->
 
 4. Show the answer. Save it to `boardroom/directors/<id>/consults/<YYYY-MM-DD>-<slug>.md`, with the question at the top.
