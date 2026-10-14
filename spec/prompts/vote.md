@@ -5,11 +5,13 @@ Also score EVERY option, including Hold:
 - pillar_scores: 0-10, the option judged only on your own mandate.
 - ruin_risk: "none", "possible" or "likely". This means an irreversible downside that could sink the company if it pursued that option.
 - door: "one-way" (hard to reverse) or "two-way" (easy to reverse).
+- red_line: "clear", "at_risk" or "breached", judged strictly against your own red line and thresholds, not the board's mood. "breached" means pursuing that option as proposed crosses your red line; "at_risk" means it will unless a specific condition holds.
 Reply with only JSON:
-{"choice":"<exact option name or Hold>","scores":{{{scores_schema}}},"pillar_scores":{{{scores_schema}}},"ruin_risk":{{{ruin_schema}}},"door":{{{door_schema}}},"support":"strong|conditional","ranking":["<options best to worst>"],"conditions":["<what your vote depends on, max 3>"],"flip_if":"<the one finding that would flip your vote>","confidence":<0-100>,"rationale":"<2-3 sentences in your voice, citing [F#] or material tags for facts>","changed_from_opening":true|false,"change_reason":"<why, or empty>"}
+{"choice":"<exact option name or Hold>","scores":{{{scores_schema}}},"pillar_scores":{{{scores_schema}}},"ruin_risk":{{{ruin_schema}}},"door":{{{door_schema}}},"red_line":{{{red_schema}}},"support":"strong|conditional","ranking":["<options best to worst>"],"conditions":["<what your vote depends on, max 3>"],"flip_if":"<the one finding that would flip your vote>","confidence":<0-100>,"rationale":"<2-3 sentences in your voice, citing [F#] or material tags for facts>","changed_from_opening":true|false,"change_reason":"<why, or empty>"}
 <!-- plugin-defaults
 options_list: every approved market by its exact name, "Hold"
 scores_schema: "<option>":<0-10>, for every option and Hold
 ruin_schema: "<option>":"none|possible|likely", for every option and Hold
 door_schema: "<option>":"one-way|two-way", for every option and Hold
+red_schema: "<option>":"clear|at_risk|breached", for every option and Hold
 -->

@@ -196,8 +196,9 @@ Give each director the opponent with the highest score, and let nobody be challe
 > - pillar_scores: 0-10, the option judged only on your own mandate.
 > - ruin_risk: "none", "possible" or "likely". This means an irreversible downside that could sink the company if it pursued that option.
 > - door: "one-way" (hard to reverse) or "two-way" (easy to reverse).
+> - red_line: "clear", "at_risk" or "breached", judged strictly against your own red line and thresholds, not the board's mood. "breached" means pursuing that option as proposed crosses your red line; "at_risk" means it will unless a specific condition holds.
 > Reply with only JSON:
-> {"choice":"<exact option name or Hold>","scores":{"<option>":<0-10>, for every option and Hold},"pillar_scores":{"<option>":<0-10>, for every option and Hold},"ruin_risk":{"<option>":"none|possible|likely", for every option and Hold},"door":{"<option>":"one-way|two-way", for every option and Hold},"support":"strong|conditional","ranking":["<options best to worst>"],"conditions":["<what your vote depends on, max 3>"],"flip_if":"<the one finding that would flip your vote>","confidence":<0-100>,"rationale":"<2-3 sentences in your voice, citing [F#] or material tags for facts>","changed_from_opening":true|false,"change_reason":"<why, or empty>"}
+> {"choice":"<exact option name or Hold>","scores":{"<option>":<0-10>, for every option and Hold},"pillar_scores":{"<option>":<0-10>, for every option and Hold},"ruin_risk":{"<option>":"none|possible|likely", for every option and Hold},"door":{"<option>":"one-way|two-way", for every option and Hold},"red_line":{"<option>":"clear|at_risk|breached", for every option and Hold},"support":"strong|conditional","ranking":["<options best to worst>"],"conditions":["<what your vote depends on, max 3>"],"flip_if":"<the one finding that would flip your vote>","confidence":<0-100>,"rationale":"<2-3 sentences in your voice, citing [F#] or material tags for facts>","changed_from_opening":true|false,"change_reason":"<why, or empty>"}
 <!-- /SPEC:vote -->
 
 Write `votes.json` as `{votes:[{director, title, ...vote}], tally:{counts:{option:n}, leader, tie, cast, strong, avg_confidence}}`.
@@ -206,6 +207,7 @@ Then run `python3 "${CLAUDE_PLUGIN_ROOT}/scripts/score.py" <session>`. Never do 
 - **Weighted option scores:** weight × score, divided by the total weight.
 - **The recommended option and verdict band:** GO, GO WITH CONDITIONS, RESHAPE or DON'T DO IT by `verdict.bands`. Hold on top gives HOLD.
 - **The ruin cap:** any director at "likely" ruin on the recommendation caps the verdict at RESHAPE until those directors endorse a mitigation.
+- **The red-line caps:** any director who says the recommendation `breached` their red line caps the verdict at RESHAPE until every such director endorses or amends the ratified resolution; any `at_risk` caps it at GO WITH CONDITIONS. The script reports `redBreached` and `redAtRisk`.
 - **The one-way-door cap:** if a majority call the recommendation one-way and the scores spread `min_spread` or more points, the verdict is capped at GO WITH CONDITIONS.
 - **Spread, council confidence and weak pillars:** a weak pillar is a director scoring the recommendation `weak_pillar_max` or below on their own mandate.
 
@@ -214,10 +216,10 @@ The script stores all of this in `votes.json` under `scoring`. The first choices
 **draft (if ratifying).** `strategy-counsel` reads the transcript, `votes.json` (including `scoring`) and `evidence.md`. Task:
 
 <!-- SPEC:draft quote -->
-> TASK: DRAFT RESOLUTION for the board to ratify. Recommend the option with the highest weighted score (the "rec" in votes.json scoring) and state the verdict label (the "label" in votes.json scoring). In 200 words or fewer: the recommendation; the conditions directors asked for (merge duplicates, make each checkable with a number, a date or a test result; where directors differ, pick one and say whose); next steps with dates; the cheapest test; kill criteria; and a mitigation for every ruin flag. Weigh arguments, not headcount: one director with a decisive fact beats three with opinions.
+> TASK: DRAFT RESOLUTION for the board to ratify. Recommend the option with the highest weighted score (the "rec" in votes.json scoring) and state the verdict label (the "label" in votes.json scoring). In 200 words or fewer: the recommendation; the conditions directors asked for (merge duplicates, make each checkable with a number, a date or a test result; where directors differ, pick one and say whose); next steps with dates; the cheapest test; kill criteria; a mitigation for every ruin flag; and a mitigation for every red-line flag ("at_risk" or "breached") on the recommendation, answering that director's red line in their own terms. Weigh arguments, not headcount: one director with a decisive fact beats three with opinions.
 > Follow the evidence discipline in your agent instructions.
 > After the draft, on a new line write exactly <<<META and then one JSON object:
-> {"recommendation":"<option>","label":"<verdict label>","conditions":["..."],"next_steps":["..."],"cheapest_test":"...","kill_criteria":"...","mitigations":[{"for":"<director id>","mitigation":"..."}]}
+> {"recommendation":"<option>","label":"<verdict label>","conditions":["..."],"next_steps":["..."],"cheapest_test":"...","kill_criteria":"...","mitigations":[{"for":"<director id>","flag":"ruin|red_line","mitigation":"..."}]}
 <!-- /SPEC:draft -->
 
 Write the remarks and META to `draft-resolution.md`.
@@ -225,7 +227,7 @@ Write the remarks and META to `draft-resolution.md`.
 **ratify (sealed, if ratifying).** Launch every seated director in **one message**. Each one reads `draft-resolution.md` and its own vote.
 
 <!-- SPEC:ratify quote -->
-> TASK: RATIFY THE DRAFT RESOLUTION. Sealed: you cannot see other directors' ratification votes. Endorse it, endorse with one amendment, or dissent. If you flagged ruin risk, endorse only if the mitigation answers it.
+> TASK: RATIFY THE DRAFT RESOLUTION. Sealed: you cannot see other directors' ratification votes. Endorse it, endorse with one amendment, or dissent. If you flagged ruin risk, or a red line at risk or breached, on the recommended option, endorse only if the mitigation answers it.
 > Reply with only JSON: {"vote":"endorse|amend|dissent","final_score":<0-10, your support for the resolution as written>,"amendment":"<what to change, or why you dissent; empty if you endorse>","one_line":"<the one thing from your mandate the chair must not forget>"}
 <!-- /SPEC:ratify -->
 
@@ -234,14 +236,14 @@ Write `ratify.json` as `{votes:[{director, ...}]}`, then rerun `score.py`. Ratif
 **synthesis.** `strategy-counsel` reads the transcript, `votes.json` (including `scoring`), `evidence.md`, and `draft-resolution.md` and `ratify.json` if they exist. Task:
 
 <!-- SPEC:synthesis quote -->
-> TASK: FACILITATED SYNTHESIS. You do not vote. Produce the record of decision from the transcript, roll call and weighted scores. The resolution must state the computed verdict label, the recommended option and any caps applied, and must reflect the vote as cast, including its strength, spread, any tie and any split between first choices and weighted scores. Record every dissent fairly. Name a fix for every weak pillar. If ratification ran, record each amendment as adopted or not, with the reason: adopt an amendment when no director objected or the argument for it went unanswered. Challenge the evidence base: say which decisive claims rest on thin or missing evidence.
+> TASK: FACILITATED SYNTHESIS. You do not vote. Produce the record of decision from the transcript, roll call and weighted scores. The resolution must state the computed verdict label, the recommended option and any caps applied, and must reflect the vote as cast, including its strength, spread, any tie and any split between first choices and weighted scores. Record every dissent fairly. List every red-line flag on the recommended option and say how the resolution answers it, or that it does not. Name a fix for every weak pillar. If ratification ran, record each amendment as adopted or not, with the reason: adopt an amendment when no director objected or the argument for it went unanswered. Challenge the evidence base: say which decisive claims rest on thin or missing evidence.
 > Follow the evidence discipline in your agent instructions.
 > Reply with only JSON:
-> {"resolution":"<one-sentence board resolution reflecting the actual vote>","summary":"<3-4 sentences: what was decided and why>","agreements":["<points nearly all directors accepted>"],"dissents":[{"director":"<id>","point":"<their dissent, one sentence>"}],"key_assumptions":[{"assumption":"...","held_by":["<ids>"],"test":"<how to verify, and by when>"}],"risks":[{"risk":"...","severity":"high|medium|low","mitigation":"..."}],"evidence_gaps":["<decisive questions the evidence did not answer>"],"paths":[{"name":"<short name>","backers":["<ids>"],"thesis":"<one sentence>","first_moves":["<first 90-day moves, max 3>"],"kill_criteria":"<what would make the company stop>"}],"pillar_fixes":[{"director":"<id>","fix":"<named fix for a pillar scored 4 or below>"}],"amendments":[{"director":"<id>","amendment":"...","adopted":true,"reason":"..."}],"open_questions":["..."]}
+> {"resolution":"<one-sentence board resolution reflecting the actual vote>","summary":"<3-4 sentences: what was decided and why>","agreements":["<points nearly all directors accepted>"],"dissents":[{"director":"<id>","point":"<their dissent, one sentence>"}],"key_assumptions":[{"assumption":"...","held_by":["<ids>"],"test":"<how to verify, and by when>"}],"risks":[{"risk":"...","severity":"high|medium|low","mitigation":"..."}],"evidence_gaps":["<decisive questions the evidence did not answer>"],"paths":[{"name":"<short name>","backers":["<ids>"],"thesis":"<one sentence>","first_moves":["<first 90-day moves, max 3>"],"kill_criteria":"<what would make the company stop>"}],"red_lines":[{"director":"<id>","status":"at_risk|breached","response":"<how the resolution answers it, or 'unanswered'>"}],"pillar_fixes":[{"director":"<id>","fix":"<named fix for a pillar scored 4 or below>"}],"amendments":[{"director":"<id>","amendment":"...","adopted":true,"reason":"..."}],"open_questions":["..."]}
 > Give 2-3 paths that represent the genuinely conflicting directions, not variations of one.
 <!-- /SPEC:synthesis -->
 
-Write `decision.json` and a readable `decision.md`.
+Write `decision.json` and a readable `decision.md`. `decision.md` must show the verdict with its caps and list every red-line flag on the recommendation (from `scoring.redBreached`/`redAtRisk` and `decision.json` → `red_lines`) with its response.
 
 ## 5. Report
 

@@ -96,6 +96,12 @@ def tally_bar(t):
     if not counts: return ""
     return '<div class="bar ui">' + "".join(f'<div style="flex:{v}" title="{esc(k)}">{esc(k)} · {v}</div>' for k, v in counts.items()) + "</div>"
 
+def red_flags(sc, names):
+    rb, ra = sc.get("redBreached") or [], sc.get("redAtRisk") or []
+    if not rb and not ra: return ""
+    who = [f"{esc(names.get(d, d))} (breached)" for d in rb] + [f"{esc(names.get(d, d))} (at risk)" for d in ra]
+    return f'<p class="ui">Red lines on {esc(sc.get("rec"))}: ' + ", ".join(who) + "</p>"
+
 def render_session(folder):
     s = load(os.path.join(folder, "session.json"), {}) or {}
     ev = load(os.path.join(folder, "evidence.json"), {}) or {}
@@ -114,7 +120,7 @@ def render_session(folder):
                     + (f' · support for the resolution {esc(sc.get("support"))}/10' if sc.get("support") is not None else "") + "</p>"
                     + "".join(f'<span class="tag flag">{esc(c)}</span>' for c in sc.get("caps", []))
                     + "<table><tr><th>Option</th><th>Score</th><th>Math</th></tr>" + "".join(f"<tr><td>{esc(k)}</td><td>{esc(sc['options'][k]['score'])}</td><td>{esc(sc['options'][k]['math'])}</td></tr>" for k in sc.get("ranked", []))
-                    + "</table>" + (f'<p class="ui">Weak pillars on the recommendation: {esc(", ".join(names.get(d, d) for d in sc.get("weak", [])))}</p>' if sc.get("weak") else "") + "</div>")
+                    + "</table>" + red_flags(sc, names) + (f'<p class="ui">Weak pillars on the recommendation: {esc(", ".join(names.get(d, d) for d in sc.get("weak", [])))}</p>' if sc.get("weak") else "") + "</div>")
     if dec:
         body.append('<h2>Record of decision</h2>')
         body.append(f'<div class="resolution">{inline(dec.get("resolution",""), facts)}</div><p>{inline(dec.get("summary",""), facts)}</p>')
@@ -127,13 +133,16 @@ def render_session(folder):
             body.append(f'<div class="panel"><h3>{esc(p.get("name"))}</h3><p>{inline(p.get("thesis",""), facts)}</p><ul>' + "".join(f"<li>{inline(x, facts)}</li>" for x in p.get("first_moves", [])) + f'</ul><p class="ui"><b>Kill criteria:</b> {inline(p.get("kill_criteria",""), facts)}</p></div>')
         body.append("</div><h2>Key assumptions and risks</h2><div class='scroll'><table><tr><th>Assumption</th><th>How to test</th></tr>" + "".join(f"<tr><td>{inline(a.get('assumption',''), facts)}</td><td>{inline(a.get('test',''), facts)}</td></tr>" for a in dec.get("key_assumptions", [])) + "</table></div>")
         body.append("<div class='scroll'><table><tr><th>Risk</th><th>Severity</th><th>Mitigation</th></tr>" + "".join(f"<tr><td>{inline(r.get('risk',''), facts)}</td><td>{esc(r.get('severity'))}</td><td>{inline(r.get('mitigation',''), facts)}</td></tr>" for r in dec.get("risks", [])) + "</table></div>")
+        if dec.get("red_lines"): body.append('<div class="panel"><h3>Red lines on the recommendation</h3><ul>' + "".join(f"<li><b>{esc(names.get(x.get('director'), x.get('director')))}</b> <span class=\"tag flag\">{esc(str(x.get('status','')).replace('_',' '))}</span> {inline(x.get('response',''), facts)}</li>" for x in dec["red_lines"]) + "</ul></div>")
         if dec.get("pillar_fixes"): body.append('<div class="panel"><h3>Fixes for weak pillars</h3><ul>' + "".join(f"<li><b>{esc(names.get(x.get('director'), x.get('director')))}:</b> {inline(x.get('fix',''), facts)}</li>" for x in dec["pillar_fixes"]) + "</ul></div>")
         if dec.get("amendments"): body.append('<div class="panel"><h3>Amendments</h3><ul>' + "".join(f"<li><b>{esc(names.get(x.get('director'), x.get('director')))}</b> ({'adopted' if x.get('adopted') else 'not adopted'}): {inline(x.get('amendment',''), facts)}</li>" for x in dec["amendments"]) + "</ul></div>")
         if dec.get("evidence_gaps"): body.append('<div class="panel"><h3>Evidence gaps the decision rests on</h3><ul>' + "".join(f"<li>{inline(x, facts)}</li>" for x in dec["evidence_gaps"]) + "</ul></div>")
     if votes.get("votes"):
-        body.append("<h2>Roll call</h2><div class='scroll'><table><tr><th>Director</th><th>Choice</th><th>Support</th><th>Confidence</th><th>Rationale</th><th>Flips if</th></tr>")
+        body.append("<h2>Roll call</h2><div class='scroll'><table><tr><th>Director</th><th>Choice</th><th>Support</th><th>Confidence</th><th>Red-line flags</th><th>Rationale</th><th>Flips if</th></tr>")
         for v in votes["votes"]:
-            body.append(f"<tr><td>{esc(v.get('title') or v.get('director'))}</td><td><b>{esc(v.get('choice'))}</b></td><td>{esc(v.get('support'))}</td><td>{esc(v.get('confidence'))}</td><td>{inline(v.get('rationale',''), facts)}</td><td>{inline(v.get('flip_if',''), facts)}</td></tr>")
+            flags = [f"{k}: {str(x).replace('_', ' ')}" for k, x in (v.get("red_line") or {}).items() if re.sub(r"[\s-]+", "_", str(x).strip().lower()) in ("at_risk", "breached")]
+            flag_html = "".join('<span class="tag flag">' + esc(x) + "</span> " for x in flags) or "clear"
+            body.append(f"<tr><td>{esc(v.get('title') or v.get('director'))}</td><td><b>{esc(v.get('choice'))}</b></td><td>{esc(v.get('support'))}</td><td>{esc(v.get('confidence'))}</td><td>{flag_html}</td><td>{inline(v.get('rationale',''), facts)}</td><td>{inline(v.get('flip_if',''), facts)}</td></tr>")
         body.append("</table></div>")
     body.append("<h2>Transcript</h2>"); last = None
     for t in turns:

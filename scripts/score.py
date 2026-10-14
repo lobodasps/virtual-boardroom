@@ -4,18 +4,21 @@
 Usage: score.py <session-folder>
 
 Reads  votes.json        {"votes":[{"director","title","choice","confidence","scores":{opt:n},"pillar_scores":{opt:n},
-                                    "ruin_risk":{opt:"none|possible|likely"},"door":{opt:"one-way|two-way"}, ...}]}
+                                    "ruin_risk":{opt:"none|possible|likely"},"door":{opt:"one-way|two-way"},
+                                    "red_line":{opt:"clear|at_risk|breached"}, ...}]}
        calibration.json  {"weights":{"<director id>":{"w":n,"why":"..."}}}   (optional; default weight from the rules)
        ratify.json       {"votes":[{"director","vote":"endorse|amend|dissent","final_score":n}]}  (optional)
 Writes votes.json["scoring"] and prints a summary. Standard library only.
 
 Every threshold comes from spec/rules.json (found next to this script, or under $CLAUDE_PLUGIN_ROOT/spec):
   option score = sum(weight x score) / sum(weight), one decimal with halves rounding up; recommended = highest.
-  verdict bands, the ruin cap, the one-way-door cap, council confidence and weak pillars as configured there.
+  verdict bands, the ruin cap, the red-line caps (any "breached" on the recommendation caps at RESHAPE unless
+  ratification lifts it; any "at_risk" caps at GO WITH CONDITIONS), the one-way-door cap, council confidence and
+  weak pillars as configured there.
 Director ids are normalized through rules["legacy_ids"], so sessions from v1.1 workspaces still score.
 This mirrors scoreVotes() in app/strategy-boardroom.html; tests/ check that both give the same result.
 """
-import json, math, os, sys
+import json, math, os, re, sys
 sys.path.insert(0, os.path.dirname(os.path.abspath(__file__)))
 import spec
 
@@ -77,10 +80,19 @@ def score_votes(votes, weights, rat, R, all_ids=None):
     def flagged(field, val): return [x["id"] for x in V if str((x["v"].get(field) or {}).get(rec, "") or "").lower() == val]
     def ratified(ids): return bool(rat) and all(i in rat and str(rat[i].get("vote", "")).lower() in C["ratify_lifting_votes"] for i in ids)
     names = lambda ids: ", ".join(title(i) for i in ids)
+    norm = lambda x: re.sub(r"[\s-]+", "_", str(x if x is not None else "").strip().lower())
+    def red_on(val): return [x["id"] for x in V if norm((x["v"].get("red_line") or {}).get(rec)) == val]
     ruin = flagged("ruin_risk", C["ruin"]["flag"])
     if ruin and not hold:
         if C["ruin"]["lift_by_ratification"] and ratified(ruin): note("ruin_lifted", f"Ruin cap lifted: {names(ruin)} endorsed the resolution's mitigation")
         else: cap_to(C["ruin"]["cap"], "ruin", f'Ruin cap: {names(ruin)} flagged likely ruin on "{rec}"')
+    red_breached, red_at_risk = red_on(C["red_line_breached"]["flag"]), red_on(C["red_line_at_risk"]["flag"])
+    if red_breached and not hold:
+        if C["red_line_breached"]["lift_by_ratification"] and ratified(red_breached): note("red_breached_lifted", f"Red-line cap lifted: {names(red_breached)} endorsed the resolution's mitigation")
+        else: cap_to(C["red_line_breached"]["cap"], "red_breached", f'Red line breached: {names(red_breached)} say "{rec}" crosses their red line')
+    if red_at_risk and not hold:
+        if C["red_line_at_risk"]["lift_by_ratification"] and ratified(red_at_risk): note("red_at_risk_lifted", f"Red-line cap lifted: {names(red_at_risk)} endorsed the resolution's mitigation")
+        else: cap_to(C["red_line_at_risk"]["cap"], "red_at_risk", f'Red line at risk: {names(red_at_risk)} say "{rec}" puts their red line at risk')
     oneway = len(flagged("door", C["one_way_door"]["flag"]))
     if not hold and oneway > 0 and (not C["one_way_door"]["needs_majority"] or oneway > len(V) / 2) and spread >= C["one_way_door"]["min_spread"]:
         cap_to(C["one_way_door"]["cap"], "one_way_door", f'One-way door: {oneway} of {len(V)} directors call "{rec}" hard to reverse and scores spread {g(spread)} points')
@@ -99,7 +111,7 @@ def score_votes(votes, weights, rat, R, all_ids=None):
             if fin(f): n += W(i) * f; d += W(i)
         support = spec.round1(n / d) if d else None
     return {"options": options, "ranked": ranked, "rec": rec, "score": score, "label": label, "caps": caps, "cap_codes": codes,
-            "spread": spread, "confidence": confidence, "ruin": ruin, "pillars": pillars,
+            "spread": spread, "confidence": confidence, "ruin": ruin, "redBreached": red_breached, "redAtRisk": red_at_risk, "pillars": pillars,
             "weak": [i for i, p in pillars.items() if p <= R["weak_pillar_max"]],
             "weights": {i: W(i) for i in (all_ids or [x["id"] for x in V])}, "support": support}
 
@@ -118,6 +130,8 @@ def score(folder):
           + (f", support for the resolution {g(out['support'])}/10" if out["support"] is not None else ""))
     for k in out["ranked"]: print(f"  {k}: {out['options'][k]['math']} = {g(out['options'][k]['score'])}")
     for c in out["caps"]: print(f"  * {c}")
+    if out["redBreached"] or out["redAtRisk"]:
+        print(f"  Red lines on '{out['rec']}': breached by {', '.join(out['redBreached']) or 'none'}; at risk for {', '.join(out['redAtRisk']) or 'none'}")
     if out["weak"]: print(f"  Weak pillars on the recommendation (<={R['weak_pillar_max']}): {', '.join(out['weak'])}")
     return out
 
