@@ -63,6 +63,7 @@ a{color:var(--accent)}
 .empty-note{color:var(--muted);font-size:13px;padding:8px;border:1px dashed var(--line);border-radius:var(--r)}
 
 /* Main */
+#banner .notice{margin:16px clamp(16px,4vw,48px) 0;max-width:1084px}
 .main{padding-block:24px 64px;padding-inline:clamp(16px,4vw,48px);min-width:0;max-width:1180px}
 .eyebrow{font-family:var(--f-mono);font-size:11px;letter-spacing:.06em;text-transform:uppercase;color:var(--muted)}
 h1{font-stretch:85%;font-weight:750;font-size:clamp(24px,3.2vw,34px);line-height:1.1;margin:6px 0 8px;text-wrap:balance}
@@ -265,7 +266,7 @@ a.aref{font-family:var(--f-mono);font-size:.78em;text-decoration:none;padding:0 
     <div class="hist" id="hist"></div>
     <div id="railnote" class="muted" style="font-size:12px;margin-top:auto"></div>
   </aside>
-  <main class="main" id="main"></main>
+  <div style="min-width:0"><div id="banner" role="status"></div><main class="main" id="main"></main></div>
 </div>
 
 <script>
@@ -1034,6 +1035,7 @@ const av = id => `<div class="av" style="--who:var(${byId[id]?.color||"--c-couns
 
 function draw(){
   drawRail();
+  setHTML(document.getElementById("banner"), Store.kind==="memory" ? `<div class="notice bad"><b>Saving is unavailable.</b> Directors, data and sessions will be lost when this page reloads.</div>` : "");
   const main=document.getElementById("main");
   const vk=state.view+"|"+(state.sid||state.dirId||"");
   if(main.dataset.view!==vk){ main.dataset.view=vk; main.innerHTML=""; main._h=null; }
