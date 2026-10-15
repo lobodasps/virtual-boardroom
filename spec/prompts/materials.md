@@ -16,4 +16,4 @@ SHARED BOARD MATERIALS (supplied by the chair; cite by tag):
 <!-- part:tool_search -->
 Keyword search over your briefing materials and the board's shared materials. Returns up to 6 matching passages with their tag and part number. Your query is expanded with synonyms automatically (for example margin also finds gross margin, GP% and gross profit), so use specific terms: names, metrics, years, places.
 <!-- part:tool_read -->
-Read one part of a material in full, by its tag (e.g. PW2) and part number from the search results. Parts are about {{CHUNK}} characters.
+Read one part of a material in full, by its tag (e.g. DP2) and part number from the search results. Parts are about {{CHUNK}} characters.

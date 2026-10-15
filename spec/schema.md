@@ -64,7 +64,7 @@ Scores round to one decimal, with halves rounding up: `floor(x * 10 + 0.5) / 10`
 A JSON list with one entry per material, private or shared:
 
 ```json
-[{"tag": "PW1", "file": "utilization-2025.csv", "name": "2025 utilization by service line",
+[{"tag": "DP1", "file": "utilization-2025.csv", "name": "2025 utilization by service line",
   "chars": 18234, "shared": false, "pinned": true, "as_of": "2025-12", "added_at": "2026-10-14T15:51:00Z"}]
 ```
 
@@ -85,7 +85,7 @@ The app stores the same fields on each material document (`tag, name, kind, char
 
 **Summary cards** (`rules.json` → `cards`, `spec/prompts/summary-card.md`). A card is offered for every material longer than `cards.max_chars`, or on request. It is drafted from the first `cards.source_chars` characters plus the headings found in the rest, then shown for editing. A card normally passes the check: `min_chars`–`max_chars` long, with every section in `cards.sections`. **Save anyway** keeps a failing card, and the app records the issues as `cardWarnings`. **Card from the whole file** is an option for materials over `source_chars`: `cardParts` splits the text into parts of at most `source_chars`, ending at a line break within `split_window` when possible. Each part is summarized, then `summary-card-merge.md` merges them. The cost is `cardCalls` = parts + 1 calls, shown before it runs. Its SYNONYMS line (groups split by `;`, terms by `,`) feeds query expansion. `cardSource`/`validateCard`/`parseSynonyms` in the app's `SPEC:CARDS` block and `card_source`/`validate_card`/`parse_synonyms` in `scripts/materials.py` must agree (`tests/test_cards.*`).
 
-**Citations** are `[MONO#]`, e.g. `[PW2]`, plus `[F#]` for the evidence register. `classifyCite` (app, `SPEC:CITE`) and `materials.classify_cite` decide: a real tag or `F#` is a citation; `<MONO><n>` of a current or former monogram with no such item is an unknown citation; anything else is plain text (`tests/test_monogram.*`). A token counts as a citation only if it is `F<digits>` or a tag in the manifest (the app's `attIndex`). `[CO2]`, `[I95]` and `[NJ1]` are not citations. Legacy plugin citations `[MONO:filename]` resolve through the manifest's `file` field.
+**Citations** are `[MONO#]`, e.g. `[DP2]`, plus `[F#]` for the evidence register. `classifyCite` (app, `SPEC:CITE`) and `materials.classify_cite` decide: a real tag or `F#` is a citation; `<MONO><n>` of a current or former monogram with no such item is an unknown citation; anything else is plain text (`tests/test_monogram.*`). A token counts as a citation only if it is `F<digits>` or a tag in the manifest (the app's `attIndex`). `[CO2]`, `[I95]` and `[NJ1]` are not citations. Legacy plugin citations `[MONO:filename]` resolve through the manifest's `file` field.
 
 **Budgets:**
 
@@ -138,7 +138,7 @@ The app's shape is the `pack` part of `research.md`: `researchedAt, researchedBy
 ## Vote (one entry in `votes.json` → `votes[]`, or the app's `vote__<id>` turn `meta`)
 
 ```json
-{"director": "hawk", "title": "Risk & Regulatory Hawk",
+{"director": "hawk", "title": "Chief Risk Counsel",
  "choice": "<exact option or Hold>",
  "scores": {"<option>": 0-10, "Hold": 0-10},
  "pillar_scores": {"<option>": 0-10},

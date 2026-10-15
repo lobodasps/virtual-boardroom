@@ -2,6 +2,12 @@
 
 Changes to the Virtual Boardroom: the Claude Code plugin and the Strategy Boardroom browser app.
 
+## 1.3.1
+
+- **Two directors renamed.** The Risk & Regulatory Hawk is now the **Chief Risk Counsel** (monogram CR), and the Lean Operator / Profit Warden is now the **Delivery & Profit Lead** (monogram DP). Their roles are unchanged. Data tagged with the old RH and PW monograms keeps its tags and keeps working as citations.
+- **New specification.** `doc/specifications.md` explains how a session works from start to finish.
+- **Corrected "How it works" page.** The app's guide now describes the full research request, the usage estimate and how the verdict is decided.
+
 ## 1.3.0
 
 ### Printing and reports

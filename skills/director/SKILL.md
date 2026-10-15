@@ -11,7 +11,7 @@ Directors live in `boardroom/directors/<id>/`:
 - The folder name is for people; the frontmatter `id` is what sessions, votes and weights use. Never change an existing director's `id`.
 - `data/` holds material private to that director.
 - `data/shared/` holds material the whole board sees.
-- `data/index.json` is the manifest: one entry per item with its citation tag (`[MONO#]`, e.g. `[PW2]`), file, name, size, `shared`, `pinned` and `as_of`. Manage it with `python3 "${CLAUDE_PLUGIN_ROOT}/scripts/materials.py"`; never renumber tags by hand. If a director has files but no `index.json` (a v1.1 workspace), run `materials.py index <director-folder>` once to create it.
+- `data/index.json` is the manifest: one entry per item with its citation tag (`[MONO#]`, e.g. `[DP2]`), file, name, size, `shared`, `pinned` and `as_of`. Manage it with `python3 "${CLAUDE_PLUGIN_ROOT}/scripts/materials.py"`; never renumber tags by hand. If a director has files but no `index.json` (a v1.1 workspace), run `materials.py index <director-folder>` once to create it.
 
 If `boardroom/directors/` is missing, run the setup skill first (`${CLAUDE_PLUGIN_ROOT}/skills/setup/SKILL.md`).
 

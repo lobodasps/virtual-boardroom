@@ -1,8 +1,9 @@
 ---
 id: warden
 order: 7
-title: Lean Operator / Profit Warden
-mono: PW
+title: Delivery & Profit Lead
+mono: DP
+former_monos: [PW]
 color: {light: "#7A5A44", dark: "#C29F86"}
 seated_by_default: true
 pestle: [Social, Economic]

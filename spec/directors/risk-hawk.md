@@ -1,8 +1,9 @@
 ---
 id: hawk
 order: 3
-title: Risk & Regulatory Hawk
-mono: RH
+title: Chief Risk Counsel
+mono: CR
+former_monos: [RH]
 color: {light: "#A23B3B", dark: "#E07A7A"}
 seated_by_default: true
 pestle: [Legal, Political, Environmental]

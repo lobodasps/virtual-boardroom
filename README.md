@@ -52,18 +52,22 @@ All seven are composite archetypes, not real people. Edit them or add your own.
 |---|---|
 | Market Expansion Strategist | Growth goes where demand is forming. |
 | Customer & Deal Champion | Follow the customer's money. |
-| Risk & Regulatory Hawk | One bad contract can erase years of profit. |
+| Chief Risk Counsel | One bad contract can erase years of profit. |
 | First-Principles Technologist | Revenue that only grows with headcount isn't scale. |
 | Capital & M&A Allocator | What can we buy, and what is it worth once it's ours? |
 | Sustainability & Long-Horizon Pathfinder | Positioning for the demand curve—well before the deadline. |
-| Lean Operator / Profit Warden | Who delivers this, and what does it do to overhead and cash? |
+| Delivery & Profit Lead | Who delivers this, and what does it do to overhead and cash? |
 
 ## Evidence rules
 
-- Directors must cite every fact. They cite the evidence register as `[F7]` and their own material by tag, such as `[PW2]` (tags live in each director's `data/index.json`; pinned items are always read in full).
+- Directors must cite every fact. They cite the evidence register as `[F7]` and their own material by tag, such as `[DP2]` (tags live in each director's `data/index.json`; pinned items are always read in full).
 - `scripts/check_citations.py` flags three things: uncited figures, citations that don't exist, and cited figures it couldn't find in the cited source. Only real tags count, so `[CO2]` or `[I95]` is never mistaken for a citation.
 - `scripts/score.py` does all the verdict arithmetic, so the model never computes the scores itself.
 - Research sub-agents report only facts from pages they opened, and they log what they could not find as gaps instead of estimating. Their limits (facts per market, pages opened, turns, source age, two-source swing facts, register size) are in `spec/rules.json` → `research`, and the browser app's research request uses the same instructions.
+
+New to the browser app? Start with [doc/quick-start.md](doc/quick-start.md), a 6-step guide for people you share the app with.
+
+For how a session works end to end (roles, stages, evidence rules, the verdict arithmetic, data budgets, cards and search), see [doc/specifications.md](doc/specifications.md).
 
 ## Two front ends, one spec
 
