@@ -2,7 +2,7 @@
 
 The Strategy Boardroom is an AI advisory board. You bring it a growth question, such as "Which market should we enter first?" Researchers gather sourced facts from the web, then a board of AI directors with different viewpoints debates, votes and gives a verdict. Everything runs in your web browser. There's nothing to install.
 
-**Your link:** [paste the shared link here]
+**Your link:** https://claude.ai/artifact/HPeA7oqbhkyggcn7F7Zwkq
 
 ---
 
