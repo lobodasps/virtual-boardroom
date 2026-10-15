@@ -22,11 +22,11 @@ The Strategy Boardroom is an AI advisory board. You bring it a growth question, 
 
 Open the link in Chrome, Safari or Edge. If asked, sign in to Claude and allow the page to use Claude.
 
-> To see how it works first, click **Load an example** at the top of the first page. It fills in a sample company you can run from start to finish. Click **How it works** on the left for a diagram of the whole process.
+> To see how it works first, click **New dilemma** on the left, then click **Load an example** just above the form. It fills in a sample company you can run from start to finish. Click **How it works** on the left for a diagram of the whole process.
 
 ### 2. Describe your question
 
-Fill in the form on the first page, **Put a growth question to the board**:
+Click **New dilemma** on the left to open the form, **Put a growth question to the board**, and fill it in:
 
 | Field | What to write | Example |
 | --- | --- | --- |
